@@ -1,0 +1,289 @@
+<link href="/web-cb/static/css/core/initiativetab.css" type="text/css" rel="stylesheet" />
+<style type="text/css">
+  .textBusinessMetric{
+    display: table-cell;
+      vertical-align: middle;
+  }
+
+  .checkboxLegend {
+      position: absolute;
+      right: 0;
+      top: 0;
+  }
+
+  /* ROUNDED Checkbox */
+.roundedCheckbox label {
+  cursor: pointer;
+  position: absolute;
+  width: 15px;
+  height: 15px;
+
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
+  right: 4px;
+  top: 6px;
+
+  -webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+  -moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+  box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+  background: #7FBA00;
+}
+
+.roundedCheckbox label:after {
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  opacity: 0;
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 5px;
+  background: transparent;
+  top: 5px;
+  left: 4px;
+  border: 3px solid #fcfff4;
+  border-top: none;
+  border-right: none;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+.roundedCheckbox label:hover::after {
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+  filter: alpha(opacity=30);
+  opacity: 0.3;
+}
+
+.roundedCheckbox input[type=checkbox]:checked + label:after {
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+ input[type="checkbox" i] {
+    background-color: initial;
+    /*margin: 3px 0.5ex;*/
+    padding: initial;
+    border: initial;
+}
+.complete-line {
+  height: 2px;
+  position: absolute;
+  bottom: 0px;
+  left: 14px;
+  right: 14px;
+}
+.top-left-icon {
+  position: absolute;
+  top: 0px;
+  right: 3px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+.lc-titlewrapper{
+  height: 100%;
+  width: 100%;
+  display: table;
+}
+.lc-title{
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+</style>
+<div class="row">
+  <div id="abalabal"> 
+      <div class="col-sm-2" id="initiativeAllBDF">
+        <button class="btn btn-sm btn-warning" id="selectall-initiative" data-bind="click:c.SelectALLSC">Select All</button>
+      </div>
+      <div class="col-sm-10 no-padding-left">
+        <table class="table intiiative-list" id="crumbs">
+          <thead>
+              <tr data-bind="foreach:c.LifeCycleList">
+                  <th data-bind="visible:$index()===0" class="redips-mark"></th>
+                  <th class="lcHeader" data-bind="attr:{style:'background:'+c.ColorList()[$index()]+';width:'+100/c.LifeCycleList().length+'%'}" >
+                      <span class="spahHeader">
+                          <div class="lc-titlewrapper">
+                            <div class="lc-title" data-bind="text:Name"></div>
+                          </div>
+                          <div class="next-arrow" data-bind="attr:{style:'border-left: 20px solid '+c.ColorList()[$index()]+''}"></div>
+                      </span> 
+                      <div class="sublc-wrapper" data-bind="visible:$index()===0,foreach:SubLC,attr:{style:'background:'+c.ColorList()[$index()]}">
+                        <div class="item">
+                          <div class="arrow" data-bind="visible:$index()>0"></div>
+                          <div class="arrow-bg" data-bind="visible:$index()>0,attr:{'style':'border-left: 13px solid '+c.ColorList()[($parent.Seq-1)]}"></div>
+                          <i  data-bind="text:Name,attr:{title:Name}"></i>
+                        </div>
+                      </div>
+                  </th>
+              </tr>
+
+          </thead>
+        </table>
+      </div>  
+  </div>
+
+  <div class="col-sm-2 no-padding" id="BDFilter">
+    <div class="col-sm-12 pdRight15" data-bind='foreach:Scorecard.Data'>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="iSCCategory" data-bind="visible:c.SelectedSC()!==Idx(),click:c.Get,attr:{'class':'iSCCategory '+Idx()}">
+           <label class = "textBusinessMetric" data-bind="text:Name,attr:{'style':c.SelectedSC()===''?c.GetDefaultSCStyle($data):c.GetSCStyle($data,false)}"></label>
+          </div>
+        </div>
+        <div class="col-sm-12" data-bind="visible:c.SelectedSC()===Idx()">
+            <div class="iSCBDList" data-bind="attr:{'style':c.GetSCStyle($data,true),'class':'iSCBDList '+Idx()}">
+              <label data-bind="text:Name"></label>
+              <div class="list" data-bind="foreach:BusinessDriverList">
+                <div data-bind="attr:{'class':c.GetBDClass($data)}, click:c.SetActiveBDFilter" style="position:relative;">
+                  <label data-bind="text:Name"></label>
+                  <div class="roundedCheckbox">
+                      <input type="checkbox" data-bind="checkedValue:$data.Idx ,checked:c.ActiveBDFilter" class="checkboxLegend" style="visibility:hidden;">
+                      <label for="roundedCheckbox" ></label>
+                  </div>
+           
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader col-sm-10 text-center" data-bind="visible:c.Processing()">
+      <img src="/web-cb/static/img/hex-loader2.gif">
+  </div>
+  <div id="tabelChart" class="col-sm-10" data-bind="with:c.DataSource,attr:{
+  'style':(c.Processing()?'display:none;':'')+
+  (SortInitiative.Active()? 'height:auto;'+Initiative.CalcTableChart():'height:'+(Scorecard.BMTotal()*23.92)+'px;')+
+  'background:#f2f2f2;'
+  }">
+    
+      <div id="redips-drag" data-bind="with:Data">
+        <div class="scrolldiv">
+          <table class="table margin-0 table-scroll" id="crumbs">
+            <thead >
+
+                <tr data-bind="foreach:c.LifeCycleList">
+                    <th class="lcHeader" data-bind="attr:{style:'background:'+c.ColorList()[$index()]+';width:'+100/c.LifeCycleList().length+'%'}">
+                    </th>
+                </tr>
+
+            </thead>
+            <tbody id="tbodyRedips" data-bind="foreach: TableSourcesVer3">
+              <tr data-bind="foreach: TableSourcesVer2, attr:{SCCategory: Id, BDId: BDIdDefault,'style':c.GetSCStyleContent($data,$index())}">
+                <td data-bind="foreach:Initiatives,id:BusinessDriverId(),attr:{LCId: Id(), BDId: $parents[0].Id, ColorCode: c.ColorList()[Idx()]}">
+
+                  <div data-bind="attr:{id: _id(),ondblclick:'Initiative.Get(\''+_id()+'\')', initiativeId: InitiativeID(),BDId: $data.BusinessDriverId,LCId: $data.LifeCycleId, 'class':(c.OwnedData().indexOf(_id()) > -1 ? 'redips-drag ':'redips-nodrag ')+(type()==='CBLED'?'CBLedInitiatives':'')+' '+BusinessDriverImpact(), style:'cursor:pointer;width:'+(c.LCWidth()+15)+'px;height: 48px;font-size: 10px !important;background-color:white !important;border-color:'+c.ColorList()[$parent.Idx()]+';'}">
+
+                    <div class="task-icon" data-bind="visible:IsTask()"><i class="fa fa-thumb-tack"></i></div>
+                    <div class="tulisanmen">
+                      <span data-toggle="tooltip" data-bind="attr:{title : ProjectName()}">
+                        <div data-bind="text: c.shortname(ProjectName(),33)"></div>
+                      </span>
+                    </div> 
+
+                    <div class="initialBusinessImpact initialbiLow" data-bind="visible:BusinessImpact()==='Low'">L</div>
+                    <div class="initialBusinessImpact initialbiMedium"  data-bind="visible:BusinessImpact()==='Medium'">M</div>
+                    <div class="initialBusinessImpact initialbiHigh" data-bind="visible:BusinessImpact()==='High'">H</div>
+                    
+                    <!-- <div data-bind="css:{ (DisplayProgress() == 'amber')? 'ragflagyellow' : (DisplayProgress() == 'green')? 'ragflaggreen' : 'ragflagred'}"><i class="fa fa-flag"></i></div> -->
+                    <div data-bind="visible:c.RagFlagDefined($data) === 'amber', css:{ragflagyellow:true}"><i class="fa fa-flag"></i></div>
+                    <!-- <div data-bind="visible:c.RagFlagDefined($data) === 'green', css:{ragflaggreen:true}"><i class="fa fa-flag"></i></div> -->
+                    <div data-bind="visible:c.RagFlagDefined($data) === 'red', css:{ragflagred:true}"><i class="fa fa-flag"></i></div>
+                    
+                    <div class="exoe">
+                      <div class="logomen" data-bind="visible:EX" ><img src="/web-cb/static/imgg/iLegendEX.png"></div>
+                      <div class="logomen" data-bind="visible:OE" ><img src="/web-cb/static/imgg/OE.png"></div>
+                    </div>
+                    
+                    <div class="top-left-icon" data-bind="visible:!IsTask()&&c.IsComplete($data, 1)">
+                      <i class="fa fa-thumbs-up" style="color: #2890C0;"></i>
+                    </div>
+
+                    <div class="top-left-icon" data-bind="visible:!IsTask()&&c.IsComplete($data, 2)">
+                      <i class="fa fa-thumbs-o-up" style="color: gray;"></i>
+                    </div>
+
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+
+<div class="row" id="iFooter">
+  
+  <div class="12" data-bind="visible:!c.Processing()">
+    <div class="col-sm-10" data-bind="with:c.Filter" id="dashboard-filter">
+      <div data-bind="visible:false,attr:{class:Low()?'redips-drag Primary':'redips-drag Primary inactivefilter'}"  onclick="c.Filter.Low(!c.Filter.Low())" >
+         <input type="checkbox" data-bind="checked: Low()" class="checkboxLegend" />
+         <div class="tulisanmen"  data-bind="attr:{class:Low()? 'bewhite' : 'beblack'}">Low Impact</div>
+         <div class="initialBusinessImpact"  data-bind="attr:{class:Low()? 'bewhite' : 'beblack'}">L</div>
+      </div>
+      <div data-bind="visible:false,attr:{class:Medium()?'redips-drag Primary':'redips-drag Primary inactivefilter'}"  onclick="c.Filter.Medium(!c.Filter.Medium())" >
+         <input type="checkbox" data-bind="checked: Medium()" class="checkboxLegend" />
+         <div class="tulisanmen"  data-bind="attr:{class:Medium()? 'bewhite' : 'beblack'}">Medium Impact</div>
+         <div class="initialBusinessImpact"  data-bind="attr:{class:Medium()? 'bewhite' : 'beblack'}">M</div>
+      </div>
+      <div data-bind="visible:false,attr:{class:Hivisible:false," >
+         <input type="checkbox" data-bind="checked: High()"  class="checkboxLegend" />
+         <div class="tulisanmen"  data-bind="attr:{class:High()? 'bewhite' : 'beblack'}">High Impact</div>
+         <div class="initialBusinessImpact"  data-bind="attr:{class:High()? 'bewhite' : 'beblack'}">H</div>
+      </div>
+        <!-- <div data-bind="attr:{class:Primary()?'redips-drag Primary':'redips-drag Primary inactivefilter'}"  onclick="c.Filter.Primary(!c.Filter.Primary())" >
+           <div class="tulisanmen">Primary Impact on Business Priorities</div>
+        </div>
+        <div data-bind="attr:{class:Secondary()?'redips-drag Secondary':'redips-drag Secondary inactivefilter'}" onclick="c.Filter.Secondary(!c.Filter.Secondary())" >
+           <div class="tulisanmen">Secondary Impact on Business Priorities</div>
+        </div> -->
+        <div data-bind="visible:true,attr:{class:CBLead()?'redips-drag Primary CBLedInitiatives':'redips-drag Primary CBLedInitiatives inactivefilter'}" rmkonclick="c.Filter.CBLead(!c.Filter.CBLead())" >
+           <!-- <div class="ribbon"><span> </span></div> -->
+           <!-- <input type="checkbox" data-bind="checked: CBLead()" class="checkboxLegend" /> -->
+           <div class="tulisanmen"  data-bind="attr:{class:CBLead()? 'bewhite' : 'beblack'}">CB Led Initiatives</div>
+        </div>
+        <div  data-bind="visible:true,attr:{class:BankWide()?'redips-drag Primary':'redips-drag Primary inactivefilter'}" rmkonclick="c.Filter.BankWide(!c.Filter.BankWide())" >
+          <!-- <input type="checkbox" data-bind="checked: BankWide()" class="checkboxLegend" /> -->
+          <div class="tulisanmen" data-bind="attr:{class:BankWide()? 'bewhite' : 'beblack'}">Bank Wide Initiatives</div>
+        </div>
+        <div data-bind="visible:true,attr:{class:Task()?'redips-drag Primary':'redips-drag Primary inactivefilter'}" onclick="c.Filter.Task(!c.Filter.Task())">
+          <div class="task-icon">
+            <i class="fa fa-thumb-tack" aria-hidden="true" data-bind="attr:{class:Task()? 'bewhite fa fa-thumb-tack' : 'beblack fa fa-thumb-tack'}"></i> 
+          </div>
+           <input type="checkbox" data-bind="checked: Task()" class="checkboxLegend" />
+           <div class="tulisanmen" data-bind="attr:{class:Task()? 'bewhite' : 'beblack'}">Task Legend</div>
+        </div>
+        <!-- <div data-bind="visible:true,attr:{class:Task()?'redips-drag Primary':'redips-drag Primary inactivefilter'}" onclick="c.Filter.Investment(!c.Filter.Investment())">
+          <div class="task-icon">
+            <i class="fa fa-thumb-tack" aria-hidden="true" data-bind="attr:{class:Investment()? 'bewhite fa fa-thumb-tack' : 'beblack fa fa-thumb-tack'}"></i> 
+          </div>
+           <input type="checkbox" data-bind="checked: Investment()" class="checkboxLegend" />
+           <div class="tulisanmen" data-bind="attr:{class:Investment()? 'bewhite' : 'beblack'}">Investment</div>
+        </div> -->
+        <div id="legendExellerator" class="legendImage" onclick="c.Filter.IsExellerator(!c.Filter.IsExellerator())">
+          <img data-bind="attr:{src:IsExellerator()?'/web-cb/static/imgg/EX.png':'/web-cb/static/imgg/inactiveEX.png'}">
+        </div>
+        <div id="legendOperationalExcellence" class="legendImage" onclick="c.Filter.IsOperationalExcellence(!c.Filter.IsOperationalExcellence())">
+          <img data-bind="attr:{src:IsOperationalExcellence()?'/web-cb/static/imgg/OE.png':'/web-cb/static/imgg/inactiveOE.png'}">
+          Operational Excellence
+        </div>
+    </div>
+    <div class="col-sm-2 text-right no-padding-left lineheight40">
+      {{if (or .Global.Create .Region.Create .Country.Create)}}
+      <button class="btn btn-sm btn-success btn-green-modified" onclick="Initiative.Add();" ><i class="fa fa-plus-circle"></i>  Add Intiative</button>
+      <button class="btn btn-sm btn-success btn-green-modified" data-bind="click:Task.Add" ><i class="fa fa-plus-circle"></i>  Add Task</button>
+      {{end}}
+    </div>
+  </div>
+</div>
+
+{{template "modalclone.html" .}}
+

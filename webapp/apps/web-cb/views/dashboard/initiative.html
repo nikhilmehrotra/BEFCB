@@ -1,0 +1,1879 @@
+<style type="text/css">
+	/*css for arrow*/
+	.emptyspace{
+	border: none !important;
+	width: 50px;
+	}
+	#crumbs tr th span {
+	display: block;
+	height: 50px;
+	text-align: center;
+	position: relative;
+	margin: 0 10px 0 0;
+	font-size: 11px;
+	text-decoration: none;
+	color: #fff;
+	width: 100%;
+	word-wrap: break-word;
+	line-height: normal;
+	font-weight: normal;
+	}
+	#crumbs th:nth-child(2) span:before { display: none; }
+	#crumbs tr th span:before {
+	content: "";
+	border-top: 29px solid transparent;
+	border-bottom: 29px solid transparent;
+	border-left: 23px solid #fff;
+	position: absolute;
+	left: 0;
+	top: -4px;
+	}
+
+	#crumbs .next-arrow{
+	content: "";
+	border-top: 25px solid transparent;
+	border-bottom: 25px solid transparent;
+	border-left: 20px solid transparent;
+	position: absolute;
+	right: -19px;
+	z-index: 1;
+	top: 0;
+	}
+	/*end css for arrow*/
+	.filename-preview{
+		word-wrap: break-word;
+	}
+	#initiative .ipaperclip{
+		position: absolute;
+	    color: #2890c0;
+	    font-size: 12px;
+	    right: 1px;
+	    top: 3px;
+	}
+	.loader{
+		text-align: center;
+		height: 250px;
+    	padding: 50px 10px;
+	}
+	.loader img{
+		height: 100%;
+	}
+	#initiative .nav-pills > li.active > a >.ipaperclip{
+		color: #FFF;
+	}
+	.mapping-table >.row{
+		margin-bottom: 10px;
+	}
+	#initiative .viewdata{
+		width: 900px;
+	}
+	#initiative .viewdata .modal-header{
+		padding: 15px 15px 5px 15px;
+	}
+	#initiative .viewdata .modal-title{
+		color: #2890C0;
+		font-weight: bold;
+	}
+	#initiative .viewdata .date-wrapper label{
+		font-weight: normal;
+	}
+	#initiative .viewdata .lastupdated-wrapper{
+		font-weight: normal;
+		margin: 0;
+		line-height: 30px;
+		margin-left: 10px;
+	}
+	#initiative .viewdata .data-list .row{
+		margin-bottom: 10px;
+	}
+	#initiative .viewdata .data-list label{
+		font-weight: normal;
+		color: #005C84;
+		margin: 0px;
+		font-weight: bold;
+    	font-size: 11px;
+	}
+	#initiative .viewdata .data-list table thead th{
+		color: #005C84;
+		font-size: 11px;
+	}
+
+	#initiative .viewdata .data-list table tbody td{
+		font-size: 12px;
+	}
+	#initiative .viewdata .data-list #milestonesTable{
+		margin: 10px 0px 0px 10px;
+    	width: 95%;
+    	/*width: 90%;*/
+	}
+	#initiative .viewdata .data-list #milestonesTable .datecolumn{
+		text-align: center;
+	}
+	#initiative .input-image{
+	    height: 15px;
+	    float: left;
+	    margin-right: 5px;
+	    margin-top: 0px;
+	}
+	#initiative .input-image img{
+		height: 100%;
+	}
+	.mark-search {
+		background-color: orange;
+	}
+	.iHeader{
+		height: 20px;
+	    position: absolute;
+	    right: 30px;
+	    top: 25px;
+	}
+	.iHeader img{
+		height: 100%;
+	}
+	.attachment-list{
+
+	}
+	.attachment-list a{
+		cursor: pointer;;
+		padding: 5px;
+	}
+	#lcPosition .table > thead > tr > th{
+		padding: 0px;
+	}
+	#lcPosition #crumbs tr th span{
+		height: 26px;
+		padding: 7px 0px 0 24px;
+	}
+	#lcPosition #crumbs tr th span:before{
+		content: "";
+	    border-top: 13px solid transparent;
+	    border-bottom: 13px solid transparent;
+	    border-left: 20px solid transparent;
+	    position: absolute;
+	    right: -19px;
+	    z-index: 1;
+	    top: 0;
+	}
+	#lcPosition #crumbs .next-arrow{
+		content: "";
+		border-top: 13px solid transparent;
+		border-bottom: 13px solid transparent;
+		border-left: 20px solid transparent;
+		position: absolute;
+		right: -12px;
+		z-index: 1;
+		top: 0;
+	}
+	#cost_reduction{
+		height: 40px;
+		text-align: left;
+	}
+	#cost_reduction img{
+		height: 100%;
+	}
+	.biChart>div{
+		height: 20px;
+		border: 1px solid #DDD;
+		/*display: inline-block;*/
+	    text-align: center;
+	    line-height: 1.7;
+	}
+	.biChart>div>span{
+		/*position: absolute;*/
+	    font-size: 11px;
+	    color: #fff;
+	    /*margin: 2px 0px 0px 10px;*/
+	}
+	.biChart .empty{
+		background: transparent;
+	}
+	.biChart .biLow{
+		background: #6D6E71;
+	}
+	.biChart .biMedium{
+		background: #2890C0;
+	}
+	.biChart .biHigh{
+		background: #6AC17B;
+	}
+	.data-list .nav-pills{
+		margin-top: -15px;
+    	margin-bottom: 15px;
+	}
+	#dashboard .data-list .nav-pills > li > a{
+		width: 80px;
+    	padding: 5px;
+	}
+	#dashboard .data-list table > thead > tr > th{
+		width: 80px;
+    	border-bottom: 1px solid #2890C0;
+ 	   color: #2890C0;
+	}
+	#input-metricsOE .form-group{
+		    line-height: 23px;
+	}
+	#input-metricsOE input[type="checkbox"]{
+		float: left;
+	}
+	#input-metricsOE .fa{
+		font-size: 18px;
+	    color: #005C84;
+	    float: right;
+	    margin-top: 5px;
+	}
+	#BusinessImpactChartTitle{
+		line-height: 21px;
+	}
+	#initiative .viewdata .data-list #OEMetrics label{
+		font-size: 13px;
+    	padding-right: 0px;
+	}
+	#initiative .viewdata .data-list #OEMetrics label .icon{
+		height: 20px;
+	    display: inline;
+	}
+	#initiative .viewdata .data-list #OEMetrics label .icon img{
+		height: 100%;
+	}
+
+	.box {
+    position: relative;
+    border-radius: 3px;
+    background: #ffffff;
+    border-top: 3px solid #d2d6de;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+	}
+	.box.box-primary {
+	    border-top-color: #3c8dbc;
+	}
+	.box.box-info {
+	    border-top-color: #00c0ef;
+	}
+	.box.box-danger {
+	    border-top-color: #dd4b39;
+	}
+	.box.box-warning {
+	    border-top-color: #f39c12;
+	}
+	.box.box-success {
+	    border-top-color: #00a65a;
+	}
+	.box.box-default {
+	    border-top-color: #d2d6de;
+	}
+	.box.collapsed-box .box-body, .box.collapsed-box .box-footer {
+	    display: none;
+	}
+	.box .nav-stacked>li {
+	    border-bottom: 1px solid #f4f4f4;
+	    margin: 0;
+	}
+	.box .nav-stacked>li:last-of-type {
+	    border-bottom: none;
+	}
+	.box-body {
+	    overflow: auto;
+	    height: 250px;
+	}
+	.box .border-right {
+	    border-right: 1px solid #f4f4f4;
+	}
+	.box .border-left {
+	    border-left: 1px solid #f4f4f4;
+	}
+	.box.box-solid {
+	    border-top: 0;
+	}
+	.box.box-solid>.box-header .btn.btn-default {
+	    background: transparent;
+	}
+	.box.box-solid>.box-header .btn:hover, .box.box-solid>.box-header a:hover {
+	    background: rgba(0, 0, 0, 0.1);
+	}
+	.box.box-solid.box-default {
+	    border: 1px solid #d2d6de;
+	}
+	.box.box-solid.box-default>.box-header {
+	    color: #444;
+	    background: #d2d6de;
+	    background-color: #d2d6de;
+	}
+	.box.box-solid.box-default>.box-header a, .box.box-solid.box-default>.box-header .btn {
+	    color: #444;
+	}
+	.box.box-solid.box-primary {
+	    border: 1px solid #3c8dbc;
+	}
+	.box.box-solid.box-primary>.box-header {
+	    color: #fff;
+	    background: #3c8dbc;
+	    background-color: #3c8dbc;
+	}
+	.box.box-solid.box-primary>.box-header a, .box.box-solid.box-primary>.box-header .btn {
+	    color: #fff;
+	}
+	.box.box-solid.box-info {
+	    border: 1px solid #00c0ef;
+	}
+	.box.box-solid.box-info>.box-header {
+	    color: #fff;
+	    background: #00c0ef;
+	    background-color: #00c0ef;
+	}
+	.box.box-solid.box-info>.box-header a, .box.box-solid.box-info>.box-header .btn {
+	    color: #fff;
+	}
+	.box.box-solid.box-danger {
+	    border: 1px solid #dd4b39;
+	}
+	.box.box-solid.box-danger>.box-header {
+	    color: #fff;
+	    background: #dd4b39;
+	    background-color: #dd4b39;
+	}
+	.box.box-solid.box-danger>.box-header a, .box.box-solid.box-danger>.box-header .btn {
+	    color: #fff;
+	}
+	.box.box-solid.box-warning {
+	    border: 1px solid #f39c12;
+	}
+	.box.box-solid.box-warning>.box-header {
+	    color: #fff;
+	    background: #f39c12;
+	    background-color: #f39c12;
+	}
+	.box.box-solid.box-warning>.box-header a, .box.box-solid.box-warning>.box-header .btn {
+	    color: #fff;
+	}
+	.box.box-solid.box-success {
+	    border: 1px solid #00a65a;
+	}
+	.box.box-solid.box-success>.box-header {
+	    color: #fff;
+	    background: #00a65a;
+	    background-color: #00a65a;
+	}
+	.box.box-solid.box-success>.box-header a, .box.box-solid.box-success>.box-header .btn {
+	    color: #fff;
+	}
+	.box.box-solid>.box-header>.box-tools .btn {
+	    border: 0;
+	    box-shadow: none;
+	}
+	.box.box-solid[class*='bg']>.box-header {
+	    color: #fff;
+	}
+	.box .box-group>.box {
+	    margin-bottom: 5px;
+	}
+	.box .knob-label {
+	    text-align: center;
+	    color: #333;
+	    font-weight: 100;
+	    font-size: 14px;
+	    margin-bottom: 0.3em;
+	}
+	.box>.overlay, .overlay-wrapper>.overlay, .box>.loading-img, .overlay-wrapper>.loading-img {
+	    position: absolute;
+	    top: 0;
+	    left: 0;
+	    width: 100%;
+	    height: 100%}
+	.box .overlay, .overlay-wrapper .overlay {
+	    z-index: 50;
+	    background: rgba(255, 255, 255, 0.7);
+	    border-radius: 3px;
+	}
+	.box .overlay>.fa, .overlay-wrapper .overlay>.fa {
+	    position: absolute;
+	    top: 50%;
+	    left: 50%;
+	    margin-left: -15px;
+	    margin-top: -15px;
+	    color: #000;
+	    font-size: 30px;
+	}
+	.box .overlay.dark, .overlay-wrapper .overlay.dark {
+	    background: rgba(0, 0, 0, 0.5);
+	}
+	.box-header:before, .box-body:before, .box-footer:before, .box-header:after, .box-body:after, .box-footer:after {
+	    content: " ";
+	    display: table;
+	}
+	.box-header:after, .box-body:after, .box-footer:after {
+	    clear: both;
+	}
+	.box-header {
+	    color: #444;
+	    display: block;
+	    padding: 10px;
+	    position: relative;
+	}
+	.box-header.with-border {
+	    border-bottom: 1px solid #f4f4f4;
+	}
+	.collapsed-box .box-header.with-border {
+	    border-bottom: none;
+	}
+	.box-header>.fa, .box-header>.glyphicon, .box-header>.ion, .box-header .box-title {
+	    display: inline-block;
+	    font-size: 18px;
+	    margin: 0;
+	    line-height: 1;
+	}
+
+	.box-header>.fa, .box-header>.glyphicon, .box-header>.ion {
+	    margin-right: 5px;
+	}
+	.box-header>.box-tools {
+	    position: absolute;
+	    right: 10px;
+	    top: 5px;
+	}
+	.box-header>.box-tools [data-toggle="tooltip"] {
+	    position: relative;
+	}
+	.box-header>.box-tools.pull-right .dropdown-menu {
+	    right: 0;
+	    left: auto;
+	}
+	.btn-box-tool {
+	    padding: 5px;
+	    font-size: 12px;
+	    background: transparent;
+	    color: #97a0b3;
+	}
+	.open .btn-box-tool, .btn-box-tool:hover {
+	    color: #606c84;
+	}
+	.btn-box-tool.btn:active {
+	    box-shadow: none;
+	}
+	.box-body {
+	    border-top-left-radius: 0;
+	    border-top-right-radius: 0;
+	    border-bottom-right-radius: 3px;
+	    border-bottom-left-radius: 3px;
+	    /*padding: 10px;*/
+	}
+	.no-header .box-body {
+	    border-top-right-radius: 3px;
+	    border-top-left-radius: 3px;
+	}
+	.box-body>.table {
+	    margin-bottom: 0;
+	}
+	.box-body .fc {
+	    margin-top: 5px;
+	}
+	.box-body .full-width-chart {
+	    margin: -19px;
+	}
+	.box-body.no-padding .full-width-chart {
+	    margin: -9px;
+	}
+	.box-body .box-pane {
+	    border-top-left-radius: 0;
+	    border-top-right-radius: 0;
+	    border-bottom-right-radius: 0;
+	    border-bottom-left-radius: 3px;
+	}
+	.box-body .box-pane-right {
+	    border-top-left-radius: 0;
+	    border-top-right-radius: 0;
+	    border-bottom-right-radius: 3px;
+	    border-bottom-left-radius: 0;
+	}
+	.box-footer {
+	    border-top-left-radius: 0;
+	    border-top-right-radius: 0;
+	    border-bottom-right-radius: 3px;
+	    border-bottom-left-radius: 3px;
+	    border-top: 1px solid #f4f4f4;
+	    padding-top: 10px;
+	}
+	.direct-chat .box-body {
+	    border-bottom-right-radius: 0;
+	    border-bottom-left-radius: 0;
+	    position: relative;
+	    overflow-x: hidden;
+	    padding: 0;
+	}
+	.direct-chat.chat-pane-open .direct-chat-contacts {
+	    -webkit-transform: translate(0,  0);
+	    -ms-transform: translate(0,  0);
+	    -o-transform: translate(0,  0);
+	    transform: translate(0,  0);
+	}
+	.direct-chat-messages {
+	    -webkit-transform: translate(0,  0);
+	    -ms-transform: translate(0,  0);
+	    -o-transform: translate(0,  0);
+	    transform: translate(0,  0);
+	    padding: 10px;
+	    overflow: auto;
+	}
+	.direct-chat-msg, .direct-chat-text {
+	    display: block;
+	}
+	.direct-chat-msg {
+	    margin-bottom: 10px;
+	}
+	.direct-chat-msg:before, .direct-chat-msg:after {
+	    content: " ";
+	    display: table;
+	}
+	.direct-chat-msg:after {
+	    clear: both;
+	}
+	.direct-chat-messages, .direct-chat-contacts {
+	    -webkit-transition: -webkit-transform .5s ease-in-out;
+	    -moz-transition: -moz-transform .5s ease-in-out;
+	    -o-transition: -o-transform .5s ease-in-out;
+	    transition: transform .5s ease-in-out;
+	}
+	.direct-chat-text {
+	    border-radius: 5px;
+	    position: relative;
+	    padding: 5px 10px;
+	    background: #d2d6de;
+	    border: 1px solid #d2d6de;
+	    margin: 5px 0 0 50px;
+	    color: #444;
+	    font-size: 10px;
+	}
+	.direct-chat-text:after, .direct-chat-text:before {
+	    position: absolute;
+	    right: 100%;
+	    top: 15px;
+	    border: solid transparent;
+	    border-right-color: #d2d6de;
+	    content: ' ';
+	    height: 0;
+	    width: 0;
+	    pointer-events: none;
+	}
+	.direct-chat-text:after {
+	    border-width: 5px;
+	    margin-top: -5px;
+	}
+	.direct-chat-text:before {
+	    border-width: 6px;
+	    margin-top: -6px;
+	}
+	.right .direct-chat-text {
+	    margin-right: 30px;
+	    margin-left: 0;
+	}
+	.right .direct-chat-text:after, .right .direct-chat-text:before {
+	    right: auto;
+	    left: 100%;
+	    border-right-color: transparent;
+	    border-left-color: #d2d6de;
+	}
+	.direct-chat-img {
+	    border-radius: 50%;
+	    float: left;
+	    width: 25px;
+	    height: 25px;
+	}
+	.right .direct-chat-img {
+	    float: right;
+	}
+	.direct-chat-info {
+	    display: block;
+	    margin-bottom: 2px;
+	    font-size: 12px;
+	}
+	.direct-chat-name {
+		text-transform: capitalize;
+	    font-weight: 400;
+	}
+	.direct-chat-timestamp {
+	    color: #999;
+	}
+	.direct-chat-contacts-open .direct-chat-contacts {
+	    -webkit-transform: translate(0,  0);
+	    -ms-transform: translate(0,  0);
+	    -o-transform: translate(0,  0);
+	    transform: translate(0,  0);
+	}
+	.direct-chat-contacts {
+	    -webkit-transform: translate(101%,  0);
+	    -ms-transform: translate(101%,  0);
+	    -o-transform: translate(101%,  0);
+	    transform: translate(101%,  0);
+	    position: absolute;
+	    top: 0;
+	    bottom: 0;
+	    height: 250px;
+	    width: 100%;
+	    background: #222d32;
+	    color: #fff;
+	    overflow: auto;
+	}
+	.contacts-list>li {
+	    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	    padding: 10px;
+	    margin: 0;
+	}
+	.contacts-list>li:before, .contacts-list>li:after {
+	    content: " ";
+	    display: table;
+	}
+	.contacts-list>li:after {
+	    clear: both;
+	}
+	.contacts-list>li:last-of-type {
+	    border-bottom: none;
+	}
+	.contacts-list-img {
+	    border-radius: 50%;
+	    width: 40px;
+	    float: left;
+	}
+	.contacts-list-info {
+	    margin-left: 45px;
+	    color: #fff;
+	}
+	.contacts-list-name, .contacts-list-status {
+	    display: block;
+	}
+	.contacts-list-name {
+	    font-weight: 600;
+	}
+	.contacts-list-status {
+	    font-size: 12px;
+	}
+	.contacts-list-date {
+	    color: #aaa;
+	    font-weight: normal;
+	}
+	.contacts-list-msg {
+	    color: #999;
+	}
+	.direct-chat-danger .right>.direct-chat-text {
+	    background: #dd4b39;
+	    border-color: #dd4b39;
+	    color: #fff;
+	}
+	.direct-chat-danger .right>.direct-chat-text:after, .direct-chat-danger .right>.direct-chat-text:before {
+	    border-left-color: #dd4b39;
+	}
+	.direct-chat-primary .right>.direct-chat-text {
+	    background: #3c8dbc;
+	    border-color: #3c8dbc;
+	    color: #fff;
+	}
+	.direct-chat-primary .right>.direct-chat-text:after, .direct-chat-primary .right>.direct-chat-text:before {
+	    border-left-color: #3c8dbc;
+	}
+	.direct-chat-warning .right>.direct-chat-text {
+	    background: #f39c12;
+	    border-color: #f39c12;
+	    color: #fff;
+	}
+	.direct-chat-warning .right>.direct-chat-text:after, .direct-chat-warning .right>.direct-chat-text:before {
+	    border-left-color: #f39c12;
+	}
+	.direct-chat-info .right>.direct-chat-text {
+	    background: #00c0ef;
+	    border-color: #00c0ef;
+	    color: #fff;
+	}
+	.direct-chat-info .right>.direct-chat-text:after, .direct-chat-info .right>.direct-chat-text:before {
+	    border-left-color: #00c0ef;
+	}
+	.direct-chat-success .right>.direct-chat-text {
+	    background: #00a65a;
+	    border-color: #00a65a;
+	    color: #fff;
+	}
+	.direct-chat-success .right>.direct-chat-text:after, .direct-chat-success .right>.direct-chat-text:before {
+	    border-left-color: #00a65a;
+	}
+	.img-ecos_final{
+		height: 34px;
+		margin-top: -4px;
+	}
+	/*.progressbargreen:before{
+		content: ' ';
+	    position: absolute;
+	    z-index: 99;
+	    height: 23px;
+	    width: 17px;
+	    top: -1px;
+	    left: -16px;
+	    background-color: #6ac17b;
+	    box-sizing: border-box;
+	    border-width: 2px 0 2px 2px;
+	    -webkit-border-radius: 50px 0 0 50px;
+	    -moz-border-radius: 50px 0 0 50px;
+	    -ms-border-radius: 50px 0 0 50px;
+	    -o-border-radius: 50px 0 0 50px;
+	    border-radius: 50px 0 0 50px;
+	}
+	.progressbaryellow:before{
+		content: ' ';
+	    position: absolute;
+	    z-index: 99;
+	    height: 23px;
+	    width: 17px;
+	    top: -1px;
+	    left: -16px;
+	    background-color: #ffd24d;
+	    box-sizing: border-box;
+	    border-width: 2px 0 2px 2px;
+	    -webkit-border-radius: 50px 0 0 50px;
+	    -moz-border-radius: 50px 0 0 50px;
+	    -ms-border-radius: 50px 0 0 50px;
+	    -o-border-radius: 50px 0 0 50px;
+	    border-radius: 50px 0 0 50px;
+	}
+	.progressbarred:before{
+		content: ' ';
+	    position: absolute;
+	    z-index: 99;
+	    height: 23px;
+	    width: 17px;
+	    top: -1px;
+	    left: -16px;
+	    background-color: #f74e4e;
+	    box-sizing: border-box;
+	    border-width: 2px 0 2px 2px;
+	    -webkit-border-radius: 50px 0 0 50px;
+	    -moz-border-radius: 50px 0 0 50px;
+	    -ms-border-radius: 50px 0 0 50px;
+	    -o-border-radius: 50px 0 0 50px;
+	    border-radius: 50px 0 0 50px;
+	}*/
+	/*.progressbar:after{
+		content: ' ';
+	    position: absolute;
+	    z-index: 99;
+	    height: 23px;
+	    width: 17px;
+	    top: 0;
+	    right: 12px;
+	    background-color: #ddd;
+	    box-sizing: border-box;
+	    border-width: 0;
+	    border-style: solid;
+	    -webkit-border-radius: 0 50px 50px 0;
+	    -moz-border-radius: 0 50px 50px 0;
+	    -ms-border-radius: 0 50px 50px 0;
+	    -o-border-radius: 0 50px 50px 0;
+	    border-radius: 0 50px 50px 0;
+	}
+	.progressbargreenafter:after{
+		content: ' ';
+	    position: absolute;
+	    z-index: 999;
+	    height: 23px;
+	    width: 17px;
+	    top: -1px;
+	    right: -15px;
+	    background-color: #6ac17b;
+	    box-sizing: border-box;
+	    border-width: 0;
+	    border-style: solid;
+	    -webkit-border-radius: 0 50px 50px 0;
+	    -moz-border-radius: 0 50px 50px 0;
+	    -ms-border-radius: 0 50px 50px 0;
+	    -o-border-radius: 0 50px 50px 0;
+	    border-radius: 0 50px 50px 0;
+	}
+	.progressbaryellowafter:after{
+		content: ' ';
+	    position: absolute;
+	    z-index: 999;
+	    height: 23px;
+	    width: 17px;
+	    top: -1px;
+	    right: -15px;
+	    background-color: #ffd24d;
+	    box-sizing: border-box;
+	    border-width: 0;
+	    border-style: solid;
+	    -webkit-border-radius: 0 50px 50px 0;
+	    -moz-border-radius: 0 50px 50px 0;
+	    -ms-border-radius: 0 50px 50px 0;
+	    -o-border-radius: 0 50px 50px 0;
+	    border-radius: 0 50px 50px 0;
+	}
+	.progressbarredafter:after{
+		content: ' ';
+	    position: absolute;
+	    z-index: 999;
+	    height: 23px;
+	    width: 17px;
+	    top: -1px;
+	    right: -15px;
+	    background-color: #f74e4e;
+	    box-sizing: border-box;
+	    border-width: 0;
+	    border-style: solid;
+	    -webkit-border-radius: 0 50px 50px 0;
+	    -moz-border-radius: 0 50px 50px 0;
+	    -ms-border-radius: 0 50px 50px 0;
+	    -o-border-radius: 0 50px 50px 0;
+	    border-radius: 0 50px 50px 0;
+	}*/
+	/*.progressbar{margin-left: -29px;}*/
+	.width-percent95.k-progressbar{border-radius: 50px;background-color: #ccc; border-color: transparent;}
+	.width-percent95.k-progressbar>.k-state-selected.k-complete, .k-progressbar-horizontal>.k-state-selected{border-radius: 50px;}
+	.inputKeyMetrics td{
+		padding: 1px 2px;
+	}
+	.inputKeyMetrics td:last-child{
+		padding: 0px;
+	}
+	.edited_message{
+		margin-left: 50px;
+		color: #ED9D2B;
+	}
+	.edited_message:hover{
+		cursor: pointer;
+	}
+	.bootstrap-switch {
+		height: auto !important;
+	    /*margin-top: 4px;*/
+	    margin-left: 4px;
+	}
+	#initiative-form textarea{
+		font-size: 12px !important;
+	}
+</style>
+<script src="/web-cb/static/core/initiative.js"></script> 
+<div class="modal fade modal-fade-in-scale-up modalInput" id="initiative" aria-hidden="true"  data-backdrop="static" data-bind="with:Initiative">
+	<div id="initiative-form" class="modal-dialog modal-lg" data-bind="visible:Mode()!==''">
+	   <div class="modal-content">
+			<div class="modal-header">
+			 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			 <span aria-hidden="true">×</span>
+			 </button>
+			 <h4 class="modal-title">Initiative Form</h4>
+			</div>
+			<div class="loader" data-bind="visible:Initiative.Processing()">
+				<img src="/web-cb/static/img/hex-loader2.gif">
+			</div>
+			<div class="modal-body form-input-list" data-bind="visible: !Initiative.Processing() && Phase() == '1'">
+				<div class="row text-center">
+					<div class="col-sm-2">Scorecard Category</div>
+					<div class="col-sm-2">Business Driver</div>
+					<div class="col-sm-3">LifeCycle Stage</div>
+					<!-- <div class="col-sm-2">Sub LifeCycle Stage</div> -->
+					<!-- <div class="col-sm-3">Business Impact</div> -->
+					<div class="col-sm-2">Initiative Type</div>
+					<div class="col-sm-3">Impact on Business Driver</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12 mapping-table" data-bind="foreach:Map">
+						<div class="row">
+							<div class="col-sm-2">
+								<input data-bind="kendoDropDownList:{value:SCCategory, data:$parent.SCCategoryList, dataValueField: 'Idx', dataTextField: 'Name', optionLabel:'Select..'}" style="width:100%;" />
+							</div>
+							<div class="col-sm-2">
+								<input data-bind="kendoDropDownList:{value:BusinessDriver, data:BDList, dataValueField: 'Idx', dataTextField: 'Name', optionLabel:'Select..'}" style="width:100%;" />
+							</div>
+							<div class="col-sm-3">
+								<input data-bind="kendoDropDownList:{value:LifeCycle, data:$parent.LifeCycleList, dataValueField: 'Id', dataTextField: 'Name', optionLabel:'Select..'}" style="width:100%;"  />
+							</div>
+							<!-- <div class="col-sm-2">
+								<input data-bind="kendoDropDownList:{value:SubLifeCycle, data:SubLifeCycleList, dataValueField: 'Id', dataTextField: 'Name', optionLabel:'Select..'}" style="width:100%;" />
+							</div> -->
+							<!-- <div class="col-sm-3">
+								<input data-bind="kendoDropDownList:{value:BusinessImpact, data:$parent.BusinessDriverImpact, dataValueField: 'value', dataTextField: 'text', optionLabel:'Select..'}"/>
+							</div> -->
+							<div class="col-sm-2">
+								<input data-bind="kendoDropDownList:{value:Type, data:$parent.TypeList, dataValueField: 'value', dataTextField: 'text', optionLabel:'Select..'}" style="width:100%;" />
+							</div>
+							<div class="col-sm-3">
+								<input data-bind="kendoDropDownList:{value:ImpactonBusinessDriver, data:$parent.BusinessImpactList, dataValueField: 'value', dataTextField: 'text', optionLabel:'Select..'}" style="width:100%;" />
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-6">
+								<table width="100%" class="inputKeyMetrics">
+									<thead>
+										<tr>
+											<th class="text-center">Key Metrics</th>
+											<th class="text-center" width="100px">Direct / Indirect</th>
+											<th class="text-center" width="50px">
+												<button data-bind="click:Initiative.AddKeyMetric" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i></button>
+											</th>
+										</tr>
+									</thead>
+									<tbody data-bind="visible:KeyMetrics().length===0">
+										<tr>
+											<td colspan="3" class="text-center">
+												-- Please assign the metrics by clicking on the '+' button --
+											</td>
+										</tr>
+									</tbody>
+									<tbody data-bind="foreach:KeyMetrics,visible:KeyMetrics().length>0">
+										<tr>
+											<td>
+												<input data-bind="kendoDropDownList:{value:BMId, data:Initiative.BusinessMetricList, dataValueField: 'id', dataTextField: 'description', optionLabel:'Select..'}" style="width:100%;" />
+											</td>
+											<td>
+												<input data-bind="kendoDropDownList:{value:DirectIndirect, data:Initiative.DirectIndirectList, dataValueField: 'value', dataTextField: 'text', optionLabel:'Select..'}" style="width:100%;" />
+											</td>
+											<td class="text-center">
+												<button class="btn btn-danger btn-xs" data-bind="attr:{'onclick':'Initiative.RemoveKeyMetric('+$parentContext.$index()+','+$index()+')'}"><i class="fa fa-times"></i></button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								<!-- <div class="col-sm-5">Key Metrics</div>
+								<div class="col-sm-2"></div>
+								<div class="col-sm-2">
+									<button class="btn btn-sm btn-primary"><i class="fa fa-plus"></i></button>
+								</div> -->
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-9" data-bind="with:FormValue">
+						<div class="col-sm-6">
+				          <div class="input-image"><img src="/web-cb/static/imgg/OE.png"></div>
+			          	<input type="checkbox" data-bind="checked: OE">
+			        </div>
+			        <div class="col-sm-6">
+					<div class="input-image"><img src="/web-cb/static/imgg/EX.png"></div>
+			          <input type="checkbox" data-bind="checked: EX">
+			        </div>
+					</div>
+					<div class="col-sm-3 text-right" data-bind="visible:Mode()!=='edit'">
+						<button class="btn btn-sm btn-info" data-bind="click:NewMap"><i class="fa fa-plus"></i></button>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-body form-input" data-bind="visible: !Initiative.Processing() && Phase() == '2',with:FormValue" id="initiativeform">
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="row">
+							<label class="col-sm-4">Project</label>
+							<div class="col-sm-8">
+								<input type="text" class="completedisable input-sm form-control" placeholder="Project Name" data-bind="value:ProjectName" name="ProjectName" required>
+								<span class="k-invalid-msg" data-for="ProjectName"></span>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-sm-4">Clarity ID</label>
+							<div class="col-sm-8">
+								<input type="text" class="completedisable input-sm form-control" data-bind="value:InvestmentId">
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="row">
+							<label class="col-sm-4">Start</label>
+							<div class="col-sm-8">
+									<input data-bind="kendoDatePicker:{value:StartDate,format:'dd-MMM-yyyy',change:Initiative.ChangeStartDate}" class="completedisable " name="StartDate" required/>
+								<span class="k-invalid-msg" data-for="StartDate"></span>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-sm-4">End</label>
+							<div class="col-sm-8">
+								<input data-bind="kendoDatePicker:{value:FinishDate,format:'dd-MMM-yyyy',change:Initiative.ChangeFinishDate}" class="completedisable " name="FinishDate" required/>
+								<span class="k-invalid-msg" data-for="FinishDate"></span>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2">
+							<div class="form-group">
+						    <input type="checkbox" data-bind="checked: SetAsComplete">&nbsp;Complete
+						 	</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-3">
+						<div class="row">
+							<label class="col-sm-6">Project Manager</label>
+							<div class="col-sm-12">
+								<!-- <input type="text" class="completedisable input-sm form-control" data-bind="value:ProjectManager"> -->
+								<input id="ProjectManager" data-bind="kendoMultiSelect:{value:ProjectManager, data:Initiative.InitiativeOwnerList, dataValueField: 'FullName', dataTextField: 'FullName', optionLabel:'Select..',filter: 'contains'}" style="width:100%;" />
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="row">
+							<label class="col-sm-8">Accountable Executive</label>
+							<div class="col-sm-12">
+								<!-- <input type="text" class="completedisable input-sm form-control" data-bind="value:AccountableExecutive"> -->
+								<input id="AccountableExecutive" data-bind="kendoMultiSelect:{value:AccountableExecutive, data:Initiative.InitiativeOwnerList, dataValueField: 'FullName', dataTextField: 'FullName', optionLabel:'Select..',filter: 'contains'}" style="width:100%;" />
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="row">
+							<label class="col-sm-7">Technology Lead</label>
+							<div class="col-sm-12">
+								<!-- <input type="text" class="completedisable input-sm form-control" data-bind="value:TechnologyLead"> -->
+								<input id="TechnologyLead" data-bind="kendoMultiSelect:{value:TechnologyLead, data:Initiative.InitiativeOwnerList, dataValueField: 'FullName', dataTextField: 'FullName', optionLabel:'Select..',filter: 'contains'}" style="width:100%;" />
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="row">
+							<label class="col-sm-7">BEF Sponsor</label>
+							<div class="col-sm-12">
+									<!-- <input type="text" class="completedisable input-sm form-control" data-bind="value:Sponsor"> -->
+									<input id="Sponsor" name="Sponsor" data-bind="kendoDropDownList:{value:Sponsor, data:$parent.SponsorList, dataValueField: 'Name', dataTextField: 'Name', optionLabel:'Select..',filter:'contains'}"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-sm-2">
+						Problem Statement
+					</label>
+					<div class="col-sm-12">
+						<textarea class="completedisable form-control" rows="3" data-bind="value:ProblemStatement"></textarea>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-sm-2">
+						Project Description
+					</label>
+					<div class="col-sm-12">
+						<textarea class="completedisable form-control" rows="3" data-bind="value:ProjectDescription"></textarea>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-sm-3">
+						Key Deliverables / Milestones
+					</label>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-3 text-center">Deliverable</div>
+							<div class="col-sm-2 text-center">Start Date</div>
+							<div class="col-sm-2 text-center">End Date</div>
+							<div class="col-sm-3 text-center">Country</div>
+							<div class="col-sm-1 text-center">Complete</div>
+							<div class="col-sm-1">&nbsp;</div>
+						</div>
+					</div>
+					<div class="col-sm-12 Milestone-List" data-bind="foreach:Milestones">
+						<div class="row" data-bind="attr:{index:Id}">
+							<div class="col-sm-3">
+								<input class="completedisable input-sm form-control" placeholder="Enter deliverable here.." data-bind="value:Name" >
+							</div>
+							<div class="col-sm-2">
+								<input class="completedisable" data-bind="kendoDatePicker:{value:StartDate, min:$parent.StartDate ,max:$parent.FinishDate ,format:'dd-MMM-yyyy'}">
+							</div>
+							<div class="col-sm-2">
+								<input class="completedisable" data-bind="kendoDatePicker:{value:EndDate, min:$parent.StartDate ,max:$parent.FinishDate ,format:'dd-MMM-yyyy'}">
+							</div>
+							<div class="col-sm-3">
+								<select data-bind="kendoMultiSelect:{value: Country, data:Initiative.CountryList, dataValueField: '_id', dataTextField: '_id', optionLabel:'Country'}" class="completedisable country" name="pclassval" validationMessage=""></select>           
+							</div>
+							<div class="col-sm-1 text-center">
+								<input class="milestoneCompleted" type="checkbox" data-bind="checked:Completed">
+							</div>
+							<div class="col-sm-1 text-right">
+								<button class="completedisable btn btn-xs btn-danger" data-bind="click:$parents[1].RemoveMilestone"><i class="fa fa-times"></i></button>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12 text-center" data-bind="visible:Milestones().length===0">
+						<i>No Key Deliverables / Milestones</i>
+					</div>
+					<div class="col-sm-12 text-right">
+						<button class="completedisable btn btn-xs btn-info" data-bind="click:$parent.AddMilestone"><i class="fa fa-plus"></i></button>
+					</div>
+					<div class="col-sm-12">&nbsp;</div>
+				</div>
+				<div class="row">
+					<label class="col-sm-2">Progress Completion</label>
+					<div class="col-sm-3 progressbarInitiativeEdit">
+						<!-- <input data-bind="kendoSlider:{value: ProgressCompletion, min:0, max:100}" > -->
+						<!-- <div data-bind="text:kendo.toString(ProgressCompletion(),'N0')+'%',attr:{'style':'top:5px;font-weight:bold;position:absolute;z-index:20;left:'+( (ProgressCompletion() < 100 && ProgressCompletion() >= 90)? ProgressCompletion()-16 : (ProgressCompletion() < 90 && ProgressCompletion() >= 80)? ProgressCompletion()-16 : (ProgressCompletion() < 80 && ProgressCompletion() >= 70)? ProgressCompletion()-16 : ProgressCompletion()-21 )+'%'}"></div> -->
+						<div data-bind="text:kendo.toString(ProgressCompletion(),'N0')+'%',attr:{'style':'top:7px;font-weight:bold;position:absolute;z-index:20;left:'+( (ProgressCompletion() < 100 && ProgressCompletion() >= 90)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-16 : (ProgressCompletion() < 90 && ProgressCompletion() >= 80)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-15 : (ProgressCompletion() < 80 && ProgressCompletion() >= 70)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-14 : (ProgressCompletion() < 70 && ProgressCompletion() >= 60)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-13 : (ProgressCompletion() < 60 && ProgressCompletion() >= 50)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-12 : (ProgressCompletion() < 50 && ProgressCompletion() >= 40)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-12 : (ProgressCompletion() < 40 && ProgressCompletion() >= 30)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-8 : (ProgressCompletion() < 30 && ProgressCompletion() >= 20)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-7 : (ProgressCompletion() < 20 && ProgressCompletion() >= 15)? parseInt(kendo.toString(ProgressCompletion(),'N0'))-3 : (ProgressCompletion() < 15)? 13 : ProgressCompletion()-21 )+'%'}"></div>
+						<span data-bind="attr:{'style':'position:absolute;width:91%;height:100%;z-index: 30;border: 3px solid #fff;border-top-left-radius: 20px;border-bottom-left-radius: 20px;border-top-right-radius: 20px;border-bottom-right-radius: 20px;margin: 0 2px;'}"></span>
+						<div class="pgbaredit" data-bind="kendoProgressBar: { value: ProgressCompletion,type:'percent' }" style="width:100%;"></div>
+					</div>
+					<label class="col-sm-1">RAG</label>
+					<div class="col-sm-2">
+			        <input data-bind="kendoDropDownList: { value: DisplayProgress, data:$parent.DisplayColorList, dataValueField: 'value', dataTextField: 'name'}" name="DisplayProgress" />
+			        </div>
+					<label class="col-sm-2">Planned Cost</label>
+					<div class="col-sm-2">
+						<input id="PlannedCost" class="completedisable" data-bind="kendoNumericTextBox:{ value: PlannedCost} "/>
+					</div>
+				</div>
+				<div class="row">
+					<label class="col-sm-2">
+						Project Driver
+					</label>
+					<div class="col-sm-12">
+						<textarea class="completedisable form-control" rows="3" data-bind="value:ProjectDriver"></textarea>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-2">
+					 <div class="form-group">
+					    <input type="checkbox" class="completedisable" data-bind="checked: IsGlobal">&nbsp;Global
+					 </div>
+					</div>
+					<div class="col-sm-4">
+					 <div class="form-group" data-bind="visible:IsGlobal() == false,">
+					    <select data-bind="kendoMultiSelect:{value: Region, data:$parent.RegionList, dataValueField: '_id', dataTextField: '_id', optionLabel:'Region',change:$parent.GetCountryDS, placeholder:'Region'}" id="completedisableregion" class="region" name="pclassval" validationMessage=""></select>           
+					 </div>
+					</div>
+					<div class="col-sm-4">
+					 <div class="form-group" data-bind="visible:IsGlobal() == false,">
+					    <select data-bind="kendoMultiSelect:{value: Country, data:$parent.CountryList, dataValueField: '_id', dataTextField: '_id', optionLabel:'Country', placeholder:'Country'}" id="completedisablecountry" class="country" name="pclassval" validationMessage=""></select>           
+					 </div>
+					</div>
+				</div>
+				<div class="row metrics" data-bind="visible:OE()== true" id="input-metricsOE">
+					<div class="col-sm-12" >
+						<div class="row">
+							<div class="col-sm-4 text-left">Metrics for OE</div>
+							<div class="col-sm-4 text-center">Current (%)</div>
+							<div class="col-sm-4 text-center">Target (%)</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-4">
+							<div class="form-group" >
+							    <input type="checkbox" class="completedisable" data-bind="checked: ImprovedEfficiency">&nbsp;Improved Efficiency 
+							    <i class="fa"><img src="/web-cb/static/img/metrics/ie.jpg"></i>
+							    <!-- <i class="fa fa-line-chart"></i> -->
+							 </div>
+							</div>
+							<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:ImprovedEfficiency() == true">
+							    <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:ImprovedEfficiencyCurrent">
+							 </div>
+							</div>
+							<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:ImprovedEfficiency() == true">
+							   <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:ImprovedEfficiencyTarget">
+							 </div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-4">
+							<div class="form-group">
+							    <input type="checkbox" class="completedisable" data-bind="checked: ClientExperience">&nbsp;Client Experience 
+							    <i class="fa"><img src="/web-cb/static/img/metrics/ce.jpg"></i>
+							    <!-- <i class="fa fa-thumbs-up"></i> -->
+							 </div>
+							</div>
+							<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:ClientExperience() == true">
+							    <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:ClientExperienceCurrent">
+							 </div>
+							</div>
+								<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:ClientExperience() == true">
+							   <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:ClientExperienceTarget">
+							 </div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-4">
+							<div class="form-group">
+							    <input type="checkbox" class="completedisable" data-bind="checked: OperationalImprovement">&nbsp;Operational Improvements 
+							    <i class="fa"><img src="/web-cb/static/img/metrics/oi.jpg"></i>
+							    <!-- <i class="fa fa-cogs"></i> -->
+							 </div>
+							</div>
+							<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:OperationalImprovement() == true">
+							    <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:OperationalImprovementCurrent">
+							 </div>
+							</div>
+								<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:OperationalImprovement() == true">
+							   <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:OperationalImprovementTarget">
+							 </div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-4">
+							<div class="form-group">
+							    <input type="checkbox" class="completedisable" data-bind="checked: CSRIncrease">&nbsp;Cost Save / Revenue Increase 
+							    <i class="fa"><img src="/web-cb/static/img/metrics/csr.jpg"></i>
+							    <!-- <i class="fa fa-money"></i> -->
+							 </div>
+							</div>
+							<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:CSRIncrease() == true">
+							    <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:CSRIncreaseCurrent">
+							 </div>
+							</div>
+								<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:CSRIncrease() == true">
+							   <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:CSRIncreaseTarget">
+							 </div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-4">
+							<div class="form-group">
+							    <input type="checkbox" class="completedisable" data-bind="checked: TurnAroundTime">&nbsp;Turn Around Time 
+							    <i class="fa"><img src="/web-cb/static/img/metrics/tat.jpg"></i>
+							    <!-- <i class="fa fa-clock-o"></i> -->
+							 </div>
+							</div>
+							<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:TurnAroundTime() == true">
+							    <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:TurnAroundTimeCurrent">
+							 </div>
+							</div>
+								<div class="col-sm-4">
+							 <div class="form-group" data-bind="visible:TurnAroundTime() == true">
+							   <input type="number" class="completedisable input-sm form-control text-right" data-bind="value:TurnAroundTimeTarget">
+							 </div>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+				<!-- <div class="col-sm-12 no-padding"> -->
+					<div class="row">
+						<label class="col-sm-2">Project Classification</label>
+						<div class="col-sm-4">
+							<input name="ProjectClassification" data-bind="kendoDropDownList:{value:ProjectClassification, data:$parent.ProjectClassificationList, dataValueField: 'value', dataTextField: 'text', optionLabel:'Select..'}"/>
+						</div>
+						<!-- <div class="col-sm-4">
+							<input class="completedisable" type="file" id='attfile' multiple="multiple" name="file" onchange="Initiative.SelectFile();">
+						</div> -->
+					</div>
+				<!-- </div>				 -->
+				<div class="row" data-bind="visible:false" adata-bind="visible:Attachments().length>0">
+					<div class="col-sm-4">File Name</div>
+					<div class="col-sm-8">Description</div>
+				</div>
+				<div class="row" data-bind="visible:false" adata-bind="visible:Attachments().length>0">
+					<div class="col-sm-12" data-bind="foreach:Attachments">
+						<div class="row">
+							<div class="col-sm-4" data-bind="text:filename()"></div>
+							<div class="col-sm-8">
+								<textarea class="form-control" rows="3" data-bind="value:description"></textarea>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="col-sm-12 no-padding">
+							<label class="col-sm-8 no-padding">Is This Initiative Tracked?</label>
+							<div  class="col-sm-4 no-padding">
+								<input id="IsInitiativeTracked" type="checkbox" data-bind="checked: IsInitiativeTracked" id="IsInitiativeTracked" data-size="small" data-on-text="Yes" data-off-text="No" switch="on">
+							</div>
+						</div>
+						<div class="col-sm-12 no-padding">
+							<label class="col-sm-8 no-padding">
+								Adoption Score Denomination
+							</label>
+							<div class="col-sm-12 no-padding">
+								<input id="AdoptionScoreDenomination" name="AdoptionScoreDenomination" data-bind="kendoDropDownList:{value:AdoptionScoreDenomination, data:$parent.MetricsTypeList, dataValueField: 'value', dataTextField: 'name', optionLabel:'Select..'}"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-8">
+						<label class="col-sm-4 no-padding">
+							Metric Benchmarks (Define RAG)
+						</label>
+						<div class="col-sm-12 no-padding">
+							<textarea id="MetricBenchmark" class="form-control" rows="3" data-bind="value:MetricBenchmark"></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-sm-12">
+						<label class="col-sm-2 no-padding">
+							Useful Resources
+						</label>
+						<div class="col-sm-12 no-padding">
+							<textarea id="UsefulResources" class="form-control" rows="3" data-bind="value:UsefulResources"></textarea>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer" data-bind="visible:!Initiative.Processing() && Phase() == '1'">
+				<div class="text-right">
+					<button class="btn btn-sm btn-warning" data-dismiss="modal">Cancel</button>
+					<button class="btn btn-sm btn-primary" onclick="Initiative.Phase(2)">  Next</button>
+				</div>
+			</div>
+			<div class="modal-footer text-right" data-bind="visible:!Initiative.Processing() && Phase() == '2'">
+				<div class="text-right">
+					<button class="btn btn-sm btn-default" onclick="Initiative.Phase(1)" data-bind="visible: Initiative.Mode() != 'show'"><span class="fa fa-arrow-left"></span> Back</button>
+					<button class="btn btn-sm btn-warning" data-dismiss="modal">Cancel</button>
+					<button class="btn btn-sm btn-primary" onclick="Initiative.Save(false)" data-bind="visible: Initiative.Mode() != 'show'" ><span class="fa fa-floppy-o"></span> Save</button>
+				</div>
+			</div>
+	   </div>
+	</div>
+
+	<div id="initiative-data" class="modal-dialog modal-lg viewdata" data-bind="visible:Mode()===''">
+		<div class="modal-content" data-bind="with:SelectedDataMarkTextByKeyword">
+			<div class="modal-header">
+			 	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			 	<h4 class="modal-title"><span data-bind="html:ProjectName"></span>&nbsp;<span data-bind="visible:SetAsComplete"><i class="fa fa-check" aria-hidden="true"></i></span></h4>
+			 	<div class="date-wrapper">
+			 		<label data-bind="html:kendo.toString(jsonDate(StartDate),'dd MMM yyyy')"></label>
+			 		- 
+			 		<label data-bind="html:kendo.toString(jsonDate(FinishDate),'dd MMM yyyy')"></label>
+			 	</div>
+			 	<div id="lcPosition">
+			 		<table class="table margin-0" id="crumbs" data-bind="attr:{style:'width:'+'550px'}">
+						<thead>
+							<tr data-bind="foreach:Initiative.LifeCycleList">
+								<th class="redips-mark" style="display: none;" data-bind="attr:{style:'background:'+Initiative.ColorList()[$index()]+';width:'+Initiative.LCWidth+'px'}, visible: Initiative.SelectedData().SelectedLifeCycle.indexOf(Id)>=0" >
+									<span>
+										<div class="display-inline" data-bind="visible:Initiative.SelectedData().SelectedLifeCycle.indexOf(Id)>=0, html: Name"></div>
+										<div class="next-arrow" data-bind="attr:{style:'border-left: 13px solid '+Initiative.ColorList()[$index()]+''}"></div>
+									</span>	
+								</th>
+								<th class="redips-mark" data-bind="attr:{style:'background:#E6E7E8;'}, visible: Initiative.SelectedData().LifeCycleId != Id" >
+									<span>
+										<div class="next-arrow" data-bind="attr:{style:'border-left: 13px solid #E6E7E8'}"></div>
+									</span>	
+								</th>
+							</tr>
+						</thead>
+
+					</table>
+			 	</div>
+			 	<div class="iHeader">
+			 		<img src="/web-cb/static/img/ecos_final.jpg" data-bind="visible:BusinessDriverId=='BD4'" class="img-ecos_final"> 
+			 		<img src="/web-cb/static/imgg/OE.png" data-bind="visible:OE">
+			 		<img src="/web-cb/static/imgg/EX.png" data-bind="visible:EX">
+			 	</div>
+			</div>
+			<!-- <div class="modal-body data-list">
+				<div class="row">
+					<label class="col-sm-12">Problem Statement</label>
+					<div class="col-sm-12" data-bind="html:ProblemStatement"></div>
+				</div>
+				<div class="row">
+					<label class="col-sm-12">Problem Description</label>
+					<div class="col-sm-12" data-bind="html:ProblemStatement"></div>
+				</div>
+				<div class="row">
+					<label class="col-sm-12">Client Lifecycle</label>
+					<div class="col-sm-12">
+						<table class="table margin-0" id="crumbs" data-bind="attr:{style:'width:'+'450px'}">
+
+							<thead>
+								<tr data-bind="foreach:c.DataSource().Data.MasterLiveCircle">
+									<th class="redips-mark" style="display: none;" data-bind="attr:{style:'background:'+c.ColorList()[$index()]+';'}, visible: Initiative.SelectedData().LifeCycleId == Id" >
+										<span>
+											<div style="display: inline;" data-bind="visible: Initiative.SelectedData().LifeCycleId == Id, html: Name"></div>
+											<div class="next-arrow" data-bind="attr:{style:'border-left: 20px solid '+c.ColorList()[$index()]+''}"></div>
+										</span>	
+									</th>
+									<th class="redips-mark" data-bind="attr:{style:'background:#E6E7E8;'}, visible: Initiative.SelectedData().LifeCycleId != Id" >
+										<span>
+											<div class="next-arrow" data-bind="attr:{style:'border-left: 20px solid #E6E7E8'}"></div>
+										</span>	
+									</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="row">
+							<label class="col-sm-12">Progress Completion</label>
+							<div class="col-sm-12">
+								<div data-bind="kendoProgressBar: { value: ProgressCompletion,type:'percent', enabled: true }" style="width: 100%;"></div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="row">
+							<label class="col-sm-12">Initiative Benefits</label>
+							<div class="col-sm-12">
+								<div data-bind="kendoProgressBar: { value: InitiativeBenefits,type:'percent', enabled: true }" style="width: 100%;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="row">
+							<label class="col-sm-12">Business Driver</label>
+							<div class="col-sm-12">
+								Primary:NTB
+								Secondary:Ecosystem
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="row">
+							<label class="col-sm-12">Project AE</label>
+							<div class="col-sm-12" data-bind="html:AccountableExecutive"></div>
+						</div>
+					</div>
+				</div>
+				<div class="row" data-bind="visible:Attachments.length>0">
+					<label class="col-sm-12">Files : </label>
+					<div class="col-sm-12 attachment-list" data-bind="foreach:Attachments">
+						<a data-bind="html:$data,click:Initiative.GetFile"></a>
+					</div>
+				</div>
+			</div> -->
+			<div class="modal-body data-list">
+				<ul  class="nav nav-pills">
+					<li class="active"><a  href="#1b" data-toggle="tab">Summary</a></li>
+					<li><a href="#2b" data-toggle="tab">Attachment <i data-bind="visible:Attachments.length>0" class="fa fa-paperclip ipaperclip"></i></a></li>
+					<li><a href="#3b" data-toggle="tab" onclick="return Initiative.scrollComment()">Comments</a></li>
+					<li data-bind="visible:InvestmentId!==''"><a data-bind="attr:{'href':'http://docrep.zone1.scb.net/sites/pdr/'+InvestmentId+'/Public%20Library/'}" target="_blank">PDR Link</a></li>
+				</ul>
+				<div class="loader" data-bind="visible:Initiative.Processing()">
+					<img src="/web-cb/static/img/hex-loader2.gif">
+				</div>
+				<div id="commentbox" class="tab-content clearfix" data-bind="visible:!Initiative.Processing()">
+				  <div class="tab-pane active" id="1b">
+				  	<div class="row">
+							<div class="col-sm-6">
+								<div class="row">
+									<label class="col-sm-12">Clarity ID</label>
+									<div class="col-sm-12" data-bind="html:InvestmentId"></div>
+								</div>
+								<div class="row">
+									<label class="col-sm-12">Project Manager</label>
+									<div class="col-sm-12" data-bind="html:ProjectManager"></div>
+								</div>
+								<div class="row">
+									<label class="col-sm-12">Accountable Executive</label>
+									<div class="col-sm-12" data-bind="html:AccountableExecutive"></div>
+								</div>
+								<div class="row">
+									<label class="col-sm-12">Technology Lead</label>
+								<div class="col-sm-12" data-bind="html:TechnologyLead"></div>
+								</div>
+								<div class="row">
+									<label class="col-sm-12">BEF Sponsor</label>
+									<div class="col-sm-12" data-bind="html:Sponsor"></div>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="row" id="OEMetrics">
+									<label class="col-sm-4" data-bind="visible:ImprovedEfficiencyTarget!==0">
+										<!-- <i class="fa fa-line-chart"></i>  -->
+										<span class="logo">
+											<img src="/web-cb/static/img/metrics/ie.jpg">
+										</span>
+										<span data-bind="html:kendo.toString(ImprovedEfficiencyTarget,'N0')+'%'"></span>
+									</label>
+									<label class="col-sm-4" data-bind="visible:ClientExperienceTarget!==0">
+										<!-- <i class="fa fa-thumbs-up"></i>  -->
+										<span class="logo">
+											<img src="/web-cb/static/img/metrics/ce.jpg">
+										</span>
+										<span data-bind="html:kendo.toString(ClientExperienceTarget,'N0')+'%'"></span>
+									</label>
+									<label class="col-sm-4" data-bind="visible:OperationalImprovementTarget!==0">
+										<!-- <i class="fa fa-cogs"></i>  -->
+										<span class="logo">
+											<img src="/web-cb/static/img/metrics/oi.jpg">
+										</span>
+										<span data-bind="html:kendo.toString(OperationalImprovementTarget,'N0')+'%'"></span>
+									</label>
+									<label class="col-sm-4" data-bind="visible:CSRIncreaseTarget!==0">
+										<!-- <i class="fa fa-money"></i>  -->
+										<span class="logo">
+											<img src="/web-cb/static/img/metrics/csr.jpg">
+										</span>
+										<span data-bind="html:kendo.toString(CSRIncreaseTarget,'N0')+'%'"></span>
+									</label>
+									<label class="col-sm-4" data-bind="visible:TurnAroundTimeTarget!==0">
+										<!-- <i class="fa fa-clock-o"></i>  -->
+										<span class="logo">
+											<img src="/web-cb/static/img/metrics/tat.jpg">
+										</span>
+										<span data-bind="html:kendo.toString(TurnAroundTimeTarget,'N0')+'%'"></span>
+									</label>
+								</div>
+
+								<div class="row">
+									<label class="col-sm-12">Business Impact</label>
+									<div class="col-sm-12" data-bind="foreach:InitiativeData">
+										<div class="row">
+											<div class="col-sm-5 no-padding-right">
+												<div class="biChart" data-bind="visible:BusinessImpact==='Low'">
+													<div class="biLow width-percent30"><span>Low</span></div>
+													<div class="empty width-percent30"></div>
+													<div class="empty width-percent30"></div>
+												</div>
+												<div class="biChart" data-bind="visible:BusinessImpact==='Medium'">
+													<div class="biLow width-percent30"></div>
+													<div class="biMedium width-percent30"><span>Med</span></div>
+													<div class="empty width-percent30"></div>
+												</div>
+												<div class="biChart" data-bind="visible:BusinessImpact==='High'">
+													<div class="biLow width-percent30"></div>
+													<div class="biMedium width-percent30"></div>
+													<div class="biHigh width-percent30"><span>High</span></div>
+												</div>
+												<!-- <div data-bind="html:type"></div> -->
+											</div>
+											<!-- <div class="col-sm-3 no-padding text-left" data-bind="html:BusinessImpact" id="BusinessImpactChartTitle"></div>	 -->
+											<div class="col-sm-7 no-padding text-left" data-bind="html:Initiative.GetSCCategory(SCCategory)+Initiative.GetBusinessDriver(BusinessDriverId)" id="BusinessImpactChartTitle"></div>	
+										</div>
+									</div>
+								</div>
+								<!-- <div class="row">
+									<div class="col-sm-12" data-bind="visible:OE">
+										<div id="cost_reduction"><img src="/web-cb/static/img/cost_reduction.png"></div>
+									</div>
+								</div> -->
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-sm-12">Problem Statement</label>
+							<div class="col-sm-12" data-bind="html:Initiative.Linkify(ProblemStatement)"></div>
+						</div>
+						<div class="row">
+							<label class="col-sm-12">Project Description</label>
+							<div  class="col-sm-12" style="white-space: pre-wrap;" data-bind="html:Initiative.Linkify(ProjectDescription)"></div>
+						</div>
+						<div class="row">
+							<label class="col-sm-12">Key Deliverables / Milestones</label>
+							<div class="col-sm-12">
+								<table class="table table-striped" id="milestonesTable">
+									<thead>
+										<tr>
+											<th>Deliverable</th>
+											<th class="datecolumn">Start Date</th>
+											<th class="datecolumn">End Date</th>
+											<th>Country</th>
+											<th>Status</th>
+										</tr>
+									</thead>
+									<tbody data-bind="foreach:Milestones,visible:Milestones.length>0">
+										<tr>
+											<td data-bind="html:Name"></td>
+											<td data-bind="html:kendo.toString(jsonDate(StartDate),'dd-MMM-yyyy')" class="text-center"></td>
+											<td data-bind="html:kendo.toString(jsonDate(EndDate),'dd-MMM-yyyy')" class="text-center"></td>
+											<td data-bind="html:Country"></td>
+											<td data-bind="visible:Completed">Complete</td>
+											<td data-bind="visible:!Completed">In Progress</td>
+										</tr>
+									</tbody>
+									<tbody data-bind="visible:Milestones.length===0">
+										<tr><td colspan="5" class="text-center"><i>No Key Deliverables / Milestones</i></td></tr>
+									</tbody >
+								</table>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="row">
+									<label class="col-sm-12">Progress Completion</label>
+									<div class="col-sm-12 progressbarInitiative">
+										<!-- <input data-bind="kendoSlider:{value: ProgressCompletion, min:0, max:100, enabled: (Initiative.Mode() == 'editProgressOnly') }" >
+										<a style="cursor: pointer;" data-bind="visible:Initiative.Mode() == '', click: function(){Initiative.Mode('editProgressOnly')} ">edit</a>
+										<a style="cursor: pointer;" data-bind="visible:Initiative.Mode() == 'editProgressOnly', click: function(){ Initiative.Mode('') } ">cancel</a>
+										<a style="cursor: pointer;" data-bind="visible:Initiative.Mode() == 'editProgressOnly', click: function(){ Initiative.Mode('') } ">save</a> -->
+										<span data-bind="attr:{'style':'position:absolute;width:68%;height:100%;z-index: 30;border: 4px solid #fff;border-top-left-radius: 20px;border-bottom-left-radius: 20px;border-top-right-radius: 20px;border-bottom-right-radius: 20px;margin: 0 -2px;'}"></span>
+										<div class="pgbar" data-bind="kendoProgressBar: {value: Initiative.GetCompletion($data),type:'percent', enabled: true}"></div>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-6">
+									<div class="row">
+<!-- 									<div class="col-sm-6">
+										<div class="row">
+											<label class="col-sm-12">RAG</label>
+											<div class="col-sm-12" data-bind="html:DisplayProgress"></div>
+										</div>
+									</div> -->
+									<div class="col-sm-6">
+										<div class="row">
+											<label class="col-sm-12">Planned Cost</label>
+									<div class="col-sm-12" data-bind="html:kendo.toString(PlannedCost,'N2')"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="row">
+									<label class="col-sm-12">Project Driver</label>
+									<div class="col-sm-12" data-bind="html:ProjectDriver"></div>
+								</div>
+							</div>
+							<div class="col-sm-6" data-bind="visible:!IsGlobal">
+								<div class="row">
+									<div class="col-sm-6">
+										<div class="row">
+											<label class="col-sm-12">Region</label>
+											<div class="col-sm-12" data-bind="html:Region"></div>
+										</div>
+									</div>
+									<div class="col-sm-6">
+										<div class="row">
+											<label class="col-sm-12">Country</label>
+											<div class="col-sm-12" data-bind="html:Initiative.AddNewLine(Country)"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-6" data-bind="visible:IsGlobal">
+								<div class="row">
+									<div class="col-sm-6">
+										<div class="row">
+											<label class="col-sm-12">Region</label>
+											<div class="col-sm-12">Global</div>
+										</div>
+									</div>
+									<div class="col-sm-6">
+										<div class="row">
+											<label class="col-sm-12">Country</label>
+											<div class="col-sm-12">Global</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-sm-12">Project Classification</label>
+							<div class="col-sm-12" data-bind="html:ProjectClassification"></div>
+						</div>
+
+						<div class="row">
+							<label class="col-sm-12">Is This Initiative Tracked?</label>
+							<div class="col-sm-12" data-bind="html:(IsInitiativeTracked) ? 'Yes' : 'No'"></div>
+						</div>
+
+						<div class="row">
+							<label class="col-sm-12">Adoption Score Denomination</label>
+							<div class="col-sm-12" data-bind="html:(AdoptionScoreDenomination == 'DOLLAR') ? 'Dollar Value ($)' : (AdoptionScoreDenomination == 'NUMERIC') ? 'Numeric Value' : (AdoptionScoreDenomination == 'PERCENTAGE') ? 'Percentage (%)' : ''"></div>
+						</div>
+
+						<div class="row">
+							<label class="col-sm-12">Metric Benchmarks (Define RAG)</label>
+							<div class="col-sm-12" data-bind="html:Initiative.Linkify(MetricBenchmark)"></div>
+						</div>
+
+						<div class="row">
+							<label class="col-sm-12">Useful Resources</label>
+							<div class="col-sm-12" data-bind="html:Initiative.Linkify(UsefulResources)"></div>
+						</div>					
+
+					</div>
+					<div class="tab-pane" id="2b">
+		        		<div class="row">
+		        			<div class="col-sm-12">
+		        				<table class="table table-striped">
+			        				<thead>
+			        					<tr>
+									        <th>File Name</th>
+									        <th>Description</th>
+									        <th>Upload Date</th>
+									        <th>Upload By</th>
+									        {{if (or (.Global.Delete) (.Region.Delete) (.Country.Delete) (.Global.Owned) (.Region.Owned) (.Country.Owned))}}
+									        <th style="width: 10px" data-bind="visible:Initiative.CheckOwnedAccess()">Remove</th>
+									        {{end}}
+									    </tr>
+			        				</thead>
+			        				<tbody data-bind="foreach:Attachments">
+			        					<tr>
+			        						<td><a data-bind="html:filename,attr:{href:'#'},click:Initiative.GetFile"></a></td>
+			        						<td data-bind="html:description"></td>
+			        						<td data-bind="html:kendo.toString(jsonDate(updated_date),'dd-MMM-yyyy')"></td>
+			        						<td data-bind="html:updated_by"></td>
+			        						{{if (or (.Global.Delete) (.Region.Delete) (.Country.Delete) (.Global.Owned) (.Region.Owned) (.Country.Owned))}}
+			        						<td data-bind="visible:Initiative.CheckOwnedAccess()"><button class="btn btn-xs btn-danger" data-bind="click:Initiative.RemoveAttachment.bind($data, $parent, $index())"><span class="fa fa-remove"></span></button></td>
+			        						{{end}}
+			        					</tr>
+			        				</tbody>
+			        			</table>
+		        			</div>
+		        			{{if (or (.Global.Update) (.Region.Update) (.Country.Update) (.Global.Owned) (.Region.Owned) (.Country.Owned))}}
+		        			<label class="col-sm-2" data-bind="visible:Initiative.CheckOwnedAccess()">Upload New File :</label>
+							<div class="col-sm-10" data-bind="visible:Initiative.CheckOwnedAccess()">
+								<input  type="file" id='attfile' multiple="multiple" name="attfile" onchange="Initiative.SelectIFile()" />
+							</div>
+							{{end}}
+							<div class="col-sm-12" data-bind="visible:Initiative.Attachments().length>0">
+								<div class="row">
+									<div class="col-sm-4">File Name</div>
+									<div class="col-sm-8">Description</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-12" data-bind="foreach:Initiative.Attachments">
+										<div class="row">
+											<div class="col-sm-4 filename-preview" data-bind="text:filename()"></div>
+											<div class="col-sm-8">
+												<textarea class="form-control" rows="3" data-bind="value:description"></textarea>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-12 text-right">
+										<button class="btn-xs btn btn-warning" data-bind="click:Initiative.ClearAttachment">Clear</button>
+										<button class="btn-xs btn btn-primary" data-bind="click:Initiative.UploadAttachment">Upload Now</button>
+									</div>
+								</div>
+							</div>
+						
+		        		</div>
+					</div>
+		      <div class="tab-pane" id="3b">
+
+						<div class="row bootstrap snippets">
+						    <div class="col-sm-12">
+						        <div class="box-body">
+						          <div class="direct-chat-messages" data-bind="foreach: CommentList">
+
+						            <div class="direct-chat-msg">
+						              <div class="direct-chat-info clearfix">
+						                <span class="direct-chat-name pull-left" data-bind="html: Username"></span>
+						                {{if (or (.Global.Delete) (.Region.Delete) (.Country.Delete) (.Global.Owned) (.Region.Owned) (.Country.Owned) )}}
+						                <span class="direct-chat-timestamp pull-right" style="margin-left: 5px" ><button class="btn btn-xs btn-danger" data-bind="visible: !Editable&&Initiative.CheckOwnedAccess(), click: Initiative.DeleteComment.bind($data, $parent, $index())">Delete</button></span>
+						                {{end}}
+						                
+						                {{if (or (.Global.Update) (.Region.Update) (.Country.Update) (.Global.Owned) (.Region.Owned) (.Country.Owned) )}}
+						                <span class="direct-chat-timestamp pull-right" style="margin-left: 5px"><button class="btn btn-xs btn-default" data-bind="visible: Editable&&Initiative.CheckOwnedAccess(), click: Initiative.CancelUpdateComment.bind($data, $parent, $index())">Cancel</button></span>
+						                <span class="direct-chat-timestamp pull-right" style="margin-left: 10px"><button class="btn btn-xs btn-warning" data-bind="visible: !Editable&&Initiative.CheckOwnedAccess(), click: Initiative.EditComment.bind($data, $parent, $index())">Edit</button></span>
+						                <span class="direct-chat-timestamp pull-right" style="margin-left: 10px"><button class="btn btn-xs btn-success" data-bind="visible: Editable&&Initiative.CheckOwnedAccess(), click: Initiative.SaveComment.bind($data, $parent, $index())">Save</button></span>
+						                {{end}}
+						                <!-- <span class="direct-chat-timestamp pull-right" data-bind="html: moment(updated_date).format('DD MMM YYYY, h:mm:ss a'), visible: updated_by !== '' " style="margin-left: 5px"></span> -->
+						                <span class="direct-chat-timestamp pull-right" data-bind="html: moment(DateInput).format('DD MMM YYYY, h:mm:ss a')"></span>
+						              </div>
+						              <img class="direct-chat-img" src="/web-cb/static/img/user_icon.jpg" alt="Message User Image">
+						              <input class="direct-chat-text" style="width: 94%;background-color: white;" data-bind="visible: Editable,value: Comment">
+						              <div class="direct-chat-text" style="width: 94%" data-bind="visible: !Editable,text: Comment"></div>
+						              <span class="edited_message" data-bind="click: Initiative.GetLogComment.bind($data),html: 'Edited. ' + moment(updated_date).format('DD MMM YYYY, h:mm:ss a')+' by : '+updated_by, visible: updated_by !== '' "></span>
+
+						            </div>
+
+						          </div>
+
+						        </div>
+						        {{if (or (.Global.Update) (.Region.Update) (.Country.Update) (.Global.Owned) (.Region.Owned) (.Country.Owned) )}}
+						        <div class="box-footer" data-bind="visible:Initiative.CheckOwnedAccess()">
+						        	<div class="row">
+						        		<div class="col-sm-12">
+						        			<textarea rows="3"  placeholder="Type Message ..." class="form-control" data-bind="value: $parent.TmpComment"></textarea>
+						        		</div>
+						        	</div>
+						        	<div class="row">
+						        		<div class="col-sm-12 text-right">
+						        			<button class="btn btn-sm btn-default" onclick="Initiative.AddComment()">Submit</button>
+						        		</div>
+						        	</div>
+						        </div>
+						        {{end}}
+						    </div>
+						</div>
+
+					</div>
+				</div>
+				<!-- 
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="row">
+							<label class="col-sm-12">Business Driver</label>
+							<div class="col-sm-12">
+								Primary:NTB
+								Secondary:Ecosystem
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="row">
+							<label class="col-sm-12">Project AE</label>
+							<div class="col-sm-12" data-bind="html:AccountableExecutive"></div>
+						</div>
+					</div>
+				</div> -->
+				<!-- <div class="row" data-bind="visible:IsViewAttachment()">
+					<label class="col-sm-12">Files : </label>
+					<div class="col-sm-12 attachment-list" data-bind="foreach:Attachments">
+						<a data-bind="html:$data,click:Initiative.GetFile"></a>
+					</div>
+				</div> -->
+			</div>
+			<div class="modal-footer">
+				<div class="row">
+					<div class="col-sm-7 text-left" data-bind="with:Initiative">
+						<label data-bind="with:SelectedDataMarkTextByKeyword" class="lastupdated-wrapper">Last Updated : <span data-bind="html:kendo.toString(jsonDate(updated_date),'dd MMM yyyy')"></span> by <span data-bind="text:updated_by_fullname"></span></label>
+						<!-- <button class="btn btn-sm btn-primary" disabled>See Comments</button> -->
+						<!-- <button class="btn btn-sm btn-default" data-bind="visible:Attachments.length>0" onclick="click:Initiative.SelectedData().IsViewAttachment(!Initiative.SelectedData().IsViewAttachment())">
+							<i class="fa fa-paperclip"></i> <span data-bind="html:IsViewAttachment()?'Hide Attachment':'Show Attachment'"></span>
+						</button> -->
+					</div>
+					<div class="col-sm-5 text-right">
+						{{if (or (.Global.Delete) (.Region.Delete) (.Country.Delete) (.Global.Owned) (.Region.Owned) (.Country.Owned))}}
+						<button class="btn btn-sm btn-danger" data-bind="click:Initiative.Remove,visible:Initiative.CheckOwnedAccess()">Remove</button>
+						{{end}}
+        				{{if (or (.Global.Update) (.Region.Update) (.Country.Update) (.Global.Owned) (.Region.Owned) (.Country.Owned) )}}
+						<button class="btn btn-sm btn-default" data-bind="click:Initiative.Edit,visible:Initiative.CheckOwnedAccess()">Edit</button>
+						{{end}}
+						<button class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal -->
+<div id="LogComment" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><span style="color: #2890C0;font-weight: bold;">Log Comment</span></h4>
+      </div>
+      <div class="modal-body" data-bind="with: Initiative">
+      	<table class="table table-bordered table-condensed">
+      		<tr>
+      			<td>Action</td>
+      			<td>Comment</td>
+      			<td>Update By</td>
+      			<td>Update Date</td>
+      		</tr>
+      		<tbody data-bind="foreach: LogMessage">
+      			<tr>
+      				<td data-bind="text: Action"></td>
+		      		<td data-bind="text: Comment.Comment"></td>
+		      		<td data-bind="text: $index() > 0 ? Comment.Updated_By : '-'"></td>
+		      		<td data-bind="text: $index() > 0 ? moment(Comment.Updated_Date).format('DD MMM YYYY, h:mm:ss a') : '-'"></td>
+      			</tr>
+      		</tbody>
+      	</table>
+        <!-- <p>Some text in the modal.</p> -->
+      </div>
+<!--       <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div> -->
+    </div>
+
+  </div>
+</div>

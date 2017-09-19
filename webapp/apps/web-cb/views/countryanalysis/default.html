@@ -1,0 +1,1077 @@
+{{if (or (.CountryAnalysis.Global.Upload) (.CountryAnalysis.Region.Upload) (.CountryAnalysis.Country.Upload)) }}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (or (.CountryAnalysis.Global.Curtain) (.CountryAnalysis.Region.Curtain) (.CountryAnalysis.Country.Curtain)) }}
+{{template "initiative_chart.html" .}}
+{{end}}
+{{if (or (.CountryAnalysis.Global.Read) (.CountryAnalysis.Region.Read) (.CountryAnalysis.Country.Read)) }}
+<style type="text/css">
+    .k-header{
+       vertical-align: middle !important;
+    }
+</style>
+<script type="text/javascript">
+  // ca = Country Analysis
+  var ca = {
+    Processing:ko.observable(true),
+    Filter:{
+      BMId:ko.observable(""),
+      {{if (.CountryAnalysis.Country.Read) }}
+      Breakdown:ko.observable("country"),
+      {{else}}
+        {{if (.CountryAnalysis.Region.Read) }}
+        Breakdown:ko.observable("region"),
+        {{else}}
+          {{if (.CountryAnalysis.Global.Read) }}
+          Breakdown:ko.observable("global"),
+          {{else}}
+          Breakdown:ko.observable(""),
+          {{end}}
+        {{end}}
+      {{end}}
+      Period:ko.observable("01-2017"),
+      RelevantFilter:ko.observable(""),
+    },
+    BreakDownList:ko.observableArray([
+      {{if (.CountryAnalysis.Global.Read) }}
+      {Name:"Global",Value:"global"},
+      {{end}}
+      {{if (.CountryAnalysis.Region.Read) }}
+      {Name:"Breakdown by Region",Value:"region"},
+      {{end}}
+      {{if (.CountryAnalysis.Country.Read) }}
+      {Name:"Breakdown by Country",Value:"country"}
+      {{end}}
+    ]),
+        BusinessMetricsList:ko.observableArray(),
+        BusinessMetricsListCumulative:ko.observableArray(),
+    BusinessMetricsListAll:ko.observableArray(),
+    YearList:ko.observableArray(),
+      MonthYearList: ko.observableArray(),
+        tabvalue:ko.observable('gap'),
+        titlechart:ko.observable('% GAP Chart')
+  }
+  ca.Filter.BMId.subscribe(function(){
+    ca.GetData();
+  });
+    ca.Filter.Period.subscribe(function(){
+    ca.GetData();
+    });
+  ca.Filter.Breakdown.subscribe(function(){
+    ca.GetData();
+  });
+  // ca.tabvalue.subscribe(function(){
+  //   ca.GetData();
+  // });
+  ca.GetData = function(){
+    ca.Processing(true);
+    var parm = ko.mapping.toJS(ca.Filter);
+    // parm.Period = (parm.Period == "") ? toUTC(new Date("01-01-1000")) : parm.Period;
+    // console.log(parm)
+    ajaxPost("/web-cb/countryanalysis/getdata",parm,function(res){
+      setTimeout(function(){
+        ca.Processing(false);
+        ca.Render(res.Data);
+      }, 100);
+    });
+  }
+
+  ca.Init = function(){
+    month = ["January", "February", "March", "April","May","June","July","August","September","October","November","December"]
+    // Gen YearList
+    var CurrentYear = new Date().getFullYear();
+    for(var i = CurrentYear;i>=2010;i--){
+    for(ii in month){
+      ca.MonthYearList.push({Text: month[ii]+" "+i, Value: month[ii]+"-"+i})
+    }
+      ca.YearList.push(i);
+    }
+    ajaxPost("/web-cb/businessmetrics/getalldata",{},function(res){
+      var arr = sortStringNumber(100, res.Data, "description")
+      //Enumerable.From(res.Data).OrderBy("$.businessmetric.description").ToArray();
+            newarr1 = []
+            _.each(arr,function(v,i){
+                if(v.type == undefined){
+                    v.type = ""
+                }
+                if(v.type == "cumulative"){
+                    newarr1.push(v)
+                }
+            })
+
+      ca.BusinessMetricsList(arr);
+            ca.BusinessMetricsListCumulative(newarr1);
+            ca.BusinessMetricsListAll(arr);
+    })
+    ca.GetData();
+  }
+  ca.Render = function(dataSource){
+        // console.log(dataSource,Enumerable.From(dataSource).Where("$.NAActual == false && $.NATarget == false").ToArray())
+
+
+        var isNegative = false;
+        _.each(dataSource, function(v,i){
+
+          if(v.Projection >= 1){
+            dataSource[i].ColorActualPercent = '#36bc9b'
+          } else{
+            dataSource[i].ColorActualPercent = '#FF0041'
+          }
+
+          if(v.BudgetProjection >= 1){
+            dataSource[i].ColorBudgetProjection = '#36bc9b'
+          } else{
+            dataSource[i].ColorBudgetProjection = '#FF0041'
+          }
+
+          if(v.Projection < 0 || v.ActualPercent < 0){
+            isNegative = true;
+          }
+
+          //for budget
+          dataSource[i].RematchingBudgetProjection = 0;
+          if(v.ActualPercent >= 0 && v.BudgetProjection >= 0){
+            dataSource[i].RematchingBudgetProjection = v.BudgetProjection - v.ActualPercent; //projection
+            if(dataSource[i].RematchingBudgetProjection < 0){
+                dataSource[i].RematchingBudgetProjection = 0; //projection
+            }
+          } else if(v.ActualPercent < 0 && v.BudgetProjection < 0){
+            dataSource[i].RematchingBudgetProjection = v.BudgetProjection - v.ActualPercent; //projection
+            if(dataSource[i].RematchingBudgetProjection >= 0){
+                dataSource[i].RematchingBudgetProjection = 0; //projection
+            }
+          } else if(v.ActualPercent >= 0 && v.BudgetProjection < 0){
+            dataSource[i].RematchingBudgetProjection = v.BudgetProjection;
+          } else if(v.ActualPercent < 0 && v.BudgetProjection >= 0){
+            dataSource[i].RematchingBudgetProjection = v.BudgetProjection;
+          }
+
+          dataSource[i].RematchingProjectionforBudgetUse = 0;
+          if(v.BudgetProjection >= 0 && v.Projection >= 0){
+            dataSource[i].RematchingProjectionforBudgetUse = v.Projection - v.BudgetProjection; //projection
+            if(dataSource[i].RematchingProjectionforBudgetUse < 0){
+                dataSource[i].RematchingProjectionforBudgetUse = 0; //projection
+            }
+          } else if(v.BudgetProjection < 0 && v.Projection < 0){
+            dataSource[i].RematchingProjectionforBudgetUse = v.Projection - v.BudgetProjection; //projection
+            if(dataSource[i].RematchingProjectionforBudgetUse >= 0){
+                dataSource[i].RematchingProjectionforBudgetUse = 0; //projection
+            }
+          } else if(v.BudgetProjection >= 0 && v.Projection < 0){
+            dataSource[i].RematchingProjectionforBudgetUse = v.Projection;
+          } else if(v.BudgetProjection < 0 && v.Projection >= 0){
+            dataSource[i].RematchingProjectionforBudgetUse = v.Projection;
+          }
+          //
+
+          dataSource[i].ProjectionMinusActualPercent = 0;  
+          if(v.ActualPercent >= 0 && v.Projection >= 0){
+            dataSource[i].ProjectionMinusActualPercent = v.Projection - v.ActualPercent; //projection
+            if(dataSource[i].ProjectionMinusActualPercent < 0){
+                dataSource[i].ProjectionMinusActualPercent = 0; //projection
+            }
+          } else if(v.ActualPercent < 0 && v.Projection < 0){
+            dataSource[i].ProjectionMinusActualPercent = v.Projection - v.ActualPercent; //projection
+            if(dataSource[i].ProjectionMinusActualPercent >= 0){
+                dataSource[i].ProjectionMinusActualPercent = 0; //projection
+            }
+          } else if(v.ActualPercent >= 0 && v.Projection < 0){
+            dataSource[i].ProjectionMinusActualPercent = v.Projection;
+          } else if(v.ActualPercent < 0 && v.Projection >= 0){
+            dataSource[i].ProjectionMinusActualPercent = v.Projection;
+          }
+
+          dataSource[i].RematchingGap = 0;
+          if(v.ActualPercent >= 0 && v.Gap >= 0){
+            // dataSource[i].RematchingGap = v.Gap - v.ActualPercent; //gap
+            // if(dataSource[i].RematchingGap < 0){
+            //     dataSource[i].RematchingGap = 0; //gap
+            // }
+          } else if(v.ActualPercent < 0 && v.Gap < 0){
+            dataSource[i].RematchingGap = v.Gap - v.ActualPercent; //gap
+            if(dataSource[i].RematchingGap >= 0){
+                dataSource[i].RematchingGap = 0; //gap
+            }
+          } else if(v.ActualPercent >= 0 && v.Gap < 0){
+            dataSource[i].RematchingGap = v.Gap;
+          } else if(v.ActualPercent < 0 && v.Gap >= 0){
+            // dataSource[i].RematchingGap = v.Gap;
+          }
+          
+        })
+        // console.log(dataSource)
+
+    var selectedBM = Enumerable.From(ca.BusinessMetricsList()).Where("$.id === '"+ca.Filter.BMId()+"'").FirstOrDefault();
+    if(selectedBM===undefined){
+      selectedBM = {};
+      selectedBM.DecimalFormat = "0";
+      selectedBM.naactual = false;
+      selectedBM.natarget = false;
+      selectedBM.valuetype = false;
+    }else{
+      selectedBM = selectedBM;
+    }
+
+    // for(var i in dataSource){
+    //  if (selectedBM.valuetype == 0){
+    //    dataSource[i].Gap = dataSource[i].Gap * -1;
+    //  }
+    // }
+    dataSource = Enumerable.From(dataSource).OrderBy("$.Gap").ToArray()
+    if(ca.tabvalue() == 'gap'){
+        var DataTable = $("#data-table");
+        DataTable.html("");
+        DataTable.kendoGrid({
+            dataSource: {
+                data: dataSource,
+                // pageSize: 10
+            },
+            scrollable: false,
+            sortable: true,
+            filterable: false,
+            pageable:false,
+            dataBound:function() {
+                $('td').each(function(){if($(this).text()=='red'){$(this).addClass('red')}});
+                $('td').each(function(){if($(this).text()=='green'){$(this).addClass('green')}});
+                $('td').each(function(){if($(this).text()=='amber'){$(this).addClass('amber')}});
+            },
+            pageable: {
+                numeric: false,
+                previousNext: false,
+                messages: {
+                    display: "Showing {2:N0} Items"
+                }
+            },
+            // scrollable: {
+            //     virtual: true
+            // },
+            columns: [
+                { field: "Name", title: "Country"},
+                { field: "RAG", title: "RAG"},
+                { field: "Target", title: "Target",format:"{0:N1}",attributes:{"class":"text-right"},
+                    template:'#:NATarget?"N/A":kendo.toString(Target,"N'+selectedBM.DecimalFormat+'")#'
+                },
+                { field: "Actual", title: "Actual YTD",format:"{0:N1}",attributes:{"class":"text-right"},
+                    template:'#:NAActual?"N/A":kendo.toString(Actual,"N'+selectedBM.DecimalFormat+'")#'
+                },
+                { field: "Gap", title: "% Gap",format:"{0:P2}",attributes:{"class":"text-right"},
+                    template:'#:NAGap?"N/A":kendo.toString(Gap,"P2")#'
+
+                    // '+(selectedBM.valuetype==1?'1*':'')+'
+                },
+            ]
+        });
+
+        var DVWidth = $("#data-visualisation-width").width();
+        var breakdown = ca.Filter.Breakdown();
+        var DataVisualisation = $("#data-visualisation");
+        DataVisualisation.html("");
+        if(dataSource.length == 0 && (selectedBM.natarget||selectedBM.naactual)){
+          $("#data-visualisation").html('<div class="emptychart-wrapper"><div>Not Applicable</div></div>');
+          return false;
+        }
+        dataSource = Enumerable.From(dataSource).Where("$.NAActual == false && $.NATarget == false").ToArray();
+        var allCountry = 27;
+        if (dataSource.length<allCountry && dataSource.length!==0) {
+            for(var i=dataSource.length;i<=27;i++){
+                dataSource.push({Name:""});
+            }
+        }
+        DataVisualisation.kendoChart({
+            dataSource: {
+                data: dataSource
+            },
+            legend: {
+                visible: false
+            },
+            chartArea:{
+              width:DVWidth,
+                height:550
+            },
+            seriesDefaults: {
+              gap:0.5,
+              // size:10
+              // width:90,
+            },
+            series: [{
+                field: "ActualPercent",
+                color:"#36bc9b",
+                stack: true,
+                type: "column",
+                labels: {
+                    visible: true,
+                    font:"10px Helvetica Neue",
+                    color:"#333",
+                    // template:function(e){
+                    //   tmp = 0;
+                    //   html = "";
+                      
+                    //   if(e.dataItem.Gap >= 0){
+                    //     tmp = e.dataItem.Gap * 100;
+                    //     html = e.category+" "+kendo.toString(tmp,'N0')+" %";
+
+                    //   } else{
+                    //     tmp = e.dataItem.Gap * -100;
+                    //     html = kendo.toString(tmp,'N0')+" % "+e.category;
+                    //   }
+
+                    //   return html;
+                    // },
+                    template:" #: category #",
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    // template:"#:kendo.toString(value*100,'N0')#%",
+                    background: "transparent",
+                    position:"insideBase",
+                    // margin:{
+                    //  bottom:0
+                    // }
+                },
+                tooltip:{
+                  visible:true,
+                  template:"Actual YTD: #: dataItem.Actual#<br>Actual %: #:kendo.toString(value,'P2')#"
+                },
+                overlay: {
+                  gradient: "none"
+                },
+                border: {
+                  width: 0
+                },
+            },{
+                field: "RematchingGap",
+                color:"#D4D4D4",
+                stack: true,
+                labels: {
+                    visible: false,
+                    font:"8px Helvetica Neue",
+                    color:"#333",
+                    // template:function(e){
+                    //   tmp = 0;
+                    //   html = "";
+                      
+                    //   if(e.dataItem.Gap >= 0){
+                    //     tmp = e.dataItem.Gap * 100;
+                    //     html = e.category+" "+kendo.toString(tmp,'N0')+" %";
+
+                    //   } else{
+                    //     tmp = e.dataItem.Gap * -100;
+                    //     html = kendo.toString(tmp,'N0')+" % "+e.category;
+                    //   }
+
+                    //   return html;
+                    // },
+                    template:function(e){
+                        // console.log(e.dataItem.Gap)
+                        return kendo.toString(e.dataItem.Gap,'P2');
+                    },
+                    padding:{
+                        top: -20,
+                        bottom: -20,
+                    },
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    // template:"#:kendo.toString(value*100,'N0')#%",
+                    background: "transparent",
+                    position:"insideBase",
+                    // margin:{
+                    //  bottom:0
+                    // }
+                },
+                border: {
+                  width: 0
+                },
+                overlay: {
+                  gradient: "none"
+                },
+            }],
+            valueAxis: {
+                max: 1,
+                min: -1,
+                majorGridLines: {
+                    visible: false
+                },
+                majorUnit: 0.1,
+                visible: true,
+                labels:{
+                  template:"#:kendo.toString(value,'P0')#"
+                }
+            },
+            categoryAxis: {
+                field: "Name",
+                majorGridLines: {
+                    visible: false
+                },
+                labels:{
+                  visible:false,
+                  // rotation:breakdown=="country"?270:0,
+                  rotation:270,
+                  position:"insideEnd",
+                  // margin:{
+                  //  bottom:-250
+                  // },
+                  
+                },
+                line: {
+                    visible: false
+                }
+            },
+            tooltip:{
+              visible:true,
+              template:"#:kendo.toString(value,'P2')#"
+            }
+        });
+    } else if(ca.tabvalue() == 'fyp'){
+        // dataSource = _.groupBy(dataSource, )
+        dataSource = _.sortBy(dataSource, function(x){return x.Projection * -1})
+        dataSourceForChart = Enumerable.From(dataSource).Where("$.NAActual == false && $.NATarget == false").ToArray()
+        var MaxLength = 1;
+        var MinLength = -1;
+        if(dataSourceForChart.length > 0){
+            // console.log(dataSourceForChart[0].Projection)
+            MaxLength = dataSourceForChart[0].Projection + 0.1;
+            MinLength = dataSourceForChart[dataSourceForChart.length-1].Projection - 0.1;
+        }
+        if(!isNegative){
+            MinLength = 0;
+        }
+        if(MaxLength >= 2){
+            MaxLength = 2;
+        }
+        if(MinLength <= -2){
+            MinLength = -2
+        }
+        // console.log(MaxLength,MinLength)
+        var DataTable = $("#data-table2");
+        DataTable.html("");
+        DataTable.kendoGrid({
+            dataSource: {
+                data: dataSource,
+                // pageSize: 10
+            },
+            scrollable: false,
+            sortable: true,
+            filterable: false,
+            pageable:false,
+            dataBound:function() {
+                $('td').each(function(){if($(this).text()=='red'){$(this).addClass('red')}});
+                $('td').each(function(){if($(this).text()=='green'){$(this).addClass('green')}});
+                $('td').each(function(){if($(this).text()=='amber'){$(this).addClass('amber')}});
+            },
+            pageable: {
+                numeric: false,
+                previousNext: false,
+                messages: {
+                    display: "Showing {2:N0} Items"
+                }
+            },
+            // scrollable: {
+            //     virtual: true
+            // },
+            columns: [
+                { field: "Name", title: "Country"},
+                { field: "RAG", title: "RAG"},
+                { field: "ActualPercent", title: "Actual %",format:"{0:P2}",attributes:{"class":"text-right"},
+                    template:'#:NAActualPercent?"N/A":kendo.toString('+(selectedBM.valuetype==1?'1*':'')+'ActualPercent,"P2")#'
+                },
+                { field: "Projection", title: "Full Year Projection %",format:"{0:P2}",attributes:{"class":"text-right"},
+                    template:'#:NAProjection?"N/A":kendo.toString('+(selectedBM.valuetype==1?'1*':'')+'Projection,"P2")#'
+                },
+            ]
+        }); 
+
+        var DVWidth = $("#data-visualisation2-width").width();
+        var breakdown = ca.Filter.Breakdown();
+        var DataVisualisation = $("#data-visualisation2");
+        DataVisualisation.html("");
+        if(dataSource.length == 0 && (selectedBM.natarget||selectedBM.naactual)){
+            $("#data-visualisation2").html('<div class="emptychart-wrapper"><div>Not Applicable</div></div>');
+            return false;
+        }
+        var allCountry = 27;
+        if (dataSourceForChart.length<allCountry && dataSourceForChart.length!==0) {
+            for(var i=dataSourceForChart.length;i<=27;i++){
+                dataSourceForChart.push({Name:""});
+            }
+        }
+        DataVisualisation.kendoChart({
+            dataSource: {
+                data: dataSourceForChart
+            },
+            legend: {
+                visible: false
+            },
+            chartArea:{
+                width:DVWidth,
+                height:550
+            },
+            seriesDefaults: {
+                gap:0.5,
+              
+            },
+            series: [{
+                field: "ActualPercent",
+                colorField:"ColorActualPercent",
+                stack: true,
+                type: "column",
+                labels: {
+                    visible: true,
+                    font:"10px Helvetica Neue",
+                    color:"#333",
+                    // template:function(e){
+                    //   tmp = 0;
+                    //   html = "";
+                      
+                    //   if(e.dataItem.Gap >= 0){
+                    //     tmp = e.dataItem.Gap * 100;
+                    //     html = e.category+" "+kendo.toString(tmp,'N0')+" %";
+
+                    //   } else{
+                    //     tmp = e.dataItem.Gap * -100;
+                    //     html = kendo.toString(tmp,'N0')+" % "+e.category;
+                    //   }
+
+                    //   return html;
+                    // },
+                    template:" #: category #",
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    // template:"#:kendo.toString(value*100,'N0')#%",
+                    background: "transparent",
+                    position:"insideBase",
+                    // margin:{
+                    //  bottom:0
+                    // }
+                },
+                tooltip:{
+                  visible:true,
+                  template:"#:kendo.toString(value,'P2')#"
+                },
+                overlay: {
+                  gradient: "none"
+                },
+                border: {
+                  width: 0
+                },
+            },{
+                field: "ProjectionMinusActualPercent",
+                color:"#D4D4D4",
+                stack: true,
+                labels: {
+                    visible: false,
+                    font:"8px Helvetica Neue",
+                    color:"#333",
+                    // template:function(e){
+                    //   tmp = 0;
+                    //   html = "";
+                      
+                    //   if(e.dataItem.Gap >= 0){
+                    //     tmp = e.dataItem.Gap * 100;
+                    //     html = e.category+" "+kendo.toString(tmp,'N0')+" %";
+
+                    //   } else{
+                    //     tmp = e.dataItem.Gap * -100;
+                    //     html = kendo.toString(tmp,'N0')+" % "+e.category;
+                    //   }
+
+                    //   return html;
+                    // },
+                    template:function(e){
+                        // console.log(e.dataItem.Gap)
+                        return kendo.toString(e.dataItem.Gap,'P2');
+                    },
+                    padding:{
+                        top: -20,
+                        bottom: -20,
+                    },
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    // template:"#:kendo.toString(value*100,'N0')#%",
+                    background: "transparent",
+                    position:"insideBase",
+                    // margin:{
+                    //  bottom:0
+                    // }
+                },
+                border: {
+                  width: 0
+                },
+                overlay: {
+                  gradient: "none"
+                },
+                tooltip:{
+                  visible:true,
+                  template:"#:kendo.toString(dataItem.Projection,'P2')#"
+                }
+            }],
+            valueAxis: {
+                max: MaxLength,
+                min: MinLength,
+                majorGridLines: {
+                    visible: false
+                },
+                majorUnit: 0.1,
+                visible: true,
+                labels:{
+                    template:"#:kendo.toString(value,'P0')#"
+                },
+                plotBands: [
+                    {from: 0.999,
+                     to: 1.001,
+                     color: "#818FAF"}
+                ]
+            },
+            categoryAxis: {
+                field: "Name",
+                majorGridLines: {
+                    visible: false
+                },
+                labels:{
+                    visible:false,
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    position:"insideEnd",
+                    // margin:{
+                    //  bottom:-250
+                    // },
+                    
+                },
+                line: {
+                    visible: false
+                }
+            }
+        });
+    } else if(ca.tabvalue() == 'fypbudget'){
+        // dataSource = _.groupBy(dataSource, )
+        dataSource = _.sortBy(dataSource, function(x){return x.Projection * -1})
+        dataSourceForChart = Enumerable.From(dataSource).Where("$.NAActual == false && $.NATarget == false").ToArray()
+        var MaxLength = 1;
+        var MinLength = -1;
+        if(dataSourceForChart.length > 0){
+            // console.log(dataSourceForChart[0].Projection)
+            MaxLength = dataSourceForChart[0].Projection + 0.1;
+            MinLength = dataSourceForChart[dataSourceForChart.length-1].Projection - 0.1;
+        }
+        if(!isNegative){
+            MinLength = 0;
+        }
+        if(MaxLength >= 2){
+            MaxLength = 2;
+        }
+        if(MinLength <= -2){
+            MinLength = -2
+        }
+        // console.log(MaxLength,MinLength)
+        var DataTable = $("#data-table3");
+        DataTable.html("");
+        DataTable.kendoGrid({
+            dataSource: {
+                data: dataSource,
+                // pageSize: 10
+            },
+            scrollable: false,
+            sortable: true,
+            filterable: false,
+            pageable:false,
+            dataBound:function() {
+                $('td').each(function(){if($(this).text()=='red'){$(this).addClass('red')}});
+                $('td').each(function(){if($(this).text()=='green'){$(this).addClass('green')}});
+                $('td').each(function(){if($(this).text()=='amber'){$(this).addClass('amber')}});
+            },
+            pageable: {
+                numeric: false,
+                previousNext: false,
+                messages: {
+                    display: "Showing {2:N0} Items"
+                }
+            },
+            // scrollable: {
+            //     virtual: true
+            // },
+            columns: [
+                { field: "Name", title: "Country"},
+                { field: "RAG", title: "RAG"},
+                { field: "ActualPercent", title: "Actual %",format:"{0:P2}",attributes:{"class":"text-right"},
+                    template:'#:NAActualPercent?"N/A":kendo.toString('+(selectedBM.valuetype==1?'1*':'')+'ActualPercent,"P2")#'
+                },
+                { field: "BudgetProjection", title: "Budget<br>Projection<br>%",format:"{0:P2}",attributes:{"class":"text-right"},
+                    template:'#:NABudgetProjection?"N/A":kendo.toString('+(selectedBM.valuetype==1?'1*':'')+'BudgetProjection,"P2")#'
+                },
+                { field: "Projection", title: "Annual<br>Projection<br>%",format:"{0:P2}",attributes:{"class":"text-right"},
+                    template:'#:NAProjection?"N/A":kendo.toString('+(selectedBM.valuetype==1?'1*':'')+'Projection,"P2")#'
+                },
+            ]
+        }); 
+
+        var DVWidth = $("#data-visualisation3-width").width();
+        var breakdown = ca.Filter.Breakdown();
+        var DataVisualisation = $("#data-visualisation3");
+        DataVisualisation.html("");
+        if(dataSource.length == 0 && (selectedBM.natarget||selectedBM.naactual)){
+            $("#data-visualisation3").html('<div class="emptychart-wrapper"><div>Not Applicable</div></div>');
+            return false;
+        }
+        var allCountry = 27;
+        if (dataSourceForChart.length<allCountry && dataSourceForChart.length!==0) {
+            for(var i=dataSourceForChart.length;i<=27;i++){
+                dataSourceForChart.push({Name:""});
+            }
+        }
+        DataVisualisation.kendoChart({
+            dataSource: {
+                data: dataSourceForChart
+            },
+            legend: {
+                visible: false
+            },
+            chartArea:{
+                width:DVWidth,
+                height:550
+            },
+            seriesDefaults: {
+                gap:0.5,
+              
+            },
+            series: [{
+                field: "ActualPercent",
+                // colorField:"ColorActualPercent",
+                color:"#8c97a0",
+                stack: true,
+                type: "column",
+                labels: {
+                    visible: true,
+                    font:"10px Helvetica Neue",
+                    color:"#333",
+                    // template:function(e){
+                    //   tmp = 0;
+                    //   html = "";
+                      
+                    //   if(e.dataItem.Gap >= 0){
+                    //     tmp = e.dataItem.Gap * 100;
+                    //     html = e.category+" "+kendo.toString(tmp,'N0')+" %";
+
+                    //   } else{
+                    //     tmp = e.dataItem.Gap * -100;
+                    //     html = kendo.toString(tmp,'N0')+" % "+e.category;
+                    //   }
+
+                    //   return html;
+                    // },
+                    template:" #: category #",
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    // template:"#:kendo.toString(value*100,'N0')#%",
+                    background: "transparent",
+                    position:"insideBase",
+                    // margin:{
+                    //  bottom:0
+                    // }
+                },
+                tooltip:{
+                  visible:true,
+                  template:"#:kendo.toString(value,'P2')#"
+                },
+                overlay: {
+                  gradient: "none"
+                },
+                border: {
+                  width: 0
+                },
+            },{
+                field: "RematchingBudgetProjection",
+                colorField:"ColorBudgetProjection",
+                stack: true,
+                type: "column",
+                labels: {
+                    visible: false,
+                    font:"10px Helvetica Neue",
+                    color:"#333",
+                    // template:function(e){
+                    //   tmp = 0;
+                    //   html = "";
+                      
+                    //   if(e.dataItem.Gap >= 0){
+                    //     tmp = e.dataItem.Gap * 100;
+                    //     html = e.category+" "+kendo.toString(tmp,'N0')+" %";
+
+                    //   } else{
+                    //     tmp = e.dataItem.Gap * -100;
+                    //     html = kendo.toString(tmp,'N0')+" % "+e.category;
+                    //   }
+
+                    //   return html;
+                    // },
+                    template:" #: category #",
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    // template:"#:kendo.toString(value*100,'N0')#%",
+                    background: "transparent",
+                    position:"insideBase",
+                    // margin:{
+                    //  bottom:0
+                    // }
+                },
+                tooltip:{
+                  visible:true,
+                  template:"#:kendo.toString(dataItem.BudgetProjection,'P2')#"
+                },
+                overlay: {
+                  gradient: "none"
+                },
+                border: {
+                  width: 0
+                },
+            },{
+                field: "RematchingProjectionforBudgetUse",
+                color:"#D4D4D4",
+                stack: true,
+                labels: {
+                    visible: false,
+                    font:"8px Helvetica Neue",
+                    color:"#333",
+                    // template:function(e){
+                    //   tmp = 0;
+                    //   html = "";
+                      
+                    //   if(e.dataItem.Gap >= 0){
+                    //     tmp = e.dataItem.Gap * 100;
+                    //     html = e.category+" "+kendo.toString(tmp,'N0')+" %";
+
+                    //   } else{
+                    //     tmp = e.dataItem.Gap * -100;
+                    //     html = kendo.toString(tmp,'N0')+" % "+e.category;
+                    //   }
+
+                    //   return html;
+                    // },
+                    template:function(e){
+                        // console.log(e.dataItem.Gap)
+                        return kendo.toString(e.dataItem.Gap,'P2');
+                    },
+                    padding:{
+                        top: -20,
+                        bottom: -20,
+                    },
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    // template:"#:kendo.toString(value*100,'N0')#%",
+                    background: "transparent",
+                    position:"insideBase",
+                    // margin:{
+                    //  bottom:0
+                    // }
+                },
+                border: {
+                  width: 0
+                },
+                overlay: {
+                  gradient: "none"
+                },
+                tooltip:{
+                  visible:true,
+                  template:"#:kendo.toString(dataItem.Projection,'P2')#"
+                }
+            }],
+            valueAxis: {
+                max: MaxLength,
+                min: MinLength,
+                majorGridLines: {
+                    visible: false
+                },
+                majorUnit: 0.1,
+                visible: true,
+                labels:{
+                    template:"#:kendo.toString(value,'P0')#"
+                },
+                plotBands: [
+                    {from: 0.999,
+                     to: 1.001,
+                     color: "#818FAF"}
+                ]
+            },
+            categoryAxis: {
+                field: "Name",
+                majorGridLines: {
+                    visible: false
+                },
+                labels:{
+                    visible:false,
+                    // rotation:breakdown=="country"?270:0,
+                    rotation:270,
+                    position:"insideEnd",
+                    // margin:{
+                    //  bottom:-250
+                    // },
+                    
+                },
+                line: {
+                    visible: false
+                }
+            }
+        });
+    }
+    // console.log(dataSource)
+    if(dataSource.length === 0 ){
+        var Message = 'No data to display.';
+        $("#data-table tbody").html('<tr><td>'+Message+'</td></tr>');
+        $("#data-visualisation").html('<div class="emptychart-wrapper"><div>'+Message+'</div></div>');
+        $("#data-table2 tbody").html('<tr><td>'+Message+'</td></tr>');
+        $("#data-visualisation2").html('<div class="emptychart-wrapper"><div>'+Message+'</div></div>');
+        $("#data-table3 tbody").html('<tr><td>'+Message+'</td></tr>');
+        $("#data-visualisation3").html('<div class="emptychart-wrapper"><div>'+Message+'</div></div>');
+        $('#textleftchart').hide()
+    } else{
+        $('#textleftchart').show()
+    }
+  }
+
+    ca.Tabs = function(z){
+        ca.tabvalue(z)
+        ca.Filter.BMId("")
+        ca.Filter.Period("")
+        if(z == 'fyp'){
+            tmp = ca.BusinessMetricsListCumulative();
+            ca.BusinessMetricsList(tmp)
+            ca.titlechart("% Projection Chart")
+        } else if (z == 'fypbudget') {
+            tmp = ca.BusinessMetricsListCumulative();
+            ca.BusinessMetricsList(tmp)
+            ca.titlechart("% Projection Chart")
+        } else{
+            tmp = ca.BusinessMetricsListAll();
+            ca.BusinessMetricsList(tmp)
+            ca.titlechart("% Gap Chart")
+        }
+    }
+
+  $(document).ready(function(){
+    ca.Init();
+  })
+</script>
+<style type="text/css">
+  
+  #ca-filter .row{
+    padding-top: 10px;
+  }
+  #ca-filter #breakdown .k-input,#ca-filter #breakdown .k-select{
+      background: #333f50;
+      color: #FFF;
+  }
+  #ca-filter #breakdown .k-dropdown,#ca-filter #breakdown .k-dropdown-wrap{
+    border:none;
+    padding: 0px;
+  }
+  .section-title{
+    background: #333f50;
+    color: #FFF;
+    padding: 5px;
+  }
+  .emptychart-wrapper{
+    vertical-align: middle;
+      height: 100%;
+      text-align: center;
+      display: table;
+      width: 100%;
+      background: #f9f9f9;
+      border: 1px solid #DDD;
+  }
+  .emptychart-wrapper div{
+    vertical-align: middle;
+      display: table-cell;
+  }
+    .nopadding{
+        padding: 0;
+    }
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        background-color: #313E50;
+        color: white !important;
+    }
+</style>
+<div class="row" data-bind="with:ca">
+  <div class="col-sm-12" id="ca-filter" data-bind="with:Filter">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="col-sm-7 nopadding" style="padding-right: 10px;"><input data-bind="kendoDropDownList:{value:BMId,data:$parent.BusinessMetricsList,dataTextField:'description',dataValueField:'id',filter:'contains',optionLabel:'Select Metric'}"></div>
+                <!-- <div class="col-sm-1"><input data-bind="kendoDropDownList:{value:Year,data:$parent.YearList,optionLabel:'Month Year'}"></div> -->
+                <div class="col-sm-5 nopadding"><input data-bind="kendoDropDownList:{data: $parent.MonthYearList, dataValueField: 'Value', dataTextField: 'Text', value: Period ,filter:'contains',optionLabel:'Period'}"></div>
+            </div>
+            <div class="col-sm-8 nopadding">
+                <ul class="nav nav-pills nav-justified" style="width: 100% !important;">
+                    <li class="active" style="padding-right: 5px;height: 21px;">
+                        <a style="padding: 6px 15px;border: 1px solid #313E50;color: #313E50;border-radius: 2px !important;" data-toggle="tab" href="#gap" onclick="ca.Tabs('gap')">% Gap</a>
+                    </li>
+                    <li style="padding-left: 5px;height: 21px;">
+                        <a style="padding: 6px 15px;border: 1px solid #313E50;color: #313E50;border-radius: 2px !important;" data-toggle="tab" href="#fyp" onclick="ca.Tabs('fyp')">Full Year Projection (Annualized)</a>
+                    </li>
+                    <li style="padding-left: 5px;height: 21px;">
+                        <a style="padding: 6px 15px;border: 1px solid #313E50;color: #313E50;border-radius: 2px !important;" data-toggle="tab" href="#fypbudget" onclick="ca.Tabs('fypbudget')">Full Year Projection (Budget)</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4" id="breakdown">
+            <input data-bind="kendoDropDownList:{value:Breakdown,data:$parent.BreakDownList,dataTextField:'Name',dataValueField:'Value'}">
+          </div>
+          <div class="col-sm-8 section-title" data-bind="text:ca.titlechart"></div>
+        </div>
+  </div>
+  <div class="col-sm-12" data-bind="visible:!ca.Processing()" style="display: none;">
+        <div class="tab-content">
+            <div id="gap" class="tab-pane fade in active">
+                <div class="row">
+                    <div class="col-sm-4"><div id="data-table-width">&nbsp;</div></div>
+                    <div class="col-sm-8">
+                    <div id="data-visualisation-width">&nbsp;</div></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4"><div id="data-table" style="width: 100%;"></div></div>
+                    <div class="col-sm-8">
+                        <div id="textleftchart">
+                            <span style="
+                                transform: rotate(-90deg);
+                                float: left;
+                                transform-origin: left top 0;
+                                position: absolute;
+                                top: 160px;
+                                left: 0px;
+                            ">Actual %</span>
+                            <span style="
+                                transform: rotate(-90deg);
+                                float: left;
+                                transform-origin: left top 0;
+                                position: absolute;
+                                left: 0px;
+                                top: 430px;
+                            ">% Gap</span>
+                        </div>
+                        <div id="data-visualisation"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="fyp" class="tab-pane fade">
+                <div class="row">
+                    <div class="col-sm-4"><div id="data-table2-width">&nbsp;</div></div>
+                    <div class="col-sm-8"><div id="data-visualisation2-width">&nbsp;</div></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4"><div id="data-table2" style="width: 100%;"></div></div>
+                    <div class="col-sm-8"><div id="data-visualisation2"></div></div>
+                </div>
+            </div>
+            <div id="fypbudget" class="tab-pane fade">
+                <div class="row">
+                    <div class="col-sm-4"><div id="data-table3-width">&nbsp;</div></div>
+                    <div class="col-sm-8"><div id="data-visualisation3-width">&nbsp;</div></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4"><div id="data-table3" style="width: 100%;"></div></div>
+                    <div class="col-sm-8"><div id="data-visualisation3"></div></div>
+                </div>
+              </div>
+            </div> 
+        </div> 
+
+    
+  </div>
+</div>
+{{end}}

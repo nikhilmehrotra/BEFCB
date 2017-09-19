@@ -1,0 +1,1322 @@
+<script type="text/javascript">
+    $(".uploadbm-button").hide()
+    $(".chart-button").hide()
+    {{if (or .SharedAgenda.Global.Upload .SharedAgenda.Region.Upload .SharedAgenda.Country.Upload .Initiative.Global.Upload .Initiative.Region.Upload .Initiative.Country.Upload .Scorecard.Global.Upload .Scorecard.Region.Upload .Scorecard.Country.Upload)}}
+        $(".uploadbm-button").show()
+    {{end}}
+    {{if (or .SharedAgenda.Global.Curtain .SharedAgenda.Region.Curtain .SharedAgenda.Country.Curtain .Initiative.Global.Curtain .Initiative.Region.Curtain .Initiative.Country.Curtain .Scorecard.Global.Curtain .Scorecard.Region.Curtain .Scorecard.Country.Curtain)}}
+        $(".chart-button").show()
+    {{end}}
+    var tabWidth = 12;
+    var tabDivider = 0;
+    TabMenuValue = ko.observable('')
+    {{if .SharedAgenda.AllowStatus}}
+            TabMenuValue("SharedAgenda")
+            tabDivider+=1;
+    {{end}}
+    {{if .Initiative.AllowStatus}}
+            TabMenuValue("Initiative")
+            tabDivider+=1;
+    {{end}}
+    {{if .Scorecard.AllowStatus}}
+            TabMenuValue("Scorecard")
+            tabDivider+=1;
+    {{end}}
+    tabWidth = tabDivider > 0 ? tabWidth/tabDivider : 0;
+    if(tabDivider==1||tabDivider==2){
+        {{if .SharedAgenda.AllowStatus}}
+        tabDivider = 3;
+        {{else}}
+        tabDivider = 2;
+        {{end}}
+    }
+    model.PageId("DASHBOARD");
+    model.UserName = ko.observable("{{.UserName}}");
+    model.BreadCrumbs.push(new BreadCrumb("Dashboard", "Dashboard", "#", "active", ""));
+    function ResetCountryRegionFilter(){
+        $('#mytree').data("kendoTreeView").dataSource.read();
+        $("#multiselect").data("kendoMultiSelect").value([]);
+        selectedVlaues = [];
+        c.Filter.RegionCountry([]);
+    }
+    function ResetCountryRegionFilter2(){
+        $('#mytree2').data("kendoTreeView").dataSource.read();
+        $("#multiselectOneSelectedValue").data("kendoMultiSelect").value([]);
+        c.Filter.RegionCountryScorecard(false); 
+        c.Filter.RegionOne("Region")
+        c.Filter.CountryOne("Country")
+        Scorecard.GetData();
+    }
+</script>
+<style>
+
+    .reset-countryregion{
+        cursor: pointer;
+    }
+    #ContentHeader{
+        text-align: center;
+        font-weight: normal;
+        font-size: 18px;
+        line-height: 1.3;
+        font-family: 'Helvetica Neue';         
+        /*visibility: hidden;*/
+        display: none;
+        margin: 5px 0px;
+    }
+    .tt:after {
+        content: "-";
+        position: absolute;
+        font-weight: bold;
+        top: 7px;
+        right: -2px;
+    }
+    .no-after:after {
+        display: none;
+    }
+    .search-wrapper:hover .search-clear-button {
+        opacity: 1;
+    }
+    .search-clear-button {
+        opacity: 0.5;
+        position: absolute;
+        right: 0px;
+        top: 7px;
+        width: 29px;
+        height: 16px;
+        z-index: 5;
+        color: #777777;
+        text-align: center;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .page-template > * {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        font-size: 90%;
+    }
+    .page-template .header {
+        top: 20px;
+        border-bottom: 1px solid #fff;
+    }
+    .page-template .footer {
+        bottom: 20px;
+        border-top: 1px solid #000;
+    }
+
+    /* kendo tree */
+        .my-selected-state {
+            background-color: lightskyblue;
+            color: white
+        }
+      
+        body {
+            font-family: sans-serif
+        }
+      
+        #treeview {
+            overflow: auto;
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: #333 solid 1px;
+            z-index: 3;
+            width: 100%;
+            background-color: #fff;
+            border: #808080 solid 1px;
+            max-height: 210px;
+            border-radius: 11px;
+            -moz-border-radius: 11px;
+            /*overflow-y: scroll;*/
+        }
+
+        #treeview .k-plus{
+            background-position: 4px -208px;
+        }
+
+        #treeview2 {
+            overflow: auto;
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: #333 solid 1px;
+            z-index: 3;
+            width: 100%;
+            background-color: #fff;
+            border: #808080 solid 1px;
+            max-height: 210px;
+            border-radius: 11px;
+            -moz-border-radius: 11px;
+            /*overflow-y: scroll;*/
+        }
+
+        #treeview2 .k-plus{
+            background-position: 4px -208px;
+        }
+      
+    /*        #multiselectTree {
+            width: 400px;
+            border: 2px solid lightskyblue
+        }*/
+      
+        #multiselectTree .k-delete {
+            display: none;
+            /*by default kendo tree view is hidden*/
+        }
+
+        #multiselectTreeOneSelectedValue .k-delete {
+            display: none;
+            /*by default kendo tree view is hidden*/
+        }
+
+        #reset-regioncountry{
+            color: #bbb;
+            font-size: 15px !important;
+            position: absolute;
+            right: 25px;
+            top: 2px;
+            z-index: 2;
+        }
+        #reset-regioncountry2{
+            color: #bbb;
+            font-size: 15px !important;
+            position: absolute;
+            right: 25px;
+            top: 2px;
+            z-index: 2;
+        }
+        .no-padding-rightleft{
+            padding-right: 0px !important;
+            padding-left: 0px !important;
+        }
+        .box-upload-download{
+                border: 3px solid #5BC4E5;
+                margin: 22px;
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                font-size: 16px;
+                font-weight: bolder;
+                background-color: #EDEDED;
+        }
+        .box-spasi{
+            height: 100px;
+            width: 3px;
+            padding: 0 !important;
+            background-color: #A8BADD;
+        }
+        .marginTop {margin-top: 5px;}
+        #scorcardview li {
+            padding: 0px 2px;
+        }
+
+        /*scorecard modal for upload*/
+        .modal-flat .modal-body div.onesheet > div:not(:last-child) {margin-bottom: 10px;}
+
+        #modal-upload-download-metric h5{
+            font-weight: bold;
+            margin: 0px;
+            margin-bottom: 7px;
+        }
+        #modal-review-metric .modal-dialog{
+            width: 1000px;
+        }
+</style>
+
+    {{if .IsProdADMIN}}
+        <style type="text/css">
+            .hovertitle label:hover{
+                text-decoration: underline;
+                cursor: pointer;
+            }
+            .hovertitle:hover label{
+                text-decoration: underline;
+            }
+            .hovertitle:hover{
+                background: #7f8da0 !important;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        </style>
+        <script type="text/javascript">
+            model.IsProdADMIN = ko.observable(true)
+        </script>
+    {{else}}
+        <script type="text/javascript">
+            model.IsProdADMIN = ko.observable(false)
+        </script>
+    {{end}}
+
+<link href="/web-cb/static/css/core/dashboard.css?cache_counter=1" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/redipsInit.js"></script>
+<script src="/web-cb/static/core/dashboard.js?cache_counter=5"></script>
+<script src="/web-cb/static/core/dashboard_businessdriver.js"></script>
+<script src="/web-cb/static/core/task.js"></script>
+<script src="/web-cb/static/core/dashboard_businessdriver-summary.js"></script>
+<script src="/web-cb/static/core/search.js?cache_counter=2"></script>
+
+<div class="row" id="dashboard" data-bind="with:c">
+    <div class="col-sm-12 row-wrapper" id="top-header">
+        <div data-bind="visible:scchart.IsOpen()" id="navbar-disabler">&nbsp;</div>
+        <div data-bind="attr:{'style':(!scchart.IsOpen()?'display:none;':'')+'height:'+(Scorecard.BMTotal()*23.92+35)+'px'}" id="sc-disabler">&nbsp;</div>
+
+        <div class="col-lg-3 col-md-3 col-sm-3 form-input dashboard-filter switcher" data-bind="attr:{'class':'col-lg-'+tabDivider+' col-md-'+tabDivider+' col-sm-'+tabDivider+' form-input dashboard-filter switcher'}">
+            <ul id="secondmenu" class="nav nav-pills">
+                {{if .SharedAgenda.AllowStatus}}
+                    <li id="ScorecardTabMenu" data-bind="attr:{class:'col-sm-'+tabWidth+' no-padding '+(TabMenuValue()=='SharedAgenda'?'active':'')}">
+                        <a id="aScorecardTabMenu" href="#SharedAgendaTab" data-toggle="tab" onclick="changeTabMenu('SharedAgenda')">Shared Agenda</a>
+                    </li>
+                {{end}}
+                {{if .Initiative.AllowStatus}}
+                    <li id="InitiativeTabMenu" data-bind="attr:{class:'col-sm-'+tabWidth+' no-padding '+(TabMenuValue()=='Initiative'?'active':'')}">
+                        <a id="aInitiativeTabMenu" href="#InitiativeTab" data-toggle="tab" onclick="changeTabMenu('Initiative')">Initiative</a>
+                    </li>
+                {{end}}
+                {{if .Scorecard.AllowStatus}}
+                    <li id="ScorecardTabMenu" data-bind="attr:{class:'col-sm-'+tabWidth+' no-padding '+(TabMenuValue()=='Scorecard'?'active':'')}">
+                        <a id="aScorecardTabMenu" href="#ScorecardTab" data-toggle="tab" onclick="changeTabMenu('Scorecard')">Scorecard</a>
+                    </li>
+                {{end}}
+            </ul>
+        </div>
+        {{if .Initiative.AllowStatus}}
+        <div class="dashboard-filter date col-md-2 col-sm-2" data-bind="visible: c.visibleBtnExpend()">
+            <div class="col-sm-1">
+                <i class="fa fa-calendar fa-2x begrey" aria-hidden="true"></i>
+            </div>
+            <div class="col-sm-5">
+                <input id="filterStartDate" placeholder="Start" data-bind="kendoDatePicker: {placeholder: 'tetete', value:Filter.StartDate,min: new Date(1900, 0, 1), max: new Date(2099, 11, 31),start: 'year',depth: 'year',format:'MMM-yyyy'}" />
+            </div>
+            <div class="col-sm-1">
+                <span class="separator">-</span>
+            </div>
+            <div class="col-sm-5">
+                <input id="filterEndDate" placeholder="Finish" data-bind="kendoDatePicker: {placeholder: 'tetete', value:Filter.EndDate,min: new Date(1900, 0, 1), max: new Date(2099, 11, 31),start: 'year',depth: 'year',format:'MMM-yyyy'}" />
+            </div>
+        </div>
+        <!--Kendo multiselect tree view start-->
+        <div class="form-input dashboard-filter dropdown col-md-2 col-sm-2" data-bind="visible: c.visibleBtnExpend()">
+                <div class="col-sm-2 icon-for-dropdown">
+                    <i class="fa fa-globe fa-2x begrey" aria-hidden="true"></i>
+                </div>
+                <div class="col-sm-10">
+                    <div id="multiselectTree" >
+                    <!--Kendo multiselect start-->
+                    <div id="lblSelectTree">
+                        <select id="multiselect" multiple="multiple" placeholder="select leagal topics">
+                            <option value="" >Select your option</option>
+                        </select>
+                    </div>
+                    <!--Kendo multiselect end-->
+                    <!--kendo tree view start-->
+                    <div id="treeview">
+                        <div id='mytree'></div>
+                    </div>
+                    <!--Kendo tree view end-->
+                    </div>
+                </div>
+                <div  class="reset-countryregion fa fa-remove" id="reset-regioncountry" data-bind="visible:c.Filter.RegionCountry().length>0" onclick="ResetCountryRegionFilter()"></div>
+        </div>
+        {{end}}
+        {{if .Scorecard.AllowStatus}}
+        <div  class="form-input dashboard-filter dropdown col-sm-2" style="padding: 0px;" data-bind="visible: !c.visibleBtnExpend()">
+                <div class="col-sm-1 icon-for-dropdown">
+                    <i class="fa fa-globe fa-2x begrey" aria-hidden="true"></i>
+                </div>
+                <div class="col-sm-11">
+                    <div id="multiselectTreeOneSelectedValue" >
+                    <!--Kendo multiselect start-->
+                    <div id="lblSelectTreeOneSelectedValue">
+                        <select id="multiselectOneSelectedValue" multiple="multiple" placeholder="select leagal topics">
+                            <option value="" >Select your option</option>
+                        </select>
+                    </div>
+                    <!--Kendo multiselect end-->
+                    <!--kendo tree view start-->
+                    <div id="treeview2">
+
+                        <div id='mytree2'></div>
+                    </div>
+                    <!--Kendo tree view end-->
+                    </div>
+                </div>
+                <div  class="reset-countryregion fa fa-remove" id="reset-regioncountry2" data-bind="visible:c.Filter.RegionCountryScorecard()" onclick="ResetCountryRegionFilter2()"></div>
+        </div>
+        {{end}}
+
+        <div class="form-input dashboard-filter dropdown col-sm-1" data-bind="visible: c.visibleBtnExpend() && c.SelectedTab()!=='SharedAgenda'">
+            <div class="col-sm-12">
+                <input style="width: 100%;" data-bind="kendoDropDownList:{value:Filter.DisplayColor,data:Initiative.DisplayColorList,dataTextField:'name',dataValueField:'value',optionLabel:'RAG'}">
+            </div>
+        </div>
+
+        <div class="form-input dashboard-filter dropdown col-sm-2" data-bind="visible:  c.visibleBtnExpend() && c.SelectedTab()==='SharedAgenda'">
+            <div class="col-sm-2 icon-for-dropdown">
+                    <i class="fa fa-user fa-2x begrey" aria-hidden="true"></i>
+                </div>
+            <div class="col-sm-10">
+                <input style="width: 99%;" data-bind="kendoMultiSelect:{value:SharedAgenda.Leads,data:SharedAgenda.LeadList,placeholder:'Leads',optionLabel:'Leads',dataTextField:'Name',dataValueField:'Code'}">
+            </div>
+        </div>
+
+        <div class="form-input dashboard-filter search col-sm-4" data-bind="visible:c.SelectedTab()==='Initiative',style: { 'padding-right': (c.visibleBtnExpend() ? '0px' : '15px') }">
+            <div class="no-padding search-wrapper" data-bind="css: { 'col-sm-3': !c.visibleBtnExpend(), 'col-sm-9': c.visibleBtnExpend() }">
+                <input id="search-input" class="input-sm form-control width-percent100" placeholder="&#xf002; Search">
+                <i class="fa fa-remove search-clear-button" onclick="c.Clear('#search-input')"></i>
+            </div>
+            <div class="no-padding col-sm-3" data-bind="visible: c.visibleBtnExpend()" style="text-align: center;">
+                <button class="btn btn-sm btn-custom btn-danger" onclick="c.ExportAsPDF()" title="PDF">
+                    <i class="fa fa-file-pdf-o"></i>
+                </button>
+                &nbsp;
+                <button class="btn-export-png btn btn-sm btn-custom btn-primary" onclick="c.ExportAsPNG()" title="PNG">
+                    <i class="fa fa-file-image-o"></i>
+                </button>
+            </div>
+        </div>
+        {{if .Scorecard.AllowStatus}}
+        <div class="form-input dashboard-filter switcher col-sm-5" data-bind="visible: !c.visibleBtnExpend()">
+            {{if (or .Scorecard.Global.Update .Scorecard.Global.Update .Scorecard.Global.Update) }}
+            <div class="col-sm-9" style="padding-left: 10px; padding-right: 2px;">
+                <ul id="scorcardview" class="nav nav-pills">
+                    <li class="col-sm-4 active" id="liscorecardTabular">
+                        <a id="scorecardTabular" data-toggle="tab" onclick="changeScorecardView('tabular')">MBR</a>
+                    </li>
+                    <li class="col-sm-4" id="liscorecardTabular">
+                        <a id="scorecardTabular" data-toggle="tab" onclick="changeScorecardView('initiative');ScorecardInitiative.Get();">Metric Drivers</a>
+                    </li>
+                    <li class="col-sm-4" id="liscorecardVisual">
+                        <a id="scorecardVisual" data-toggle="tab" onclick="changeScorecardView('visual')">Scorecard Admin</a>
+                    </li>
+                </ul>
+            </div>
+            {{else}}
+            <div class="col-sm-6" style="padding-left: 10px; padding-right: 2px;">
+                <ul id="scorcardview" class="nav nav-pills">
+                    <li class="col-sm-6 active" id="liscorecardTabular">
+                        <a id="scorecardTabular" data-toggle="tab" onclick="changeScorecardView('tabular')">MBR</a>
+                    </li>
+                    <li class="col-sm-6" id="liscorecardTabular">
+                        <a id="scorecardTabular" data-toggle="tab" onclick="changeScorecardView('initiative');ScorecardInitiative.Get();">Metric Drivers</a>
+                    </li>
+                </ul>
+            </div>
+            {{end}}
+
+            <div class="col-sm-3 no-padding">
+                &nbsp;
+                <button class="btn btn-sm btn-custom btn-danger" onclick="c.ExportAsPDF()" title="PDF">
+                    <i class="fa fa-file-pdf-o"></i>
+                </button>
+                &nbsp;
+                <button class="btn-export-png btn btn-sm btn-custom btn-primary" onclick="c.ExportAsPNG()" title="PNG">
+                    <i class="fa fa-file-image-o"></i>
+                </button>
+                <button class="btn btn-sm btn-custom btn-success" onclick="Scorecard.ExportXLSTabular()" title="XLSX" data-bind="visible:ScorecardView() == 'tabular'" style="position: absolute;left: 90px;">
+                    <i class="fa fa-file-excel-o"></i>
+                </button>
+
+                <button class="btn btn-sm btn-custom btn-warning" onclick="ScorecardAnalysis.Get(undefined);" title="Metrics Country Ranking"  style="position: absolute;left: 90px;">
+                    Metrics Country Ranking
+                </button>
+            </div>
+        </div>
+        {{end}}
+        {{if .SharedAgenda.AllowStatus}}
+        <div class="form-input dashboard-filter search" data-bind="visible:c.SelectedTab()==='SharedAgenda', style: { 'padding-right': (c.visibleBtnExpend() ? '0px' : '15px') }">
+            <div class="no-padding col-sm-3" data-bind="visible: c.visibleBtnExpend()">
+                <button class="btn btn-sm btn-custom btn-danger" onclick="c.ExportAsPDF()" title="PDF">
+                    <i class="fa fa-file-pdf-o"></i>
+                </button>
+                &nbsp;
+                <button class="btn-export-png btn btn-sm btn-custom btn-primary" onclick="c.ExportAsPNG()" title="PNG">
+                    <i class="fa fa-file-image-o"></i>
+                </button>
+            </div>
+        </div>
+        {{end}}
+    </div>
+
+    <div class="clearfix"></div>
+
+    <script id="scorecardHeaderTabularTemplate" type="text/html">
+        <div data-bind="attr:{'class':'col-sm-'+(12-Scorecard.GetMBRColumnClass())+' cell'}">
+            <div class="tabular-header-custom">
+                <label>Key Metrics</label>
+            </div>
+        </div>
+        <div data-bind="attr:{'class':'col-sm-'+Scorecard.GetMBRColumnClass()+' last-child'}">
+            <div data-bind="attr:{'class':'col-sm-'+Scorecard.GetMBRGlobalColumnClass()+' cell global-column'}">
+                <div class="text-center">
+                    <label>GLOBAL</label>
+                </div>
+                <div class="sub-cell">
+                    <div style="width: 25%">2016 Baseline</div>
+                    <div style="width: 25%">2017 Target</div>
+                    <div style="width: 25%">2017 YTD</div>
+                    <div style="width: 25%">YTD Actual vs YTD Budget B/(W)</div>
+                </div>
+            </div>
+            <div data-bind="attr:{'class':'col-sm-'+(10-Scorecard.GetMBRGlobalColumnClass())+' no-padding'}">
+                <div data-bind="foreach: Scorecard.RegionalData">
+                <div class="cell extra-column" data-bind="attr:{'style':'width:'+Scorecard.ExtraColumnWidth()+'%;'}">
+                    <div class="text-center">
+                        <label data-bind="text:Name"></label>
+                    </div>
+                    <div class="sub-cell">
+                        <div style="width: 50%">2017 YTD</div>
+                        <div style="width: 50%">YTD Actual vs YTD Budget B/(W)</div>
+                    </div>
+                </div>
+                </div>
+                <div data-bind="foreach: Scorecard.CountryData">
+                <div class="cell extra-column" data-bind="attr:{'style':'width:'+Scorecard.ExtraColumnWidth()+'%;'}">
+                    <div class="text-center">
+                        <label data-bind="text:Name"></label>
+                    </div>
+                    <div class="sub-cell">
+                        <div style="width: 50%">2017 YTD</div>
+                        <div style="width: 50%">YTD Actual vs YTD Budget B/(W)</div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="col-sm-2 cell text-center" style="width: 10%;">
+                <div class="tabular-header-custom">
+                    <label>Last Updated</label>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <div class="tab-content">
+
+        <div id="ContentHeader" ></div>
+        <div id="ScorecardTab" data-bind="attr:{'class':'tab-pane '+(TabMenuValue()=='Scorecard'?'active':'')}">
+            <div class="loader col-sm-12 text-center" data-bind="visible:Scorecard.Processing()">
+                    <img src="/web-cb/static/img/hex-loader2.gif">
+            </div>
+            <div class="col-sm-12 row-wrapper" id="dashboard-menu-header" data-bind="visible:!Scorecard.Processing()&&ScorecardView() !== 'initiative'&&!SCDetail.Visible()&&!SCDetailForm.Visible()">
+                <!-- Visual View -->
+                <div class="col-sm-2 cell" data-bind="visible: ScorecardView() == 'visual'">
+                    <div>
+                        <label>Scorecard Categories</label>
+                    </div>
+                </div>
+                <div class="col-sm-10 no-padding" data-bind="visible: ScorecardView() == 'visual'">
+                    <div class="col-sm-6 cell">
+                        <div>
+                            <label>Key Metrics</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 cell">
+                        <div>
+                            <label>Baseline, Actual YTD, Target</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 last-child">
+                        <div class="col-sm-9 cell">
+                            <div>
+                                <label>Business Driver Name</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 cell">
+                            <div class="text-center no-padding-rightleft">RAG</div>
+                        </div>
+                        <div class="col-sm-1 cell last-child">
+                            <div>
+                                <i class="fa fa-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabular View -->
+                <div class="col-sm-2 cell" data-bind="visible: ScorecardView() == 'tabular'" style="width: 14%;">
+                    <div class="tabular-header-custom">
+                        <label>Scorecard Categories</label>
+                    </div>
+                </div>
+                <div class="col-sm-10 no-padding" data-bind="visible: ScorecardView() == 'tabular',template:{name:'scorecardHeaderTabularTemplate'}" style="width: 86%;">
+                </div>
+            </div>
+             <div data-bind="visible:!c.Loading()&&ScorecardView() !== 'initiative'&&!SCDetail.Visible()&&!SCDetailForm.Visible()">
+                <div>
+            {{template "scorecard.html" .Scorecard}}
+                </div>
+            </div>
+            <div data-bind="visible:!c.Loading()&&ScorecardView() == 'initiative'&&!SCDetail.Visible()&&!SCDetailForm.Visible() ">
+                {{template "scorecard_initiative.html" .}}
+            </div>
+                {{template "scorecard_detail.html" .}}
+                {{template "scorecard_detail_form.html" .}}
+        </div>
+        <div id="SharedAgendaTab" data-bind="attr:{'class':'tab-pane '+(TabMenuValue()=='SharedAgenda'?'active':'')}">
+             <div class="loader col-sm-12 text-center" data-bind="visible:c.Loading">
+                    <img src="/web-cb/static/img/hex-loader2.gif">
+                </div>
+
+            <div data-bind="visible:!c.Loading()">
+                <div>
+                    {{template "sharedagenda.html" .SharedAgenda}}
+                </div>
+            </div>
+        </div>
+        <div id="InitiativeTab" data-bind="attr:{'class':'tab-pane '+(TabMenuValue()=='Initiative'?'active':'')}">
+            <div class="loader col-sm-12 text-center" data-bind="visible:c.Loading">
+                <img src="/web-cb/static/img/hex-loader2.gif">
+            </div>
+
+            <div data-bind="visible:!c.Loading()">
+                <div>
+                    {{template "initiativeTab.html" .Initiative}}
+                </div>
+            </div>
+        </div>
+        {{template "search.html" .}}
+        {{template "task.html" .Initiative}}
+        {{template "initiative.html" .Initiative}} 
+        
+    </div>
+</div>
+<script type="text/javascript">
+    c.visibleBtnExpend = ko.observable(false);
+    ScorecardView = ko.observable("")
+    function changeTabMenu(menu) {
+        TabMenuValue(menu)
+        if (menu == 'SupportingEnablers') {
+            c.SelectedTab('SupportingEnablers');
+            c.visibleBtnExpend(true);
+        } else if (menu == 'Initiative') {
+            c.HeaderText("Initiative")
+            c.Loading(true);
+            c.SelectedTab('Initiative');
+            c.visibleBtnExpend(true);
+            c.AddGLobal()
+            c.hd.hideHeader(true);
+        } else if (menu == 'SharedAgenda') {
+            c.HeaderText("Shared Agenda")
+            c.Loading(true);
+            c.SelectedTab('SharedAgenda');
+            c.hd.hideHeader(false);
+            c.visibleBtnExpend(true);
+            c.AddGLobal()
+        } else if (menu == 'KeyEnablers') {
+            c.visibleBtnExpend(true);
+            c.SelectedTab('KeyEnablers');
+        } else {
+            c.HeaderText("Scorecard")
+            c.SelectedTab("Scorecard")
+            c.hd.hideHeader(false);
+            c.RemoveGlobal();
+            c.Loading(true);
+            c.visibleBtnExpend(false);
+            $("#ScorecardInitiative-Detail").modal("hide");
+            ScorecardInitiative.GetData();
+        }
+
+        setTimeout(function() {
+            c.Loading(false);
+            c.LCWidth($('.lcHeader').width() - 22);
+        }, 100);
+        
+    }
+
+    function changeScorecardView(item){
+        ScorecardView(item)
+    }
+
+
+// Global variable for selected values
+    var selectedVlaues = [];
+    var selectedVlauesOneSelectedValue = [];
+    var multiSelect;
+    var multiSelectOneSelectedValue;
+
+    function createMultiSelect() {
+
+        // Create kedno multiselect
+        multiSelect = $("#multiselect").kendoMultiSelect({
+            placeholder: "Region / Country",
+            dataTextField: "text",
+            dataValueField: "value",
+            readonly: true,
+            // disabled: true
+        }).data("kendoMultiSelect");
+
+        // Kendo multiselect in read only mode
+         multiSelect.readonly(true);
+        
+    }
+    function createMultiSelectOneSelectedValue() {
+
+        // Create kedno multiselect
+        multiSelectOneSelectedValue = $("#multiselectOneSelectedValue").kendoMultiSelect({
+            placeholder: "Region / Country",
+            dataTextField: "text",
+            dataValueField: "value",
+            readonly: true,
+            // disabled: true
+        }).data("kendoMultiSelect");
+
+        // Kendo multiselect in read only mode
+         multiSelectOneSelectedValue.readonly(true);
+        
+    }
+
+    function createTreeView(UserCountry) {
+        $('#mytree').html("");
+            /// map tree datasource
+        var dataSourceForTreeView = [];
+        var checkGLobal = false;
+        c.RegionList().forEach(function(xx){
+            var region = xx._id
+            if(region === "GLOBAL"){
+                checkGLobal = true;
+            }
+            var countries = [];
+            var filteredCountry = Enumerable.From(c.RegionalData()).Where("$.Major_Region == '"+region+"'").Select("$.Country").ToArray();
+            if(UserCountry!==""){
+                {{if .Initiative.Global.Read }}
+                    filteredCountry.forEach(function(yy){
+                        if(UserCountry != "" && UserCountry == yy){
+                            countries.push({"text": yy, selected: true})
+
+                            multiSelect.dataSource.data([{text: UserCountry, value:UserCountry}]);
+                            var values = $.map(multiSelect.dataSource.data(), function(dataItem) {
+                                return dataItem.value;
+                            });
+                            multiSelect.value(values);
+                            c.Filter.RegionCountry.push(UserCountry)
+
+                        }
+                    });
+                
+                    if(countries.length >0){
+                        dataSourceForTreeView.push({"text":region, "items":countries});
+                    }else{
+                        dataSourceForTreeView.push({"text":region});
+                    }
+
+                {{else}}
+                    {{if .Initiative.Region.Read }}  
+                    
+                        filteredCountry.forEach(function(yy){
+                            if(UserCountry != "" && UserCountry == yy){
+                                countries.push({"text": yy, selected: true})
+                                c.Filter.RegionCountry.push(UserCountry)
+
+                                multiSelect.dataSource.data([{text: UserCountry, value:UserCountry}]);
+                                var values = $.map(multiSelect.dataSource.data(), function(dataItem) {
+                                    return dataItem.value;
+                                });
+                                multiSelect.value(values);
+
+                            } 
+                        });
+
+                        if(countries.length >0){
+                            dataSourceForTreeView.push({"text":region, "items":countries});
+                        }else{
+                            dataSourceForTreeView.push({"text":region});
+                        }
+                    {{else}}
+                        {{if .Initiative.Country.Read }}
+                            filteredCountry.forEach(function(yy){
+                                if(UserCountry != "" && UserCountry == yy){
+                                    countries.push({"text": yy, selected: true})
+                                    c.Filter.RegionCountry.push(UserCountry)
+
+                                    multiSelect.dataSource.data([{text: UserCountry, value:UserCountry}]);
+                                    var values = $.map(multiSelect.dataSource.data(), function(dataItem) {
+                                        return dataItem.value;
+                                    });
+                                    multiSelect.value(values);
+
+                                } else if(UserCountry===""){
+                                    countries.push({"text": yy})
+                                }
+                            });
+                        {{end}}
+
+                        {{if .Initiative.Country.Read }}
+                            if(UserCountry===""){
+                                filteredCountry.forEach(function(yy){
+                                    dataSourceForTreeView.push({"text": yy})
+                                });
+                            }else{
+                                filteredCountry.forEach(function(yy){
+                                    if(UserCountry != "" && UserCountry == yy){
+                                        dataSourceForTreeView.push({"text": yy})
+                                    }
+                                });
+                            }
+
+                        {{end}}
+                    {{end}}
+                    
+                {{end}}
+            }else{
+                {{if .Initiative.Global.Read }}
+                    filteredCountry.forEach(function(yy){
+                        if(UserCountry != "" && UserCountry == yy){
+                            countries.push({"text": yy, selected: true})
+
+                            multiSelect.dataSource.data([{text: UserCountry, value:UserCountry}]);
+                            var values = $.map(multiSelect.dataSource.data(), function(dataItem) {
+                                return dataItem.value;
+                            });
+                            multiSelect.value(values);
+                            c.Filter.RegionCountry.push(UserCountry)
+
+                        } else {
+                            countries.push({"text": yy})
+                        }
+                    });
+                
+                    if(countries.length >0){
+                        dataSourceForTreeView.push({"text":region, "items":countries});
+                    }else{
+                        dataSourceForTreeView.push({"text":region});
+                    }
+
+                {{else}}
+                    {{if .Initiative.Region.Read }}  
+                    
+                        filteredCountry.forEach(function(yy){
+                            if(UserCountry != "" && UserCountry == yy){
+                                countries.push({"text": yy, selected: true})
+                                c.Filter.RegionCountry.push(UserCountry)
+
+                                multiSelect.dataSource.data([{text: UserCountry, value:UserCountry}]);
+                                var values = $.map(multiSelect.dataSource.data(), function(dataItem) {
+                                    return dataItem.value;
+                                });
+                                multiSelect.value(values);
+
+                            } else {
+                                countries.push({"text": yy})
+                            }
+                        });
+
+                        if(countries.length >0){
+                            dataSourceForTreeView.push({"text":region, "items":countries});
+                        }else{
+                            dataSourceForTreeView.push({"text":region});
+                        }
+                    {{else}}
+                        {{if .Initiative.Country.Read }}
+                            filteredCountry.forEach(function(yy){
+                                if(UserCountry != "" && UserCountry == yy){
+                                    countries.push({"text": yy, selected: true})
+                                    c.Filter.RegionCountry.push(UserCountry)
+
+                                    multiSelect.dataSource.data([{text: UserCountry, value:UserCountry}]);
+                                    var values = $.map(multiSelect.dataSource.data(), function(dataItem) {
+                                        return dataItem.value;
+                                    });
+                                    multiSelect.value(values);
+
+                                } else if(UserCountry===""){
+                                    countries.push({"text": yy})
+                                }
+                            });
+                        {{end}}
+
+                        {{if .Initiative.Country.Read }}
+                            if(UserCountry===""){
+                                filteredCountry.forEach(function(yy){
+                                    dataSourceForTreeView.push({"text": yy})
+                                });
+                            }else{
+                                filteredCountry.forEach(function(yy){
+                                    if(UserCountry != "" && UserCountry == yy){
+                                        dataSourceForTreeView.push({"text": yy})
+                                    }
+                                });
+                            }
+
+                        {{end}}
+                    {{end}}
+                    
+                {{end}}
+            }
+            
+        });
+
+        {{if .Initiative.Global.Read }}
+        if(!checkGLobal){
+            dataSourceForTreeView.unshift({"text":"GLOBAL"});
+        }
+        {{end}}
+        // Create Tree view control
+        $('#mytree').kendoTreeView({
+            dataSource: {
+                data: dataSourceForTreeView
+            },
+            select: function(e) {
+
+                var SELECTOR = '.my-selected-state';
+                var SELCLASS = 'my-selected-state';
+
+                var node = $(e.node).closest('.k-item');
+                var kin = node.find('>div span.k-in');
+                var isSel = kin.is(SELECTOR);
+
+                var multinode = 1; // any number of node in any number of paths 
+                var multitree = 2; // any number of paths, however each node must be in separate subtrees
+                var mode = $('input[name=modegroup]:checked').val();
+                // console.log(kin)
+                if (mode == multitree) {
+                    // uncomnment to ensure specificity, i.e. only one node in a given path 
+                    node.find(SELECTOR).removeClass(SELCLASS);
+                    $.map(node.parentsUntil('.k-treeview ', '.k-item'), function(kitem) {
+                        $(kitem).find('>div span.k-in').filter(SELECTOR).removeClass(SELCLASS);
+                    });
+                }
+
+                if (!isSel) {
+                    kin.addClass(SELCLASS)
+                } else {
+                    kin.removeClass(SELCLASS)
+                }
+
+                // Get collection of selected values
+                var itemId = e.node.innerText.split("\n")[0];
+                if (selectedVlaues.filter(e => e.text == itemId).length > 0) {
+                    var temp;
+                    $.each(selectedVlaues, function(ix, val) {
+                        if (val.value == itemId) {
+                            temp = ix;
+                        }
+                    });
+                    if (!isNaN(temp)) {
+                        selectedVlaues.splice(temp, 1);
+                    }
+
+                } else {
+                    selectedVlaues.push({
+                        text: itemId,
+                        value: itemId
+                    });
+                }
+
+                // Set selected value to kendo multiselect
+                multiSelect.dataSource.data(selectedVlaues);
+                var values = $.map(multiSelect.dataSource.data(), function(dataItem) {
+                    return dataItem.value;
+                });
+                multiSelect.value(values);
+                c.Filter.RegionCountry(values);
+                e.preventDefault();
+                
+            }
+        });
+        if(UserCountry!==""){
+            // Select TreeList base on UserCountry
+        }
+    }
+
+    function createTreeViewOneSelectedValue(UserCountry) {
+        $('#mytree2').html("");
+            /// map tree datasource
+        var dataSourceForTreeView = [];
+        var checkGLobal = false;
+        c.RegionList().forEach(function(xx){
+            var region = xx._id
+            if(region === "GLOBAL"){
+                checkGLobal = true;
+            }
+            var countries = [];
+            var filteredCountry = Enumerable.From(c.RegionalData()).Where("$.Major_Region == '"+region+"'").Select("$.Country").ToArray();
+            {{if .Scorecard.Country.Read }}
+            // UserCountry = "BAHRAIN"
+            filteredCountry.forEach(function(yy){
+                if(UserCountry != "" && UserCountry == yy){
+                    countries.push({"text": yy, selected: true})
+
+                    c.Filter.RegionCountryScorecard(true)
+
+                    c.Filter.CountryOne(UserCountry)
+                    c.Filter.RegionOne("Region")
+
+                    multiSelectOneSelectedValue.dataSource.data([{text:UserCountry,value:UserCountry}]);
+                    var values = $.map(multiSelectOneSelectedValue.dataSource.data(), function(dataItem) {
+                        return dataItem.value;
+                    });
+                    multiSelectOneSelectedValue.value(values);
+                } else if(UserCountry===""){
+                    countries.push({"text": yy})
+                }
+                
+            });
+            {{end}}
+            {{if .Scorecard.Region.Read }}
+            if(countries.length >0){
+                dataSourceForTreeView.push({"text":region, "items":countries});
+            }else{
+                dataSourceForTreeView.push({"text":region});
+            }
+            {{else}}
+                {{if .Scorecard.Country.Read }}
+                    if(UserCountry===""){
+                        filteredCountry.forEach(function(yy){
+                            dataSourceForTreeView.push({"text": yy})
+                        });
+                    }else{
+                        filteredCountry.forEach(function(yy){
+                            if(UserCountry != "" && UserCountry == yy){
+                                dataSourceForTreeView.push({"text": yy})
+                            }
+                        });
+                    }
+                    
+                {{end}}
+            {{end}}
+            
+        });
+
+        Scorecard.GetData();
+
+        {{if .Scorecard.Global.Read }}
+        if(!checkGLobal){
+            dataSourceForTreeView.unshift({"text":"GLOBAL"});
+        }
+        {{end}}
+        // Create Tree view control
+        $('#mytree2').kendoTreeView({
+            dataSource: {
+                data: dataSourceForTreeView
+            },
+            select: function(e) {
+
+                $(".my-selected-state").removeClass("my-selected-state");
+
+                var SELECTOR = '.my-selected-state';
+                var SELCLASS = 'my-selected-state';
+
+                var node = $(e.node).closest('.k-item');
+                var kin = node.find('>div span.k-in');
+                var isSel = kin.is(SELECTOR);
+                selectedVlauesOneSelectedValue = [];
+                // console.log()
+
+                var multinode = 1; // any number of node in any number of paths 
+                var multitree = 2; // any number of paths, however each node must be in separate subtrees
+                var mode = $('input[name=modegroup]:checked').val();
+                // console.log(kin)
+                if (mode == multitree) {
+                    // uncomnment to ensure specificity, i.e. only one node in a given path 
+                    node.find(SELECTOR).removeClass(SELCLASS);
+                    $.map(node.parentsUntil('.k-treeview ', '.k-item'), function(kitem) {
+                        $(kitem).find('>div span.k-in').filter(SELECTOR).removeClass(SELCLASS);
+                    });
+                }
+
+                if (!isSel) {
+                    kin.addClass(SELCLASS)
+                } else {
+                    kin.removeClass(SELCLASS)
+                }
+
+                // Get collection of selected values
+                var itemId = e.node.innerText.split("\n")[0];
+                if (selectedVlauesOneSelectedValue.filter(e => e.text == itemId).length > 0) {
+                    var temp;
+                    $.each(selectedVlauesOneSelectedValue, function(ix, val) {
+                        if (val.value == itemId) {
+                            temp = ix;
+                        }
+                    });
+                    if (!isNaN(temp)) {
+                        selectedVlauesOneSelectedValue.splice(temp, 1);
+                    }
+
+                } else {
+                    selectedVlauesOneSelectedValue.push({
+                        text: itemId,
+                        value: itemId
+                    });
+                }
+
+                // Set selected value to kendo multiselect
+                multiSelectOneSelectedValue.dataSource.data(selectedVlauesOneSelectedValue);
+                var values = $.map(multiSelectOneSelectedValue.dataSource.data(), function(dataItem) {
+                    return dataItem.value;
+                });
+                multiSelectOneSelectedValue.value(values);
+                // c.Filter.RegionCountry(values);
+                if(values.length > 0){
+                    a = _.groupBy(c.RegionalData(), "Major_Region") 
+                    if(values[0] == "GLOBAL"){
+                        c.Filter.RegionOne("Region")
+                        c.Filter.CountryOne("Country")
+                    }
+                    else if(values[0] in a){   
+                        c.Filter.RegionOne(values[0])
+                        c.Filter.CountryOne("Country")
+                    } else{
+                        tmp = _.find(c.RegionalData(), function(e){return e.Country == values[0]})
+                        if(tmp == undefined){
+                            c.Filter.RegionOne("Region")
+                            c.Filter.CountryOne("Country")
+                        } else{
+                            c.Filter.RegionOne("Region")
+                            c.Filter.CountryOne(values[0])
+                        }
+                    }
+                    c.Filter.RegionCountryScorecard(true)
+
+                } else{
+                    c.Filter.RegionOne("Region")
+                    c.Filter.CountryOne("Country")
+                    c.Filter.RegionCountryScorecard(false)
+                }
+
+                Scorecard.GetData();
+                
+                e.preventDefault();
+                
+            }
+        });
+        if(UserCountry!==""){
+            // Select TreeList base on UserCountry
+        }
+    }
+
+    $(document).ready(function() {
+        c.Loading(true)
+        {{if .Initiative.AllowStatus}}
+        createMultiSelect()
+        {{end}}
+
+        {{if .Scorecard.AllowStatus}}
+        createMultiSelectOneSelectedValue()
+        {{end}}
+        var UserCountry = "{{.UserCountry}}"
+        setTimeout(function(){
+            if(UserCountry != ""){
+                selectedVlaues.push(UserCountry)
+            }
+            createTreeViewOneSelectedValue(UserCountry)
+            createTreeView(UserCountry)
+            changeTabMenu(TabMenuValue())
+            c.Loading(false)
+            ScorecardView("tabular")
+        },500)
+        c.hd.hideHeader(false);
+            // Show Treeview on click of multiselect
+        $("#lblSelectTree").click(function(e) {
+            $("#treeview").show();
+
+            setTimeout(function() {
+                $('.k-state-selected.k-in').addClass('my-selected-state').removeClass("k-state-selected");
+            }, 100);
+        })
+
+        $("#lblSelectTreeOneSelectedValue").click(function(e) {
+            $("#treeview2").show();
+
+            setTimeout(function() {
+                $('.k-state-selected.k-in').addClass('my-selected-state').removeClass("k-state-selected");
+            }, 100);
+        })
+
+        $("#treeview").on('click', '.k-icon', function () {
+            var tree = $("#treeview").data('kendoTreeView');
+            var item = $(this).closest('.k-item');
+
+            if (item.attr('aria-expanded') === "true") {
+                $("#treeview").css("overflow-y","scroll");
+            }
+            else {
+                // tree.expand(item);
+                $("#treeview").css("overflow-y","auto");
+                
+            }
+
+            setTimeout(function() {
+                $('.k-state-selected.k-in').addClass('my-selected-state').removeClass("k-state-selected");
+            }, 100);
+        });
+
+        $("#treeview2").on('click', '.k-icon', function () {
+            var tree = $("#treeview2").data('kendoTreeView');
+            var item = $(this).closest('.k-item');
+
+            if (item.attr('aria-expanded') === "true") {
+                $("#treeview2").css("overflow-y","scroll");
+            }
+            else {
+                // tree.expand(item);
+                $("#treeview2").css("overflow-y","auto");
+                
+            }
+
+            setTimeout(function() {
+                $('.k-state-selected.k-in').addClass('my-selected-state').removeClass("k-state-selected");
+            }, 100);
+        });
+
+        // Hide tree view on click of outside control
+        $('body').click(function(evt) {
+            if ($(evt.target).parents('#multiselectTree').length == 0) {
+                $("#treeview").hide();
+                // c.GetData();
+            }
+            if ($(evt.target).parents('#multiselectTreeOneSelectedValue').length == 0) {
+                $("#treeview2").hide();
+                // c.GetData();
+            }
+        });
+    });
+
+
+</script>
+<!-- modal upload -->
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-upload-download-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Please Choose</h4>
+            </div>
+            <div class="modal-body" data-bind="foreach: Scorecard.inputMetrics">
+                <div>
+                    <h5 class="col-sm-12 text-center">Metric Owner</h5>
+                </div>
+                <div>
+                    <button class="col-sm-5 box-upload-download" onclick="Scorecard.Download('owner')">Download Template</button>
+                    <div class="col-sm-1 box-spasi"></div>
+                    <button class="col-sm-5 box-upload-download" onclick="Scorecard.Upload('owner')">Upload Metrics</button>
+                    <div class="clearfix"></div>
+                </div>
+                {{if .IsFINADMIN}}
+                {{else}}
+                <hr style="border: 1px solid #848484;"/>
+                <div>
+                    <h5 class="col-sm-12 text-center">Finance Team</h5>
+                </div>
+                <div>
+                    <button class="col-sm-5 box-upload-download" onclick="Scorecard.Download('finance')">Download Template</button>
+                    <div class="col-sm-1 box-spasi"></div>
+                    <button class="col-sm-5 box-upload-download" onclick="Scorecard.Upload('finance')">Upload Metrics</button>
+                    <div class="clearfix"></div>
+                </div>
+                {{end}}
+                <hr/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-upload-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" data-bind="visible: !Scorecard.StatusUploadorDownload()">Download Template - <span data-bind="text:Scorecard.GetDownloadOption"></h4>
+                <h4 class="modal-title" data-bind="visible: Scorecard.StatusUploadorDownload()">Upload Metrics - <span data-bind="text:Scorecard.GetDownloadOption"></span></h4>
+            </div>
+            <!-- upload template body -->
+             <div class="modal-body" data-bind="visible: Scorecard.StatusUploadorDownload()">
+                <div class="modal-body" data-bind="visible:Scorecard.ProcessingUploadData()">
+                    <div class="loader col-sm-12 text-center" style="height: 110px;">
+                        <img src="/web-cb/static/img/loader3.gif">
+                    </div>
+                </div>
+                <div data-bind="visible:!Scorecard.ProcessingUploadData()">
+                    <span class="col-sm-2" data-bind="visible: Scorecard.StatusUploadorDownload()">
+                    </span>
+                    <div class="col-sm-4" data-bind="visible: Scorecard.StatusUploadorDownload(),attr:{'class':Scorecard.DownloadOption()==='owner'?'col-sm-4':'col-sm-8'}">
+                        <input class="form-control" type="file" style="width: 100%;" id="uploadtemplate" />
+                    </div>
+                    <div class="col-sm-3 no-padding" data-bind="visible: Scorecard.DownloadOption()==='owner'">
+                        <input style="width: 100%;" data-bind="kendoDatePicker: {  start: 'year', depth: 'year', format: 'MMM yyyy', value: Scorecard.datemetric }" />
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+            <!-- download template body -->
+            <div class="modal-body" data-bind="visible: !Scorecard.StatusUploadorDownload()">
+                <div class="downloadtemp">
+                    <span class="col-sm-2" data-bind="visible: !Scorecard.StatusUploadorDownload()">
+                    </span>
+                    <div class="col-sm-4" data-bind="attr:{'class':Scorecard.DownloadOption()==='owner'?'col-sm-4':'col-sm-8'}">
+                        <input style="width: 100%;" id="metrics" data-bind="kendoMultiSelect:{value:Scorecard.metric, data:Scorecard.KeyMetrics, dataTextField:'text',dataValueField:'metricId',filter:'contains',placeholder:'Metric'}" />
+                    </div>
+                    <div class="col-sm-4" data-bind="visible: Scorecard.StatusUploadorDownload()">
+                        <input class="form-control" type="file" style="width: 100%;" />
+                    </div>
+                    <div class="col-sm-3 no-padding" data-bind="visible: Scorecard.DownloadOption()==='owner'">
+                        <input style="width: 100%;" data-bind="kendoDatePicker: {  start: 'year', depth: 'year', format: 'MMM yyyy', value: Scorecard.datemetric }" />
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+            <!-- end download template body -->
+            <div class="modal-footer" data-bind="visible: !Scorecard.IsMulti()">
+                <button class="btn btn-sm btn-primary" data-bind="click: Scorecard.uploadMultiTemplate, visible: Scorecard.StatusUploadorDownload()">
+                    <i class="fa fa-arrow-up"></i> Upload
+                </button>
+                <button class="btn btn-sm btn-primary" data-bind="click: Scorecard.downloadAsOneTemplate, visible: !Scorecard.StatusUploadorDownload()">
+                    <i class="fa fa-download"></i> Download All
+                </button>
+                <button class="btn btn-sm btn-danger" data-dismiss="modal">
+                    <i class="fa fa-close"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-review-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Review Metrics Data</h4>
+            </div>
+            <div class="modal-body" data-bind="visible:Scorecard.ProcessingBMData()">
+                <div class="loader col-sm-12 text-center" style="height: 110px;">
+                    <img src="/web-cb/static/img/loader3.gif">
+                </div>
+            </div>
+            <div class="modal-body" style="float: left;width: 100%" data-bind="visible:!Scorecard.ProcessingBMData(),foreach: Scorecard.DataMetrics">
+                <div class="col-sm-12">
+                    <div class="col-sm-12">
+                    Source File : <span data-bind="text:OriginalFileName"></span>
+                    </div>
+                    <div class="col-sm-12" data-bind="visible:Scorecard.DownloadOption()==='owner'">
+                    Period : <span data-bind="text:kendo.toString(new Date(parseInt(String(MonthYear).slice(0,4)),(parseInt(String(MonthYear).slice(4,6))-1)),'MMMM yyyy')"></span>
+                    </div>
+                    <div class="col-sm-12" style="height: 5px;">&nbsp;</div>
+                    <div class="col-sm-12">
+                        <div data-bind="kendoGrid: { data: DataList,resizeable:true, scrollable: true, sortable: true,dataBound: Scorecard.RMDGrid, pageable: { pageSize: 10 },columns:Scorecard.DataListColumn()}"> </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div>&nbsp;</div>
+                <button class="btn btn-sm btn-primary" data-bind="visible:!Scorecard.ProcessingBMData(),click: Scorecard.processBMData">
+                    <i class="fa fa-external-link-square"></i> Process
+                </button>
+                <button class="btn btn-sm btn-danger" data-dismiss="modal" data-bind="visible:!Scorecard.ProcessingBMData()">
+                    <i class="fa fa-close"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{template "scorecard_analysis.html" .}}
+{{template "chart.html" . }}

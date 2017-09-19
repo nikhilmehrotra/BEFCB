@@ -1,0 +1,45 @@
+#AdoptionModule .loader{
+	height: 150px;
+}
+#AdoptionModule .loader img{
+	height: 100%;
+}
+#AdoptionModule .heading{
+	margin-bottom: 10px;
+}
+
+#AdoptionModule-Data thead th{
+	padding: 5px 10px;
+    text-align: center;
+    vertical-align: middle;
+    background: #333F4F;
+    color: #FFF;
+    font-weight: normal;
+}
+#AdoptionModule-Data tbody .initativesTrue{
+	background:#3f9c35;
+}
+#AdoptionModule-Data tbody .initativesFalse{
+	background:#6d6e71;
+}
+#AdoptionModule-Data tbody .initativesFalse a,#AdoptionModule-Data tbody .initativesTrue a{
+	color: #FFF;
+	text-decoration: underline;
+}
+.no-data-display{
+	padding: 15px;
+	vertical-align: middle;
+	text-align: center;
+	width: 100%;
+	background: #f9f9f9;
+	border: 1px solid #DDD;
+}
+#AdoptionModule-Data .red{
+	background: #f74e4e !important;
+}
+#AdoptionModule-Data .amber{
+	background: #ffd24d !important;
+}
+#AdoptionModule-Data .green{
+	background: #6ac17b !important;
+}

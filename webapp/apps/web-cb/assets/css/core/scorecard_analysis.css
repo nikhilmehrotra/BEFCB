@@ -1,0 +1,101 @@
+/*Scorecard Analysis Style*/
+	#Scorecard-Analysis .no-padding{
+		padding: 0;
+	}
+	#Scorecard-Analysis .no-margin{
+		margin: 0;
+		padding-right: 7px;
+		padding-left: 7px;
+	}
+	#Scorecard-Analysis .text-center{
+		text-align: center;
+	}
+	#Scorecard-Analysis .table-gap .tdmodified{
+		padding: 4px 4px 4px 4px;
+	    background: #F2F7FC;
+	    border-bottom: 1px solid #FFF;
+	    /*border-left: 10px solid #FFF;*/
+	}
+	#Scorecard-Analysis .table-gap .thmodified{
+		background: #A1AFC2;
+	    color: #FFF;
+	    padding: 4px 4px 4px 4px;
+	    border-bottom: 1px solid #FFF;
+	    text-align: center;
+	    /*border-left: 10px solid #FFF;*/
+	}
+	#Scorecard-Analysis .borderrightadded{
+		border-right: 5px solid #FFF;
+	}
+	#Scorecard-Analysis .borderleftadded{
+		border-left: 5px solid #FFF;
+	}
+	#Scorecard-Analysis .tdmodified .title{
+		position: absolute;
+	    /* top: 2px; */
+	    padding-top: 4px;
+	    padding-left: 4px;
+	    color: white;
+	}
+	#Scorecard-Analysis .tdmodified .percentage{
+	    background: #36bc9b;
+	    height: 22px;
+	    padding: 0;
+	    margin: 0;
+	    padding-top: 4px;
+	    text-align: right;
+	    /*padding-right: 4px;*/
+	    /*color: white;*/
+	    color: black;
+	}
+
+	#Scorecard-Analysis .tdmodified .percentage2{
+	    background: #8ddeca;
+	    height: 22px;
+	    padding: 0;
+	    margin: 0;
+	    padding-top: 4px;
+	    text-align: right;
+	    /*padding-right: 4px;*/
+	    /*color: white;*/
+	    color: black;
+	}
+
+	#Scorecard-Analysis .tdmodified .percentage-right{
+		padding-right: 4px;
+	}
+
+	#Scorecard-Analysis .tdmodified .active{
+		background: #FF9933;
+	}
+	#Scorecard-Analysis .tdmodified .active2{
+		background: rgba(255, 153, 51, 0.58);
+	}
+	#Scorecard-Analysis .rounded-modified{
+		border-radius: 4px 4px 0px 0px !important;
+	}
+	#Scorecard-Analysis #ScorecardCountryAnalysisandFullYear .nav > li > a{
+		min-width: 100px !important;
+		padding: 7px 15px !important;
+		background: #789ab7 !important;
+    	color: #FFF !important;
+	}
+	#Scorecard-Analysis #ScorecardCountryAnalysisandFullYear .nav > li > a:hover{
+		background: #789ab7 !important;
+    	color: #FFF !important;
+	}
+	#Scorecard-Analysis #ScorecardCountryAnalysisandFullYear .nav > li.active > a{
+		background: #3f77a7 !important;
+	}
+
+	#Scorecard-Analysis .modal-header .close {
+	    margin-top: -5px !important;
+	}
+
+	.underlineathover{
+		cursor: pointer;
+	}
+
+	.underlineathover:hover{
+		text-decoration: underline;
+	}

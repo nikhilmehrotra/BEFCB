@@ -1,0 +1,215 @@
+{{if (or (.InitiativeOwner.Global.Upload) (.InitiativeOwner.Region.Upload) (.InitiativeOwner.Country.Upload))}}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (or (.InitiativeOwner.Global.Curtain) (.InitiativeOwner.Region.Curtain) (.InitiativeOwner.Country.Curtain))}}
+{{template "initiative_chart.html" .}}
+{{end}}
+<style type="text/css">
+	.sweet-alert h2{
+		font-size: 18px !important;
+		font-weight: normal !important;
+	}
+</style>
+<script type="text/javascript">
+	model.PageId("InitiativeOwner");
+	var InitiativeOwner = {
+		Processing:ko.observable(true),
+		Mode:ko.observable(""),
+		DataList:ko.observableArray([]),
+		UserList:ko.observableArray([]),
+		FormValue:ko.observable(),
+	}
+	// UI Magician :
+	InitiativeOwner.Create = function(){
+		InitiativeOwner.Mode("create");
+		InitiativeOwner.FormValue().Id("");
+		InitiativeOwner.FormValue().Name("");
+		InitiativeOwner.FormValue().IsDeleted(false);
+	}
+	InitiativeOwner.Save = function(){
+			var parm = {
+				InitiativeOwnerData:ko.mapping.toJS(InitiativeOwner.FormValue)
+			}
+			parm.InitiativeOwnerID = parm.InitiativeOwnerData.Id;
+			parm.Name = parm.InitiativeOwnerData.Name;
+			if(parm.Name.trim()=== ""){
+				swal("Please select which user you want add", "", "info");
+				return false;
+			}
+			var checkdata = Enumerable.From(InitiativeOwner.DataList()).Where("$.Name==='"+parm.Name+"'").FirstOrDefault();
+			if(typeof checkdata!=="undefined" && parm.InitiativeOwnerID == ""){
+				swal("This user has been set as Initiative Owner", "", "info");
+				return false;
+			}
+			InitiativeOwner.Mode("");
+			ajaxPost("/web-cb/initiativeowner/save",parm,function(res){
+				swal("Saved!", "", "success");
+				InitiativeOwner.GetData();
+			});
+	}
+	InitiativeOwner.Edit = function(id){
+		var data = ko.mapping.toJS(Enumerable.From(InitiativeOwner.DataList()).Where("$._id == '"+id+"'").FirstOrDefault());
+		data.Name = data.FullName;
+		data.Id = data._id
+		InitiativeOwner.FormValue(ko.mapping.fromJS(data));
+		InitiativeOwner.Mode("edit");
+	}
+	InitiativeOwner.Delete = function(id){
+		swal({
+		  title: "Are you sure?",
+		  text: "You will not be able to recover this!",
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: "#DD6B55",
+		  confirmButtonText: "Yes, remove it!",
+		  closeOnConfirm: false
+		},
+		function(){
+			InitiativeOwner.Mode("");
+			var parm = {
+				InitiativeOwnerID:id
+			}
+			ajaxPost("/web-cb/initiativeowner/delete",parm,function(res){
+				swal("Deleted!", "Your selected Initiative Owner has been removed.", "success");
+				InitiativeOwner.GetData();
+			});
+		});
+	}
+	InitiativeOwner.Cancel = function(){
+		InitiativeOwner.Mode("");
+	}
+	InitiativeOwner.Render = function(dataSource){
+		for(var i in dataSource){
+			dataSource[i].Updated_Date = new Date();
+			dataSource[i].Updated_By = "eaciit"; 
+		}
+		$("#grid").kendoGrid({
+		    selectable: "multiple cell",
+		    scrollable:false,
+		    filterable:true,
+		    sortable:true,
+		    columns: [
+		        { field: "FullName" },
+		        { 
+		        	title: "Last Updated", 
+		        	width:200,
+		        	template:"#:kendo.toString(Updated_Date,'dd-MMM-yyyy hh:mm tt')# by #:Updated_By#",
+		    	},
+		    	{{if (or (.InitiativeOwner.Global.Update) (.InitiativeOwner.Region.Update) (.InitiativeOwner.Country.Update) (.InitiativeOwner.Global.Delete) (.InitiativeOwner.Region.Delete) (.InitiativeOwner.Country.Delete)) }}
+            	{
+		        	title:"",
+		        	width:60,
+		        	template:
+		        	{{if (or (.InitiativeOwner.Global.Update) (.InitiativeOwner.Region.Update) (.InitiativeOwner.Country.Update)) }}
+		        	"<button class='btn btn-xs btn-warning' onclick='InitiativeOwner.Edit(\"#:_id#\")'><i class='fa fa-pencil'></i></button> "
+		        	{{else}}
+		        		""
+		        	{{end}}
+		        	{{if (or (.InitiativeOwner.Global.Delete) (.InitiativeOwner.Region.Delete) (.InitiativeOwner.Country.Delete)) }}
+		        	+"<button class='btn btn-xs btn-danger' onclick='InitiativeOwner.Delete(\"#:_id#\")'><i class='fa fa-times'></i></button>"
+		        	{{end}}
+		    	}
+		    	{{end}}
+		    ],
+		    dataSource:dataSource
+		});
+	}
+	// Get Data From Sources : 
+	InitiativeOwner.GetPrototype = function(){
+		ajaxPost("/web-cb/initiativeowner/getprototype",{},function(res){
+			InitiativeOwner.FormValue(ko.mapping.fromJS(res.Data));
+		});
+	}
+	InitiativeOwner.GetUserList = function(){
+		ajaxPost("/web-cb/acl/getuserlist",{},function(res){
+			InitiativeOwner.UserList(res.Data);
+		});
+	}
+	InitiativeOwner.GetData = function(){
+		var parm = {
+			IsDeleted:false
+		};
+		ajaxPost("/web-cb/initiativeowner/getdata",parm,function(res){
+			InitiativeOwner.DataList(res.Data);
+			InitiativeOwner.Render(res.Data);
+			InitiativeOwner.Processing(false);
+		});
+	}
+	InitiativeOwner.Init = function(){
+		InitiativeOwner.GetPrototype();
+		InitiativeOwner.GetUserList();
+		InitiativeOwner.GetData();
+	}
+	$(document).ready(function(){
+		{{if (or (.InitiativeOwner.Global.Read) (.InitiativeOwner.Region.Read) (.InitiativeOwner.Country.Read)) }}
+			InitiativeOwner.Init();
+		{{else}}
+		InitiativeOwner.Processing(false);
+		{{end}}
+	})
+</script>
+<style type="text/css">
+	#InitiativeOwner{
+		margin-top: 10px;
+	}
+	#InitiativeOwner .actionbutton{
+		margin-bottom: 5px;
+	}
+	#InitiativeOwner .hide{
+		display: none;
+	}
+	#InitiativeOwner .form-wrapper{
+		margin-bottom: 15px;
+	}
+	#InitiativeOwner .form-input{
+		line-height: 25px;
+		padding-right: 0px;
+	}
+	#InitiativeOwner .form-input:after{
+		content: ":";
+		float: right;
+	}
+</style>
+<div data-bind="with:InitiativeOwner" id="InitiativeOwner">
+	<div class="row" data-bind="visible:!Processing()">
+		<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+			<div class="row actionbutton">
+				<h4 class="col-lg-4 col-md-4 col-sm-4 col-xs-4">Initiative Owner</h4>
+				{{if (or (.InitiativeOwner.Global.Create) (.InitiativeOwner.Region.Create) (.InitiativeOwner.Country.Create)) }}
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right" data-bind="visible:Mode()===''">
+						<button class="btn btn-sm btn-primary" data-bind="click:InitiativeOwner.Create">
+							Create New Initaitive Owner
+						</button>
+					</div>
+				{{end}}
+
+
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right" data-bind="visible:Mode()!==''">
+					<button class="btn btn-sm btn-success" data-bind="click:InitiativeOwner.Save">
+						Save
+					</button>
+					<button class="btn btn-sm btn-warning" data-bind="click:InitiativeOwner.Cancel">
+						Cancel
+					</button>
+				</div>
+			</div>
+
+			<div class="row form-wrapper" data-bind="visible:Mode()!=='',with:FormValue">
+				<label class="col-lg-5 col-md-5 col-sm-5 col-xs-5 form-input">
+					Initiative Owner Name
+				</label>
+				<div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+					<input data-bind="kendoDropDownList:{value:Name, data:InitiativeOwner.UserList, dataValueField: 'fullname', dataTextField: 'fullname', optionLabel:'Select..',filter: 'contains'}" style="width:100%;" />
+				</div>
+			</div>
+
+			<div class="row" data-bind="visible:Mode()==''">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					{{if (or (.InitiativeOwner.Global.Read) (.InitiativeOwner.Region.Read) (.InitiativeOwner.Country.Read)) }}
+						<div id="grid"></div>
+					{{end}}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

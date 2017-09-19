@@ -1,0 +1,64 @@
+	#AdoptionModuleDetail .no-padding{
+		padding: 0;
+	}
+	#AdoptionModuleDetail .no-margin{
+		margin: 0;
+		padding-right: 7px;
+		padding-left: 7px;
+	}
+	#AdoptionModuleDetail .text-center{
+		text-align: center;
+	}
+	#AdoptionModuleDetail td:first-child{
+		padding-left: 10px;
+		background: #e8e6e6;
+		text-align: left;
+	}
+	#AdoptionModuleDetail td{
+		padding: 1px;
+	    background: #f2f2f2;
+	    border-bottom: 1px solid #FFF;
+	    height: 25px !important;
+	    /*border-left: 10px solid #FFF;*/
+	}
+	#AdoptionModuleDetail th{
+		background: #333f50;
+	    color: #FFF;
+	    padding:5px;
+	    border-bottom: 1px solid #FFF;
+	    text-align: center;
+	    font-weight: normal;
+	    /*border-left: 10px solid #FFF;*/
+	}
+	#AdoptionModuleDetail .borderleft1px{
+		border-left: 1px solid #DDD;
+	}
+	#AdoptionModuleDetail .marginbottom10{
+		margin-bottom: 10px;
+	}
+	#AdoptionModuleDetail .input-style{
+		width: 100%;
+	    height: 22px !important;
+		border: none;
+		font-size: 11px;
+	    padding: 0 4px !important;
+	    text-align: right;
+	}
+	#AdoptionModuleDetail .fc-modified-1{
+	    height: 22px !important;
+	    font-size: 11px;
+	    padding: 0 !important;
+	    border-radius: 0px !important;
+	    border: 0px;
+	}
+
+	#AdoptionModuleDetail .color-div{
+		height: 24px;
+	}
+	#AdoptionModuleDetail #secondmenu li{
+		cursor: pointer;
+	}
+
+	#AdoptionModuleDetail #adptionmetric-form #form label{
+		font-weight: normal;
+	}

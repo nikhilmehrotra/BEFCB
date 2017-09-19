@@ -1,0 +1,158 @@
+{{if (or (.Configuration.Global.Upload) (.Configuration.Region.Upload) (.Configuration.Country.Upload) (.ConfigUser.Global.Upload) (.ConfigUser.Region.Upload) (.ConfigUser.Country.Upload) (.ConfigRole.Global.Upload) (.ConfigRole.Region.Upload) (.ConfigRole.Country.Upload) (.ApplicationAuditTrail.Global.Upload) (.ApplicationAuditTrail.Region.Upload) (.ApplicationAuditTrail.Country.Upload) (.UserAuditTrail.Global.Upload) (.UserAuditTrail.Region.Upload) (.UserAuditTrail.Country.Upload)) }}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (or (.Configuration.Global.Curtain) (.Configuration.Region.Curtain) (.Configuration.Country.Curtain) (.ConfigUser.Global.Curtain) (.ConfigUser.Region.Curtain) (.ConfigUser.Country.Curtain) (.ConfigRole.Global.Curtain) (.ConfigRole.Region.Curtain) (.ConfigRole.Country.Curtain) (.ApplicationAuditTrail.Global.Curtain) (.ApplicationAuditTrail.Region.Curtain) (.ApplicationAuditTrail.Country.Curtain) (.UserAuditTrail.Global.Curtain) (.UserAuditTrail.Region.Curtain) (.UserAuditTrail.Country.Curtain)) }}
+{{template "initiative_chart.html" .}}
+{{end}}
+<script type="text/javascript">
+	var acl = {
+		Processing:ko.observable(false),
+	}
+	acl.GetData = function(){
+
+	}
+	acl.Init = function(){
+		acl.GetData();
+	}
+	$(document).ready(function(){
+		$("#tab-selection>li").each(function(x,z){
+			if(x==0){
+				$(z).find("a").click();
+			}
+		})
+		acl.Init();
+	})
+</script>
+<style type="text/css">
+	#acl{
+		padding-top: 15px;
+	}
+	#acl .tab-content{
+		padding-top: 15px;
+	}
+	#acl .nav > li > a{
+		min-width: 100px;
+		padding: 7px 15px;
+		background: #789ab7;
+    	color: #FFF;
+	}
+	#acl .nav > li > a:hover{
+		background: #789ab7;
+    	color: #FFF;
+	}
+	#acl .nav > li.active > a{
+		background: #3f77a7;
+	}
+	#acl .k-multiselect-wrap{
+		/*border: 1px solid rgb(204, 204, 204);*/
+		padding-top: 3px;
+	}
+	#acl .k-autocomplete.k-state-default,#acl .k-picker-wrap.k-state-default,#acl .k-numeric-wrap.k-state-default{
+		border-color: rgb(2, 107, 162);
+	}
+	#acl #form label{
+		font-weight: normal;
+    	line-height: 30px;
+    	letter-spacing: 0.5px;
+    	padding-right: 0px;
+    	text-align: right;
+	}
+	#acl #form label:after{
+		content: ":";
+		float: right;
+		margin-left: 10px;
+	}
+	#btndownload{
+		position: absolute;
+	    top: 0px;
+	    right: 14px;
+	}
+	#acl .filter label{
+		font-weight: normal;
+		margin: 0px;
+		padding-left: 15px;
+		line-height: 28px;
+	}
+	#acl .filter label:after{
+		content: ":";
+		float: right;
+	}
+</style>
+<div id="acl" data-bind="with:acl">
+	<div class="row">
+		<div class="col-sm-12">
+			 <ul class="nav nav-pills" id="tab-selection" role="tablist">
+			 	{{if (or (.ConfigUser.Global.Read) (.ConfigUser.Region.Read) (.ConfigUser.Country.Read))}}
+			    <li onclick="UserManagement.RefreshGroup();(UserManagement.Mode() == '' ? UserManagement.GetData() : '')"><a href="#users" role="tab" data-toggle="tab">
+			    	<i class="fa fa-users"></i>&nbsp;
+			    	Users
+			    </a></li>
+			    {{end}}
+			    {{if (or (.ConfigRole.Global.Read) (.ConfigRole.Region.Read) (.ConfigRole.Country.Read))}}
+			    <li onclick="RoleManagement.Mode() == '' ? RoleManagement.GetData() : '';"><a href="#roles" role="tab" data-toggle="tab">
+			    	<i class="fa fa-database"></i>&nbsp;
+			    	Roles
+			    </a></li>
+			    {{end}}
+			    <!-- <li onclick="MenuManagement.GetData();" ><a href="#accessmenu" role="tab" data-toggle="tab">
+			    	<i class="fa fa-bars"></i>&nbsp;
+			    	Access
+			    </a></li> -->
+			    {{if (or (.ApplicationAuditTrail.Global.Read) (.ApplicationAuditTrail.Region.Read) (.ApplicationAuditTrail.Country.Read))}}
+			    <li onclick="UserLoginActivity.GetData();"><a href="#loginactivity" role="tab" data-toggle="tab">
+			    	<i class="fa fa-history"></i>&nbsp;
+			    	Application Audit Trail
+			    </a></li>
+			    {{end}}
+
+			    {{if (or (.ApplicationUsageDetails.Global.Read) (.ApplicationUsageDetails.Region.Read) (.ApplicationUsageDetails.Country.Read))}}
+			    <li onclick="UsageDetail.GetData();"><a href="#applicationusagedetails" role="tab" data-toggle="tab">
+			    	<i class="fa fa-history"></i>&nbsp;
+			    	Application Usage Details
+			    </a></li>
+			    {{end}}
+
+			    {{if (or (.UserAuditTrail.Global.Read) (.UserAuditTrail.Region.Read) (.UserAuditTrail.Country.Read))}}
+			    <li><a href="#useraudittrail" role="tab" data-toggle="tab">
+			    	<i class="fa fa-history"></i>&nbsp;
+			    	User Audit Trail
+			    </a></li>
+			    {{end}}
+			  </ul>
+
+			  <div class="tab-content">
+			  	{{if (or (.ConfigUser.Global.Read) (.ConfigUser.Region.Read) (.ConfigUser.Country.Read))}}
+			    <div role="tabpanel" class="tab-pane" id="users" >
+			    	{{template "user_management.html" .ConfigUser}}
+			    </div>
+			    {{end}}
+			    {{if (or (.ConfigRole.Global.Read) (.ConfigRole.Region.Read) (.ConfigRole.Country.Read))}}
+			    <div role="tabpanel" class="tab-pane" id="roles">
+			    	{{template "role_management.html" .ConfigRole}}
+			    </div>
+			    {{end}}
+			    <!-- <div role="tabpanel" class="tab-pane" id="accessmenu">
+			    	template "menu_management.html"}}
+			    </div> -->
+			    {{if (or (.ApplicationUsageDetails.Global.Read) (.ApplicationUsageDetails.Region.Read) (.ApplicationUsageDetails.Country.Read))}}
+			    <div role="tabpanel" class="tab-pane" id="applicationusagedetails">
+			    	{{template "app_usagedetails.html" .}}
+			    </div>
+			    {{end}}
+			    
+			    {{if (or (.ApplicationAuditTrail.Global.Read) (.ApplicationAuditTrail.Region.Read) (.ApplicationAuditTrail.Country.Read)) }}
+			    <div role="tabpanel" class="tab-pane" id="loginactivity" >
+			    	{{template "user_loginactivity.html" .ApplicationAuditTrail}}
+			    </div>
+			    {{end}}
+			    {{if (or (.UserAuditTrail.Global.Read) (.UserAuditTrail.Region.Read) (.UserAuditTrail.Country.Read))}}
+			    <div role="tabpanel" class="tab-pane" id="useraudittrail" >
+			    	{{template "user_audittrail.html" .UserAuditTrail}}
+			    </div>
+			    {{end}}
+			    
+			  </div>
+
+		</div>
+	</div>
+</div>

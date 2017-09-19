@@ -1,0 +1,383 @@
+<html>
+<head>
+    <title>EACIIT SmartView</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="/web-cb/static/faviconvale.ico" type="image/x-icon" />
+    <link rel="icon" href="/web-cb/static/faviconvale.ico" type="image/x-icon" />
+
+    <script src="/web-cb/static/js/jquery-2.1.0.min.js"></script>
+    <script src="/web-cb/static/js/knockout-3.1.0.js"></script>
+    <script src="/web-cb/static/js/knockout.mapping-latest.js"></script>
+    <script src="/web-cb/static/kendoui/js/kendo.all.min.js"></script>
+    <script src="/web-cb/static/js/bootstrap.min.js"></script>
+    <script type='text/javascript' src='/web-cb/static/js/jquery.mobile.customized.min.js'></script>
+    <script type='text/javascript' src='/web-cb/static/js/jquery.easing.1.3.js'></script> 
+    <script type='text/javascript' src='/web-cb/static/js/camera.min.js'></script> 
+
+
+    <link rel='stylesheet' id='camera-css'  href='/web-cb/static/css/camera.css' type='text/css' media='all'> 
+    <link href="/web-cb/static/css/bootstrap.css" type="text/css" rel="stylesheet" />
+    <link href="/web-cb/static/css/bootstrap-theme.css" type="text/css" rel="stylesheet" />
+    
+    
+    <link rel="stylesheet" href="/web-cb/static/kendoui/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="/web-cb/static/kendoui/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="/web-cb/static/kendoui/styles/kendo.dataviz.min.css" />
+    <link rel="stylesheet" href="/web-cb/static/kendoui/styles/kendo.dataviz.bootstrap.min.css" />
+  
+    <script src="/web-cb/static/js/linq.js"></script>
+    <script src="/web-cb/static/js/ecis_config.js"></script>
+    <script src="/web-cb/static/js/main.js"></script>
+    <script src="/web-cb/static/js/ecis_start.js"></script>
+    <link rel="stylesheet" href="/web-cb/static/css/Site.css" />
+    <link rel="stylesheet" href="/web-cb/static/css/font-awesome.css" />
+
+    <style>
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            max-height: 100%;
+            overflow-y: hidden;
+            background:#fcfcfc;
+        }
+
+        .menu-header {
+            height: 30px;
+            background-color: #333;
+        }
+
+        .nav-bar-header li {
+            float: left;
+        }
+
+        .nav-bar-header li a {
+            font-size: 12px;
+            margin: 0px;
+            padding: 5px;
+            background-color: #000;
+        }
+
+        .nav-bar-header li.selected a {
+            background-color: #D33;
+        }
+
+        .nav-bar-header li a:hover {
+            font-size: 12px;
+            margin: 0px;
+            padding: 5px;
+            background-color: #D33;
+        }
+
+        .form-group label {
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .form-group input {
+            border: solid 1px #ccc;
+            padding: 2px;
+        }
+
+            .form-group input[type='number'] {
+                text-align: right;
+        }
+
+
+        .border1 {
+            border: solid 1px #000;
+        }
+
+        .form-group label{
+            text-align:left;
+        }
+
+        .login-form {
+            z-index: 100;
+        }
+        .login-form-content{
+            width: 200px;
+            margin: auto;
+        }
+        .login-form-content > .row{
+            margin-bottom: 10px;
+        }
+        .login-bg {
+            background: #007dba url('/web-cb/static/img/new_login_bg.jpg') no-repeat center top;
+            background-size: cover;
+            height: 100vh;
+            z-index: 99;
+        }
+        .login-logo {
+            background: url('/web-cb/static/img/logo-zephirum.png') no-repeat center top;
+            height: 90px;
+            background-size: 180px 90px;
+            margin-bottom: 10px;
+            margin-top: 60px;
+            margin-bottom: 30px;
+        }
+        .login-loader { text-align: center; }
+        .login-loadingImage{opacity:0.1;}
+        #registeredEmailInput{
+            line-height: 28px;
+        }
+        #registeredEmailInput:after{
+            content: ":";
+            float: right;
+        }
+        #Error{
+            display: none;
+        }
+        #Loader>h6{
+            margin:0px;
+        }
+        #Loader>img{
+            height: 100px;
+        }
+        .footer-login{
+            bottom: 0px;
+            position: fixed;
+            padding-left: 15px;
+        }
+        #LoginErrorMessage{
+            text-transform: capitalize;
+        }
+    </style>
+    <script>
+        var model = {
+            Processing: ko.observable(true)
+        }
+    </script>
+</head>
+<body>
+    <!-- wrapper starts here -->
+    <div class="container-fluid" data-bind="visible:Processing()==false">
+        <section class="row">
+            <!-- Main panel starts here -->
+            <div class="col-sm-12">
+                <div class="row">
+
+                    <div class="login-form col-md-3 col-xs-12" id="loginForm">
+
+                        <div class="form form-horizontal fh" style="padding-left:20px;">
+
+                            <div class="login-logo"></div>
+
+                            <div data-bind="visible:Mode()=='Process'" class="align-center" id="Loader">
+                                <img src="/web-cb/static/img/loader.gif" alt="Loading..." />
+                            </div>
+
+                            <div class="login-form-content" data-bind="visible:Mode()==''" >
+                                <div class="row" id="Error">
+                                    <div>
+                                        <div class="alert alert-danger" role="alert">
+                                        <b><span class="fa fa-exclamation-triangle"></span>&nbsp;LOGIN FAILEDsSS</b><br/>
+                                        <span id="LoginErrorMessage" data-bind="text:LoginErrorMessage"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label class="col-sm-12">Login ID</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" class="form-control input-sm" id="UserName" name="UserName" placeholder="Your Login ID"  required />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <label class="col-sm-12">Password</label>
+                                    <div class="col-sm-12">
+                                        <input type="password" class="form-control input-sm"  id="Password" name="Password" placeholder="Your Password"  required />
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <button class="btn btn-primary btn-sm" id="btnLogin">Login</button>
+                                        <div class="form-login-forgot">
+                                            <a href="#" id="forgetPassword">Can't access your account?</a>
+                                        </div>
+                                    </div>
+                                </div>                                
+                                <div class="row" data-bind="visible:Message()!=''">
+                                    <div class="col-sm-12">
+                                    <label class="label label-danger" data-bind="text:Message"></label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <label>&copy; 2013 - 2017 EACIIT Pte Ltd</label><br/>
+                                        Earnings & Cash Improvement Information Technologies
+                                    </div>
+                                </div>
+                                <div class="footer-login">
+                                    <p><img src="/web-cb/static/img/footer.png"></p>
+                                </div>
+                            
+                            </div>
+                        </div>
+
+                    </div>
+ 
+                     <div class="col-md-9">
+                     <div class="fluid_container">
+                         <div class="camera_wrap camera_azure_skin" id="camera_wrap_1">
+                            <div data-thumb="/web-cb/static/img/new_login_bg1.jpg" data-src="/web-cb/static/img/new_login_bg1.jpg">
+                            </div>
+                            <div data-thumb="/web-cb/static/img/new_login_bg2.jpg" data-src="/web-cb/static/img/new_login_bg2.jpg">
+                            </div>
+                            <div data-thumb="/web-cb/static/img/new_login_bg3.jpg" data-src="/web-cb/static/img/new_login_bg3.jpg">
+                            </div>
+                        </div><!-- #camera_wrap_1 -->
+                    </div>
+                    </div>
+   
+                </div>
+
+                <!-- Modal Forget Password -->
+                <div class="modal fade myModal" id="modalForgetPassword" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                <h5 class="modal-title" id="myModalLabel" data-bind="">Reset Password</h5>
+                            </div>
+                            <div class="modal-body">
+                                <div id="resetPasswordForm">
+                                    <div class="row" data-bind="visible:!model.modalProcessing()">
+                                        <label class="col-md-4" id="registeredEmailInput">
+                                            Your Registered Email
+                                        </label>
+                                        <div class="col-md-8">   
+                                              <input type="email" id="email" name="email" class="form-control input-sm" placeholder="e.g. yourmail@email.com" required data-email-msg="Email format is not valid" />
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div data-bind="visible:model.modalProcessing()">
+                                        @Html.Partial("_processing")
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="resetPassword();">Reset Password</button>
+                                
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- End Modal Forget Password -->
+
+
+                </div>
+            </section>
+            </div>
+    <!-- section ends here -->
+    <!-- wrapper ends here -->
+    <script>
+        $(window).resize(resizeIt);
+
+        function resizeIt() {
+            $(".fh").height($(window).innerHeight());
+        }
+        model.LoginErrorMessage("");
+        model.Mode=ko.observable("");
+        model.Status=ko.observable("");
+        model.Message=ko.observable("");
+        model.Processing = ko.observable(false);
+        model.modalProcessing = ko.observable(false);
+        function LoginDo() {
+            $("#Error").fadeOut("fast");
+            var url = "/web-cb/login/do";
+            var param = {
+                UserName: $("#UserName").val(),
+                Password: $("#Password").val(),
+                rememberMe: false
+            }
+            
+            var validator = $("#loginForm").data("kendoValidator");
+            if(validator==undefined){
+               validator= $("#loginForm").kendoValidator().data("kendoValidator");
+            }
+            if (validator.validate()) {
+                model.Mode("Process");
+                
+                ajaxPost(url, param, function (data) {
+                    // console.log(data.Valid)
+                    if (data.Valid) {
+                        location.href = "/web-cb/dashboard/default"; 
+                        // StoreLog(param.UserName,"Login",param.UserName);                  
+                        
+                    } else {
+                        $("#UserName").val("");
+                        $("#Password").val("");
+                        $("#Error").fadeIn("fast");
+                    }
+                    model.Mode("");
+
+                });
+            }
+            else {
+                swal("Error!", "Unable to validate process", "error")
+            }
+        }
+
+        function resetPassword() {
+            var validator = coalesce($("#resetPasswordForm").data("kendoValidator"), $("#resetPasswordForm").kendoValidator().data("kendoValidator"));
+            if (validator.validate()) {
+                model.modalProcessing(true);
+                ajaxPost("/web-cb/Account/ForgetPassword", {
+                    UserEmail: $("#email").val()
+                },
+                function (data) {
+                    model.modalProcessing(false);
+                    switch (data.Result) {
+                        case "OK":
+                            alert("Please kindly check your email!");
+                            $('#modalForgetPassword').modal("hide");
+                            break;
+                        case "NOK":
+                            alert(data.Message);
+                            break;
+                    }
+                });
+            }
+        }
+        ko.applyBindings(model);
+
+        $(document).ready(function () {
+            
+            resizeIt();
+            $('#forgetPassword').click(function () {
+                $("#email").val("");
+                $('#modalForgetPassword').modal("show");
+            });
+            $("#btnLogin").click(LoginDo);
+
+            $("#Password").keyup(function (event) {
+                if (event.keyCode == 13) {
+                    $("#btnLogin").click();
+                }
+            });
+
+            model.Processing(false);
+            if (typeof PageUpdate == "function") {
+                PageUpdate();
+            }
+            $('#camera_wrap_1').camera({
+                    thumbnails: false
+            });
+
+            $('#camera_wrap_2').camera({
+                    height: '1000px',
+                    loader: 'bar',
+                    pagination: false,
+                    thumbnails: false
+            });
+        });
+       
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<script type="text/javascript">
+	var SCDetail = {
+		Id:ko.observable(""),
+		Name:ko.observable(""),
+		Visible:ko.observable(false),
+		Processing:ko.observable(false),
+		DataList:ko.observableArray([]),
+		BusinessMetricList:ko.observableArray([]),
+	}
+	SCDetail.Get = function(Id,Name){
+		SCDetail.Id(Id);
+		SCDetail.Name(Name);
+		SCDetail.Visible(true);
+		SCDetail.GetData();
+		$('body').animate({scrollTop:0}, 500, 'swing');
+	}
+	SCDetail.GetData = function(){
+		var parm = {
+			Region:c.Filter.RegionOne(),
+			Country:c.Filter.CountryOne(),
+			SCId:SCDetail.Id(),
+		};
+		ajaxPost("/web-cb/scorecarddetail/getdata",parm,function(res){
+			SCDetail.DataList(res.Data);
+		})
+	}
+	SCDetail.Close = function(){
+		SCDetail.Id("");
+		SCDetail.Name("");
+		SCDetail.Visible(false);
+	}
+	SCDetail.GetDetail = function(){
+		var id = SCDetail.Id();
+		var name = SCDetail.Name();
+		// SCDetail.Visible(false);
+		SCDetailForm.Get(id,name)
+	}
+	SCDetail.BMName = function(id){
+		var name = "";
+		var d = Enumerable.From(SCDetail.BusinessMetricList()).Where("$.id==='"+id+"'").FirstOrDefault();
+		if(typeof d !== "undefined"){
+			name = d.description;
+		}
+		return name;
+	}
+	SCDetail.GetRAG = function(value){
+		var background = "";
+		switch (value) {
+			case 'amber': background = "#ffd24d"; break;
+			case 'green': background = "#6ac17b"; break;
+			case 'red'  : background = "#f74e4e"; break;
+			default: background = "#b7b7b7"; break;
+		}
+		return background;
+	}
+	SCDetail.SelectedArea = ko.computed(function(){
+		var result = "";
+		if(c.Filter.RegionOne()!=="Region"){
+			result = c.Filter.RegionOne();
+		}else if(c.Filter.CountryOne()!=="Country"){
+			result = c.Filter.CountryOne();
+		}else{
+			result = "GLOBAL";
+		}
+		return result
+	});
+	SCDetail.Init = function(){
+		ajaxPost("/web-cb/businessmetrics/getalldata",{},function(res){
+			SCDetail.BusinessMetricList(res.Data);
+		})
+	}
+	$(document).ready(function(){
+		SCDetail.Init();
+	})
+</script>
+<style type="text/css">
+	#SCDetail{
+		margin: 0px 5px;
+	}
+	#SCDetail .table-kepala,#SCDetail .table-isi{
+		margin-bottom: 0px !important;
+	}
+	#SCDetail .table-kepala tbody{
+		background: #333f50;
+		color: white;
+	}
+	#SCDetail .table-isi tbody tr{
+		background: #F2F7FC;
+	}
+	#SCDetail .table-kepala tbody tr th,#SCDetail .table-isi tbody tr td{
+		border:2px solid #FFF !important;
+		padding:5px;
+	}
+	#SCDetail .table-kepala tbody tr th{
+		vertical-align: middle;
+		text-align: center;
+		color: white;
+	}
+	#SCDetail .table, #SCDetail tbody, #SCDetail tr, #SCDetail th, #SCDetail td{
+		border: none !important
+	}
+	#SCDetail .nameTitle:hover{
+		text-decoration: underline;
+        cursor: pointer;
+	}
+</style>
+<div data-bind="with:SCDetail, visible:SCDetail.Visible()&&!SCDetailForm.Visible()" id="SCDetail">
+	<div class="row">
+		<h4 class="col-sm-6">
+			<span onclick="SCDetail.Visible(false)" class="nameTitle"><span class="fa fa-arrow-left"></span>&nbsp;Return to Primary Scorecard</span>
+			<!-- <span data-bind="text:Name"></span> -->
+		</h4>
+		<div class="col-sm-6 text-right">
+			<button class="btn btn-primary btn-sm" onclick="SCDetail.GetDetail();">
+			<i class="fa fa-list"></i>&nbsp;
+			Detail
+			</button>
+		</div>
+	</div>
+  	<table class="table table-kepala" width="100%">
+  		<tbody>
+      		<tr>
+      			<th width="203px" >Productivity KPIs focused on:</th>
+      			<th width="300px" >Metric</th>
+      			<th width="100px" >2016 Baseline</th>
+      			<th width="100px" >2017 Target</th>
+      			<th width="100px" >Benchmark</th>
+      			<th width="100px" >2017 YTD</th>
+      			<th width="50px" >RAG</th>
+      			<th width="150px" >Data Source</th>
+      		</tr>
+  		</tbody>
+  	</table>
+  	<table class="table table-isi" width="100%" data-bind="foreach:DataList">
+  		<tbody data-bind="foreach:ListMetric" class="list-metrics">
+  			<tr>
+	  			<td width="203px" style="background: #a1afc2 !important;padding: 5px 4px;color: white;vertical-align: middle;border: 1px solid #FFF !important;" data-bind="text:$parent.name,attr:{'rowspan':$parent.ListMetric.length},visible:$index()===0"></td>
+  				<td width="300px" data-bind="text:name,attr:{'title':description}"></td>
+  				<td width="100px" style="text-align: center !important;" data-bind="html:Scorecard.SyncText(nabaseline,type,decimalformat,baseline)"></td>
+  				<td width="100px" style="text-align: center !important;" data-bind="html:Scorecard.SyncText(nabaseline,type,decimalformat,target)"></td>
+  				<td width="100px" style="text-align: center !important;" data-bind="html:Scorecard.SyncText(nabaseline,type,decimalformat,benchmark)"></td>
+  				<td width="100px" style="text-align: center !important;" data-bind="html:Scorecard.SyncText(nabaseline,type,decimalformat,ytd)"></td>
+  				<td width="50px" data-bind="attr:{'style':'background:'+SCDetail.GetRAG(rag)}">&nbsp;</td>
+  				<td width="150px" data-bind="text:SCDetail.BMName(metricreference)"></td>
+  			</tr>
+  		</tbody>
+  	</table>
+</div>

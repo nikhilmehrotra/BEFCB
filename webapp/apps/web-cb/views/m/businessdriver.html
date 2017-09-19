@@ -1,0 +1,250 @@
+<script>
+	var Country = {
+		New: function() {
+      BDId = "BD" + (model.DataList().length+1);
+      Seq = (model.DataList().length+1)
+	    model.CurrentData({ Id: '', BusinessDriverId: BDId, Name: '', Type: '', Seq: Seq });
+	    this.ShowForm('show');
+	    model.resetValidation(".modal-body");
+	  },
+	  Delete: function(id) {
+	    swal({
+	      title: "Are you sure?",
+	      text: "Your will not be able to recover this data",
+	      type: "warning",
+	      showCancelButton: true,
+	      confirmButtonClass: "btn-danger",
+	      confirmButtonText: "Yes, delete it!",
+	      closeOnConfirm: false
+	    },
+	    function(res){
+	      if(res) {
+          $('#grid').html('');
+          model.Processing(true);
+	        var url = "{{BaseUrl}}m/deletebusinessdriver";
+	        var param = { id: id };
+	        ajaxPost(url, param, function(data){
+	          if(data != ""){
+	            swal('Warning', data, 'error');
+	            LoadData();
+	            model.Processing(false);
+	          }else{
+	            swal('Success', 'Data has been deleted!', 'success');
+	            LoadData();
+	            model.Processing(false);
+	          }
+
+	        }, undefined);
+	      }
+	      else {
+	        model.Processing(false);
+	      }
+	    });
+	  },
+	  Edit: function(id) {
+	    model.resetValidation(".modal-body");
+	    var url = "{{BaseUrl}}m/getbusinessdriver";
+	    var param = { id: id };
+	    var $this = this;
+	    model.Processing(true);
+	    ajaxPost(url, param, function(data){
+	      model.CurrentData({ Id: data.Id, BusinessDriverId: data.BusinessDriverId, Name: data.Name, Type: data.Type, Seq: data.Seq });
+        model.TypeKO(data.Type)
+	      $this.ShowForm('show');
+	      model.Processing(false);
+	    }, undefined);
+	  },
+	  Save: function() {
+	    if (!model.isFormValid(".modal-body")) {
+	      return;
+	    }
+
+      var $this = this;
+      var url = "{{BaseUrl}}m/savebusinessdriver";
+      var param = model.CurrentData();
+      param.Seq = parseInt(param.Seq);
+      param.Type = model.TypeKO();
+
+      $('#grid').html('');
+      model.Processing(true);
+      ajaxPost(url, param, function(data) {
+        if(data=='') {
+          $this.ShowForm('hide');
+          swal('Success', 'Data has been saved successfully!', 'success');
+          LoadData();
+          model.Processing(false);
+        } else {
+          swal("Warning", data, "error");
+          model.Processing(false);
+        }
+      }, undefined);
+
+	  },
+	   ShowForm: function(showhide) {
+	    $('#modalForm').modal(showhide);
+	  }
+	};
+
+	model.CurrentData = ko.observable({ Id: '', BusinessDriverId: '', Name: '', Type: '', Seq: '' });
+  model.DataList = ko.observableArray([])
+  model.TypeData = ko.observableArray([
+    {name: "Key Enablers"},
+    {name: "Supporting Enablers"}
+  ])
+  model.TypeKO = ko.observable('')
+
+	function LoadData() {
+  model.Processing(true);
+  // var url = "{{BaseUrl}}m/getlocationlist";
+  // var param = {};
+  $('#grid').html('');
+  // ajaxPost(url, param, function(data){
+    $('#grid').kendoGrid({
+      dataSource: {
+        // data: data,
+        serverPaging: true,
+        serverSorting: true,
+        transport: {
+          read: {
+            url: "{{BaseUrl}}m/getbusinessdriverlist",
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8"
+          },
+          parameterMap: function(options) {
+            // console.log(options);
+            return JSON.stringify(options);
+          }
+        },
+        pageSize: 20,
+        schema: {
+          data: function(options){
+            model.DataList(options.Data)
+            return options.Data
+          },
+          total: "Total"
+        },
+      },
+      groupable: false,
+      sortable: true,
+      filterable: false,
+      pageable: {
+          refresh: true,
+          pageSizes: true,
+          buttonCount: 5
+        },
+      columns: [
+        { field: "BusinessDriverId", title: "Id" },
+        { field: "Name", title: "Name" },
+        { field: "Type", title: "Type" },
+        { field: "Seq", title: "Seq" },
+        { title: "<center>Action</center>", width: 100, template: "<div class='middles'><center><a href=\"javascript:Country.Edit('#: Id #')\" class=\"btn btn-xs btn-warning tooltp\" title=\"Edit!\"><i class=\"fa fa-pencil\"></i></a>&nbsp;<a href=\"javascript:Country.Delete('#: Id #')\" class=\"btn btn-xs btn-danger tooltp\" title=\"Delete!\"><i class=\"fa fa-remove\"></i></a><center></div>" }
+      ]
+    });
+    model.Processing(false);
+  // }, undefined);
+}
+
+model.isFormValid = function (selector) {
+    model.resetValidation(selector);
+    var $validator = $(selector).data("kendoValidator");
+    return ($validator.validate());
+};
+
+model.resetValidation = function (selectorID) {
+    var $form = $(selectorID).data("kendoValidator");
+    if ($form == undefined) {
+        $(selectorID).kendoValidator();
+        $form = $(selectorID).data("kendoValidator");
+    }
+
+    $form.hideMessages();
+};
+
+$(document).ready(function(){
+  LoadData();
+  // dateNow();
+});
+
+</script>
+
+<style type="text/css">
+  .page-title{
+    margin: 0;
+    padding-left: 10px;
+  }
+</style>
+
+<h4 class="page-title">
+  Business Driver Master
+  <span id="datesekarang" class="pull-rigth" style="font-size: 14px; float: right;padding-top: 5px;"></span>
+</h4>
+
+<div class="panel">
+  <div class="panel-heading">
+    <!-- <h4 class="panel-title">Country List</h4> -->
+    <div class="panel-nav">
+      <button class="btn btn-sm btn-success" onclick="Country.New()"><i class="fa fa-plus-circle"></i>&nbsp;&nbsp;Add New Business Driver</button>
+    </div>
+  </div>
+  <div class="panel-body">
+    <div id="grid"></div>
+
+  </div>
+</div>
+
+<!-- Form Modal -->
+<div class="modal fade modal-fade-in-scale-up" id="modalForm" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" tabindex="-1"  data-backdrop="static" data-keyboard="false">
+<div class="modal-dialog">
+  <div class="modal-content">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <span aria-hidden="true">×</span>
+    </button>
+    <h4 class="modal-title">Add/Edit Business Driver Data</h4>
+  </div>
+  <div class="modal-body">
+
+    <div class="form-input row" data-bind="visible: !model.Processing()">
+
+      <input type="hidden" id="id" name="id" data-bind="value: model.CurrentData().Id" />
+
+      <div class="form-group col-md-12">
+        <label class="control-label col-md-4">Id</label>
+        <div class="control-input col-md-6">
+          <input type="text" name="name" id="name" class="input-sm form-control" placeholder="Type BusinessDriverId" data-bind="value: model.CurrentData().BusinessDriverId" disabled />
+        </div>
+      </div>
+
+      <div class="form-group col-md-12">
+        <label class="control-label col-md-4">Name</label>
+        <div class="control-input col-md-6">
+          <input type="text" name="name" id="name" class="input-sm form-control" placeholder="Type Name" data-bind="value: model.CurrentData().Name" required />
+        </div>
+      </div>
+
+      <div class="form-group col-md-12">
+        <label class="control-label col-md-4">Type</label>
+        <div class="control-input col-md-6">
+          <input type="text" name="name" id="name" class="input-sm form-control" placeholder="Type Type" data-bind="kendoDropDownList: { data: model.TypeData, dataValueField: 'name', dataTextField: 'name', value: model.TypeKO }"></select>
+        </div>
+      </div>
+
+      <div class="form-group col-md-12">
+        <label class="control-label col-md-4">Seq</label>
+        <div class="control-input col-md-6">
+          <input type="text" name="name" id="name" class="input-sm form-control" data-bind="value: model.CurrentData().Seq" disabled />
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="modal-footer" data-bind="visible: !model.Processing()">
+    <button type="button" class="btn btn-default margin-0" data-dismiss="modal"><span class="fa fa-close"></span>&nbsp;Close</button>
+    <button type="button" class="btn btn-primary" onclick="Country.Save()"><span class="fa fa-save"></span>&nbsp;Save</button>
+  </div>
+  </div>
+</div>
+</div>
+<!-- End Form Modal -->

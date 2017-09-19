@@ -1,0 +1,118 @@
+#ScorecardInitiative th{
+	background: #A1AFC2;
+	color: #FFF;
+	font-weight: normal;
+	padding: 5px 10px;
+	border-bottom: 1px solid #FFF;
+}
+#ScorecardInitiative table tbody{
+	/*border-bottom: 5px solid #FFF;*/
+}
+#ScorecardInitiative table tbody td:nth-child(2){
+	padding: 4px 12px 4px 6px;
+	background: #F2F7FC;
+	border-bottom: 1px solid #FFF;
+	border-left: 10px solid #FFF;
+}
+#ScorecardInitiative table tbody td:nth-child(2):hover{
+	cursor: pointer;
+	text-decoration: underline;
+}
+#ScorecardInitiative table tbody td:nth-child(3){
+	background: #F2F7FC;
+	border-bottom: 1px solid #FFF;
+	border-left: 10px solid #FFF;
+}
+#ScorecardInitiative table tbody td:nth-child(4){
+  background: #F2F7FC;
+  border-bottom: 1px solid #FFF;
+  border-left: 10px solid #FFF;
+}
+#ScorecardInitiative table tbody td:nth-child(5){
+  background: #F2F7FC;
+  border-bottom: 1px solid #FFF;
+  border-left: 10px solid #FFF;
+}
+#ScorecardInitiative table tbody td:nth-child(6){
+  background: #F2F7FC;
+  border-bottom: 1px solid #FFF;
+  border-left: 10px solid #FFF;
+}
+#ScorecardInitiative table tbody td.paddingbox{
+	height: 100%;
+    width: 3px;
+    background: #FFF;
+    border-right: 1px solid #a4a4a4;
+    border-top: 1px solid #a4a4a4;
+    border-left:2px solid #FFF;
+}
+#ScorecardInitiative .count-initiative a{
+	width: 49%;
+    /*display: inline-block;*/
+    float: left;
+    font-size: 11px;
+    text-align: center;
+    color: #FFF;
+}
+
+#ScorecardInitiative .count-initiative a.direct{
+	background:#60b27d;
+}
+#ScorecardInitiative .count-initiative a.indirect{
+	background: #428ca2;
+}
+#ScorecardInitiative .legend{
+	padding-left: 650px;
+    padding-top: 1px;
+}
+#ScorecardInitiative .legend > div{
+	display: inline-block;
+    margin-left: 20px;
+}
+#ScorecardInitiative .legend .direct{
+	color:#60b27d;
+}
+#ScorecardInitiative .legend .indirect{
+	color: #428ca2;
+}
+#ScorecardInitiative .legend > div.notactive{
+	color: #8e8e8e !important;
+}
+#ScorecardInitiative .legend > div:hover{
+	cursor: pointer;
+}
+#ScorecardInitiative .header th{
+	background: #333F4F;
+	
+}
+#ScorecardInitiative .header th:nth-child(2){
+	border-left: 10px solid #FFF;
+	border-right: 5px solid #FFF;
+}
+#ScorecardInitiative .header th:nth-child(3){
+	border-left: 10px solid #FFF;
+	border-right: 5px solid #FFF;
+}
+#ScorecardInitiative .header th:nth-child(4){
+  border-left: 10px solid #FFF;
+  border-right: 5px solid #FFF;
+}
+#ScorecardInitiative .header th:nth-child(5){
+  border-left: 10px solid #FFF;
+  border-right: 5px solid #FFF;
+}
+#ScorecardInitiative .header th:nth-child(6){
+  border-left: 10px solid #FFF;
+  border-right: 5px solid #FFF;
+}
+#ScorecardInitiative .prev3rag {
+	text-align: center;
+}
+#ScorecardInitiative .prev3rag > div{
+	display: inline-block;
+	width: 30%;
+	border: 1px solid #DDD;
+}
+.nopadding{
+  padding: 0 1px;
+}

@@ -1,0 +1,2246 @@
+<div id="scchart-button" data-bind="visible:false">
+	<button class='navbar-toggle no-border mgRight-5' onclick="scchart.Get()">
+	 <i class="fa fa-bar-chart-o fa-lg bewhite " aria-hidden="true"></i>
+	</button>
+</div>
+<script src="/web-cb/static/core/task.js"></script> 
+{{template "initiative.html" .}}
+<style type="text/css">
+	.loader-sm{
+		padding:118px 10px !important;
+	}
+	.popupbutton{
+		position: absolute;
+	    z-index: 100;
+	    border: 1px solid #DDD;
+	    padding: 1px 3px;
+	    margin: 5px;
+	    background: #FFF;
+	}
+	.popupbutton:hover{
+		cursor: pointer;
+		color: #444;
+	}
+
+	#sc-chart{
+
+	}
+	.headerSlide {
+		background-color: #333F50;
+		color: #ffffff;
+		width: 100%;
+		height: 10%;
+		text-align: center;
+	}
+	.no-padding-right{
+		padding-right: 0.1em;
+	}
+	.no-padding-left{
+		    padding-left: 0px;
+	}
+	#sc-chart .nav-tabs > li > a {
+		border-radius: 0px 0px 0px 0px;
+	    color: #f2f2f2;
+	    font-size: 12px;
+	    padding: 6px;
+	}
+	.tabSlide{
+		/*height: 35px;*/
+	}
+	#sc-chart .nav-tabs > li.active > a{
+		color: #333f50;
+		padding: 6px;
+		/*border-bottom: 2px solid #333f50;
+    	border-bottom-width: 3px;*/
+	}
+	#sc-chart .nav-tabs > li > a:hover {
+		color: #333f50;
+	}
+	.li-Slide{
+		width: 180px;
+	}
+
+	#sc-chart .chart-item{
+		margin-bottom: 5px;
+	}
+	#sc-chart .chart-item label{
+		font-weight: normal;
+	    margin: 0px;
+	    font-size: 11px;
+	}
+
+
+	#sc-chart .chart-item .k-state-disabled{
+		opacity: 1;
+		border: 3px solid #ccc;
+	}
+	#sc-chart .chart-item .k-state-disabled .k-slider-wrap{
+		opacity: 1;
+	}
+	#sc-chart .k-autocomplete{
+	    border: solid 1px rgb(2, 107, 162);
+	}
+	#sc-chart .k-slider-selection {
+		background-color: #2890C0;
+		border-color: #0e5a7d;
+	    height: 17px;
+	    margin-top: -9px;
+	}
+	#sc-chart .k-progressbar .k-state-selected {
+	    background-color: #00DB9D;
+    	border-color: #00DB9D;
+	}
+	#sc-chart .k-progress-status-wrap {
+	    color: #333;
+	    font-weight: bold;
+	}
+	#sc-chart .k-slider-horizontal .k-draghandle{
+	    display: none;
+	}
+	#sc-chart .k-slider-track{
+	    top: 50%;
+	    left: 0;
+	    height: 15px;
+	    margin-top: -10px;
+	    background-repeat: repeat-x;
+	    background: #FFF;
+	}
+	#sc-chart .tab-content{
+		overflow-y: auto;
+		width: 100%;
+		padding: 10px 10px 0px 10px;
+		overflow-x: hidden;
+		height: 300px;
+		background: #e3e1e1;
+	}
+	#sc-chart .business-metrsccharts  .current{
+		margin-top: -25px;
+	}
+	#sc-chart .basetarget{
+		margin-top:5px;
+	}
+	#pvbi-wrapper{
+		overflow-y: scroll;
+    	overflow-x: hidden;
+    	height: 300px;
+	}
+	#pvbi{
+		padding-top: 10px;
+		background: #f2f2f2;
+	}
+	#close-button{
+		position: absolute;
+	    color: #FFF;
+	    right: 40px;
+	    z-index: 10;
+	    margin-top: 3px;
+	    cursor: pointer;
+	    padding: 5px;
+	}
+	#close-button:hover{
+		color: #DDD;
+	}
+	#TabList{
+		/*top: 5px;*/
+		height: 34px;
+	}
+	#TabList li a{
+		border: 0;
+		padding: 8px !important;
+	}
+	#TabList li.active a{
+		background-color: #e3e1e1;
+	}
+	#TabList li.active a span{
+	  	padding: 0px 20px 4px 20px;
+    	border-bottom: 3px solid #333F50;
+  	}
+	
+	#TabListChart{
+		/*top: 5px;*/
+		height: 34px;
+	}
+	#TabListChart li a{
+		border: 0;
+		padding: 8px !important;
+	}
+	#TabListChart li.active a{
+		background-color: #e3e1e1;
+	}
+	#TabListChart li.active a span{
+	  	padding: 0px 20px 4px 20px;
+    	border-bottom: 3px solid #333F50;
+  	}
+	.text-datapoint {
+		margin-left: -6px;
+		max-height: 18px;
+		overflow: hidden;
+		line-height: 20px;
+	}
+	#tab-Business{
+		padding-bottom: 20px;
+	}
+	#tab-Progess{
+		padding-bottom: 20px;
+	}
+	.milestone-tooltip label {
+		width: 75px;
+	}
+	.k-gantt .k-splitbar {
+		height: 250px;
+	pointer-events: none;
+	background-color: #e5e5e5;
+	width: 1px;
+	}
+	.k-gantt .k-splitbar .k-resize-handle {
+		display: none;
+	}
+	.width90{
+		width: 90%;
+	}
+	.scfilter{
+		border: 1px solid #026ba2;
+	}
+</style>
+<script type="text/javascript">
+	var chartColorsonDetails = ["#6D6E71", "#2890C0","#6AC17B","#6D6E71","#939598","#2890C0","#6BA8D0","#6AC17B","#9FD18B"];
+	function monthDiff(d1, d2) {
+	    var months;
+	    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+	    months -= d1.getMonth() + 1;
+	    months += d2.getMonth();
+	    return months <= 0 ? 0 : months;
+	}
+	var scchart = {
+		OwnedData:ko.observable([]),
+		IsOpen:ko.observable(false),
+		Processing:ko.observable(true),
+		Display:ko.observableArray([]),
+		SelectedBM:ko.observableArray(),
+		DataSource:ko.observable(),
+		Data:ko.observable(),
+		LifeCycleList:ko.observableArray([]),
+		SelectedBI:ko.observableArray(),
+		FilteredDataSource:ko.observableArray([]),
+		GttProcessing:ko.observable(false),
+		Filter:{
+			Search:ko.observable(""),
+			Impact:ko.observable(""),
+			TimeHorizon:ko.observable(""),
+			ImpactList:ko.observableArray(["Low","Medium","High"]),
+			TimeHorizonList:ko.observableArray([
+				{Name:"30 Days",Value:30},
+				{Name:"60 Days",Value:60},
+				{Name:"90 Days",Value:90},
+			]),
+			BusinessDriver:ko.observable([]),
+			BusinessDriverList:ko.observableArray([]),
+			PMAE:ko.observable(""),
+			PMAEList:ko.observableArray([]),
+			
+		}
+	}
+	scchart.Close = function(){
+		$("#scchart-locker").hide("fast");
+		$("#curtainchart-container").slideToggle();
+	}
+	scchart.Get = function(){
+		$("#scchart-locker").height($("body").height()+50);
+		$("#curtainchart-container").slideToggle();
+		setTimeout(function(){
+			$("#scchart-locker").show("fast");
+			scchart.Processing(true);
+			$("#Business").trigger( "click" );
+			if(scchart.IsOpen() == true){
+				$("#sc-chart").hide("fast");
+				scchart.IsOpen(false);
+				scchart.Processing(false);
+			}else{
+				$("#sc-chart").show('slide', {direction: 'down'},"slow");
+				scchart.IsOpen(true);
+				scchart.GetData();
+			}
+		},300)
+	}
+	scchart.GetInitiative = function(obj){
+	    if(typeof obj._id === "function"){
+	        Initiative.Get(obj._id());
+	    }else{
+	        Initiative.Get(obj._id);
+	    }
+	}
+
+	scchart.ConvertValue = function(value, label, MetricType){
+		var realMetricType = ""
+		if (MetricType == "DOLLAR"){
+			realMetricType = "$";
+			return label + realMetricType + " " + value
+		}else if (MetricType == "PERCENTAGE"){
+			realMetricType = "%";
+			return label + value + " "+ realMetricType
+		}else if (MetricType == "NUMERIC"){
+			realMetricType = "";
+			return label + realMetricType + " " + value
+		}else{
+			realMetricType = "";
+			return label + realMetricType + " " + value 
+		}	
+	}
+
+
+    scchart.ProgressColor = function(id,e, Prosess) {
+    	var BaseLineValue = e.BaseLineValue;
+		var CurrentValue = e.CurrentValue;
+		var TargetValue = e.TargetValue;
+
+    	var Display = e.Display;
+    	var ValueType = e.ValueType;
+    	var background = "";
+    	var border = "";
+
+    	if (Display == "amber"){
+    		background = "#ffd24d";
+    		border = "#ffd24d";
+    	}else if (Display == "green"){
+    		background = "#6ac17b";
+    		border = "#6ac17b";
+    	}else if (Display == "red"){
+    		background = "#f74e4e";
+    		border = "#f74e4e";
+    	}
+
+    	var ArrayValue = [
+				{
+					text : "B: ",
+					value : BaseLineValue
+				},
+				{
+					text : "A: ",
+					value : CurrentValue
+				},
+				{	
+					text : "T: ",
+					value : TargetValue
+				}
+			]
+
+		var queryResult = Enumerable.From(ArrayValue)
+			    .OrderBy(function (x) { return x.value  })
+			    .ToArray();
+
+		if (queryResult[0].text == "T: "){
+				$("#progressBarSlide-"+id).find(".k-state-selected").css({
+					"background-color": background,
+					"border-color": border,
+				})
+		}else{
+			if(queryResult[1].text == "T: " ){
+				$("#progressBarSlide-"+id).find(".k-progress-status-wrap").css({
+					"background-color": "#f9f9f9",
+					"border-color":"#a1a5a8"
+
+				});
+				$("#progressBarSlide-"+id).find(".k-state-selected").css({
+					"background-color": "#f9f9f9",
+					"border-color":"#a1a5a8",
+					"width": "100%"
+				});
+				$("#progressBarSlide-"+id).find(".k-state-selected").find(".k-progress-status-wrap").css({
+					"background-color": "#f9f9f9",
+					"border-color":"#f9f9f9"
+				})
+			}else if(queryResult[1].text == "B: " ){
+				$("#progressBarSlide-"+id).find(".k-state-selected").css({
+					"background-color": background,
+					"border-color": border,
+					"width": "100%"
+				})
+			}else{
+				$("#progressBarSlide-"+id).find(".k-progress-status-wrap").css({
+					"background-color": background,
+					"border-color": border,
+				});
+
+	    		$("#progressBarSlide-"+id).find(".k-state-selected").css({
+					"background-color": "#f9f9f9",
+					"border-color":"#a1a5a8"
+				});
+				$("#progressBarSlide-"+id).find(".k-state-selected").find(".k-progress-status-wrap").css({
+					"background-color": "#f9f9f9",
+					"border-color":"#a1a5a8"
+				})
+			}
+
+		}
+	}
+
+</script>
+
+<script type="text/javascript">
+	scchart.ProgressBar = function(id, raw) {
+		var data = ko.mapping.toJS(raw);
+		var isHigherBetter = (data.ValueType == 1);
+		if(data.BaseLineValue===130895111188){
+			data.BaseLineValue = 0;
+			if(!data.NABaseline){
+				data.NABaseline = true;
+			}
+		}
+		if(data.CurrentValue===130895111188){
+			data.CurrentValue = 0;
+			if(!data.NAActual){
+				data.NAActual = true;
+			}
+		}
+		if(data.TargetValue===130895111188){
+			data.TargetValue = 0;
+			if(!data.NATarget){
+				data.NATarget = true;
+			}
+		}
+
+
+		// AA		
+		// AB	BB	
+		// AT	BT	TT
+
+		if(!data.NABaseline && data.NAActual && !data.NATarget /*AA*/){
+			if(isHigherBetter){
+				data.CurrentValue = data.BaseLineValue+0.00000000001 
+			}else{
+				data.CurrentValue = data.BaseLineValue-0.00000000001 
+			}
+		}else if(data.NABaseline && data.NAActual && !data.NATarget /*AB*/){
+			if(isHigherBetter){
+				data.BaseLineValue = data.TargetValue-0.00000000002
+				data.CurrentValue = data.TargetValue-0.00000000001
+			}else{
+				data.BaseLineValue = data.TargetValue+0.00000000002
+				data.CurrentValue = data.TargetValue+0.00000000001
+			}
+		}else if(!data.NABaseline &&data.NAActual && data.NATarget /*AT*/){
+			if(isHigherBetter){
+				data.CurrentValue = data.BaseLineValue+0.00000000001
+				data.TargetValue = data.BaseLineValue+0.00000000002
+			}else{
+				data.CurrentValue = data.BaseLineValue-0.00000000001
+				data.TargetValue = data.BaseLineValue-0.00000000002
+			}
+		}else if(data.NABaseline && !data.NAActual && !data.NATarget /*BB*/){
+			if(isHigherBetter){
+				if(data.CurrentValue>data.TargetValue){
+					data.BaseLineValue = data.TargetValue-0.00000000001
+				}else{
+					data.BaseLineValue = data.CurrentValue-0.00000000001
+				}
+			}else{
+				if(data.CurrentValue<data.TargetValue){
+					data.BaseLineValue = data.TargetValue+0.00000000001
+				}else{
+					data.BaseLineValue = data.CurrentValue+0.00000000001
+				}
+			}
+		}else if(data.NABaseline && !data.NAActual && data.NATarget /*BT*/){
+			if(isHigherBetter){
+				data.BaseLineValue = data.CurrentValue-0.00000000002
+				data.TargetValue = data.CurrentValue+0.00000000001
+			}else{
+				data.BaseLineValue = data.CurrentValue+0.00000000002
+				data.TargetValue = data.CurrentValue-0.00000000001
+			}
+		}else if(!data.NABaseline && !data.NAActual && data.NATarget /*TT*/){
+			if(isHigherBetter){
+				if(data.BaseLineValue>data.CurrentValue){
+					data.TargetValue = data.BaseLineValue+0.00000000001
+				}else{
+					data.TargetValue = data.CurrentValue+0.00000000001
+				}
+			}else{
+				if(data.BaseLineValue<data.CurrentValue){
+					data.TargetValue = data.BaseLineValue-0.00000000001
+				}else{
+					data.TargetValue = data.CurrentValue-0.00000000001
+				}
+			}
+		}
+
+
+		var isActLessBase = (data.CurrentValue < data.BaseLineValue);
+		
+		var sorter = isHigherBetter ? 'asc' : 'desc';
+		var row = _.orderBy([
+			{ name: 'baseline', value: data.BaseLineValue, IsNA:data.NABaseline },
+			{ name: 'current', value: data.CurrentValue, IsNA:data.NAActual },
+			{ name: 'target', value: data.TargetValue, IsNA:data.NATarget },
+		], 'value', sorter);
+		
+		var styles = []
+		var background = '#54b4e0';
+
+
+		var isABT = (row[0].name == 'current' && row[2].name == 'target')   || (row[0].name == 'target' && row[2].name == 'current');
+		var isBAT = (row[0].name == 'baseline' && row[2].name == 'target')  || (row[0].name == 'target' && row[2].name == 'baseline');
+		var isBTA = (row[0].name == 'baseline' && row[2].name == 'current') || (row[0].name == 'current' && row[2].name == 'baseline');
+
+		// NOTE: bar highlight is from: ACTUAL to BASELINE / BASELINE to ACTUAL
+
+		if (isABT /* or TBA */) {
+			// console.log("isABT");
+			var min = _.min([row[0].value, row[2].value]);
+			var max = _.max([row[0].value, row[2].value]);
+			var midValue = Math.abs(row[1].value - min) / (max - min) * 100;
+			if(isHigherBetter && isActLessBase){
+				midValue =0;
+			}else if(!isHigherBetter && !isActLessBase){
+				midValue =0;
+			}
+			if(data.NABaseline||data.NAActual||data.NATarget){
+				midValue=0;
+				if(!data.NAActual&&!data.NATarget && ((isHigherBetter&&data.CurrentValue>=data.TargetValue)||(!isHigherBetter&&data.CurrentValue<=data.TargetValue))){
+					midValue = 100;
+				}
+			}
+			styles[0] = 'width: ' + midValue + '%; background-color: ' + background + ';';
+		} else if (isBAT /* or TAB */) {
+			// console.log("isBAT");
+			var indexOfCurrent = row.indexOf(row.find(function (d) { return d.name === 'current' }));
+			var indexOfTarget = row.indexOf(row.find(function (d) { return d.name === 'target' }));
+			var leftIndex = _.min([indexOfCurrent, indexOfTarget]);
+
+			var min = _.min([row[0].value, row[2].value]);
+			var max = _.max([row[0].value, row[2].value]);
+			var midValue = Math.abs(row[1].value - min) / (max - min) * 100;
+
+			if (leftIndex == 0) {
+				// actual is on the very left
+				var barLeft = 0, barWidth = 0;
+				if (isHigherBetter) {
+					barLeft = midValue;
+					barWidth = (100 - midValue);
+					if(isActLessBase){
+						barWidth =0
+					}
+				} else {
+					barLeft = (100 - midValue);
+					barWidth = midValue;
+					if(!isActLessBase){
+						barWidth =0
+					}
+				}
+				if(data.NABaseline||data.NAActual||data.NATarget){
+					barWidth=0;
+					if(!data.NAActual&&!data.NATarget && ((isHigherBetter&&data.CurrentValue>=data.TargetValue)||(!isHigherBetter&&data.CurrentValue<=data.TargetValue))){
+						barWidth=100
+					}
+				}
+				styles[leftIndex] = 'left: ' + barLeft + '%;'
+					+ 'width: ' + barWidth + '%;'
+					+ 'text-align: left;'
+					+ 'background-color: ' + background + ';';
+			} else if (leftIndex == 1) {
+				// target is on the very left
+				var barWidth = midValue, barLeft = midValue;
+				if(isHigherBetter && isActLessBase){
+					barWidth =0;
+				}else if(!isHigherBetter && !isActLessBase){
+					barWidth =0;
+				}
+				if(data.NABaseline||data.NAActual||data.NATarget){
+					barWidth=0;
+					if(!data.NAActual&&!data.NATarget && ((isHigherBetter&&data.CurrentValue>=data.TargetValue)||(!isHigherBetter&&data.CurrentValue<=data.TargetValue))){
+						barWidth=100;
+					}
+				}
+				styles[leftIndex] = 'width: ' + barWidth + '%;'
+					+ 'background-color: ' + background + ';';
+				styles[leftIndex + 1] = 'left: ' + barLeft + '%;'
+					+ 'text-align: right;';
+			}
+		} else if (isBTA /* or ATB */) {
+			// console.log("isBTA");
+			var width = (row[0].value === row[2].value) ? 0 : 100;
+			if(isHigherBetter && isActLessBase){
+				width =0
+			}else if(!isHigherBetter && !isActLessBase){
+				width =0
+			}
+			if(data.NABaseline||data.NAActual||data.NATarget){
+				width=0;
+				if(!data.NAActual&&!data.NATarget && ((isHigherBetter&&data.CurrentValue>=data.TargetValue)||(!isHigherBetter&&data.CurrentValue<=data.TargetValue))){
+					width=100;
+				}
+			}
+			styles[0] = 'width: ' + width + '%; background-color: ' + background + ';';
+		}
+
+
+
+		var format = "0";
+		if(typeof raw.DecimalFormat == "string"){
+			format = raw.DecimalFormat;
+		}else{
+			format = raw.DecimalFormat();
+		}
+
+		var validate = function (r) {
+			if(r.IsNA){
+				return "";
+			}
+			var prefix = (r.name[0] === 'c') ? 'a' : r.name[0];
+			var value = kendo.toString(r.value, 'n'+format);
+
+			switch (data.MetricType) {
+				case 'DOLLAR'	 : value = '$' + value; break;
+				case 'PERCENTAGE': value = value + '%'; break;
+				default: break;
+			}
+
+			return String(prefix).toUpperCase() + ' : ' + value
+		}
+
+		var labelLeft = validate(row[0]);
+		var labelCenter = validate(row[1]);
+		var labelRight = validate(row[2]);
+
+		var html = [
+			'<div class="bat-meter-label">', labelLeft, '</div>',
+			'<div class="bat-meter-label">', labelCenter, '</div>',
+			'<div class="bat-meter-label">', labelRight, '</div>',
+
+			'<div class="bat-meter-bar" style="border-color: ' + background + ';">',
+				'<div class="left"   data-type="', row[0].name, '" data-value="', row[0].value, '" style="', styles[0], '"></div>',
+				'<div class="center" data-type="', row[1].name, '" data-value="', row[1].value, '" style="', styles[1], '"></div>',
+				'<div class="right"  data-type="', row[2].name, '" data-value="', row[2].value, '" style="', styles[2], '"></div>',
+			'</div>'
+		].join('');
+		$('[data-progressbarid="' + id + '"]').html(html);
+	}
+</script>
+<div id="scchart-container" data-bind="visible:false">
+	<div id="sc-chart" data-bind="with:scchart">
+		<div id="close-button" data-bind="click:scchart.Close"><i class="fa fa-times" aria-hidden="true"></i></div>
+		<div class="row">
+			<div class="col-sm-6 no-padding-right">
+				<ul id="TabListChart" class="col-sm-12 headerSlide nav nav-tabs pull-left">
+	              <li id="brP" class="li-Slide active"><a id="br" class="tabSlide" href="#brct" data-toggle="tab"><span>Chart</span></a></li>
+	              <li id="gtP" class="li-Slide" onclick="RenderGanttChart(false)"><a id="gt"  class="tabSlide"  href="#gntct" data-toggle="tab"><span>Gantt</span></a></li>
+	          	</ul>
+	          	<div class="loader loader-sm col-sm-12 text-center" data-bind="visible:Processing()">
+				    <img src="/web-cb/static/img/loader3.gif">
+				</div>
+				<div class="tab-content" data-bind="visible:!Processing()">
+					{{if (or .Initiative.Global.Read .Initiative.Region.Read .Initiative.Country.Read) }}
+					<div class="tab-pane active" id="brct" >
+						<div id="progression-summary"></div>
+
+						<div class="col-sm-12" data-bind="visible:scchart.SelectedBI().length>0">
+				          <label class="col-sm-12">Initiative List as per selected Business Impact : </label>
+				          <div class="col-sm-12" data-bind="foreach:scchart.SelectedBI">
+				            <div><span data-bind="text:($index()+1)+'. '"></span><a href="#" data-bind="text:ProjectName,click:scchart.GetInitiative"></a></div>
+				          </div>
+				          <div  class="col-sm-12">&nbsp;</div>
+				      	</div>
+					</div>
+
+					<div class="tab-pane" id="gntct">
+						<a class="popupbutton popupcustom" onclick="scchart.getPopup();">
+							<i class="fa fa-arrows"></i>
+						</a>
+						<div id="progression-gantt"></div>
+					</div>
+					{{else}}
+					<div style="text-align: center;padding-top: 100px">You have no privillage to access this section</div>
+					{{end}}
+				</div>
+				
+			</div>
+			<div class="col-sm-6 no-padding">
+				<ul id="TabList" class="col-sm-12 headerSlide nav nav-tabs pull-left">
+					{{if (or .Scorecard.Global.Read .Scorecard.Region.Read .Scorecard.Country.Read) }}
+	              <li id="tabBusiness" class="li-Slide active"><a id="Business" class="tabSlide" href="#tab-Business" data-toggle="tab"><span>Business Metric</span></a></li>
+	              	{{end}}
+	              	{{if (or .Initiative.Global.Read .Initiative.Region.Read .Initiative.Country.Read) }}
+	              <li id="tabProgess" class="li-Slide {{if (or .Scorecard.Global.Read .Scorecard.Region.Read .Scorecard.Country.Read) }}{{else}}{{if (or .Initiative.Global.Read .Initiative.Region.Read .Initiative.Country.Read) }}active{{end}}{{end}}"><a id="Progess"  class="tabSlide"  href="#tab-Progess" data-toggle="tab" data-bind="click: scchart.progressbarcolor"><span>Progress</span></a></li>
+	              	{{end}}
+	          	</ul>
+	          	<div class="loader loader-sm col-sm-12 text-center" data-bind="visible:Processing()">
+				    <img src="/web-cb/static/img/loader3.gif">
+				</div>
+				<div class="tab-content" data-bind="with:scchart.Data,visible:!Processing()">
+					<div class="tab-pane active" id="tab-Business" >
+					{{if (or .Scorecard.Global.Read .Scorecard.Region.Read .Scorecard.Country.Read) }}
+					<div class="row" data-bind="foreach:scchart.SelectedBM" >
+					  	<div class="col-sm-6">
+							<div class="row chart-item" data-bind="attr:{'title':Description}">
+								<div class="col-sm-12">
+									<div class="col-sm-3 text-right no-padding-left">
+										<input type="checkbox" data-bind="checked:selected,click:scchart.selectDisplay">
+									</div>
+									
+									<span class="col-sm-6 no-padding text-datapoint" data-bind="text:Description"></span>
+									
+								</div>
+								<div class="col-sm-12 cell bat-meter">
+									<div class="bar-info" data-bind=" attr:{'data-progressbarid': 'sc'+($index())}"></div>
+								</div>
+								
+							</div>
+					  	</div>
+					  </div>
+					{{end}}   
+					</div>
+	              <div class="tab-pane {{if (or .Scorecard.Global.Read .Scorecard.Region.Read .Scorecard.Country.Read) }}{{else}}{{if (or .Initiative.Global.Read .Initiative.Region.Read .Initiative.Country.Read) }}active{{end}}{{end}}" id="tab-Progess" >
+	              		{{if (or .Initiative.Global.Read .Initiative.Region.Read .Initiative.Country.Read) }}
+	                  <div class="row" data-bind="foreach:InitiativeList">
+	                  	<div class="col-sm-6">
+							<div class="row chart-item">
+								<label class="col-sm-2">&nbsp;</label>
+								<label class="col-sm-9" data-bind="text:ProjectName"></label>
+								<label class="col-sm-2">&nbsp;</label>
+								<div class="col-sm-9 progressbar">
+									<span data-bind="attr:{'style':'position:absolute;width:89%;height:100%;z-index: 30;border: 3px solid #e3e1e1;border-top-left-radius: 20px;border-bottom-left-radius: 20px;border-top-right-radius: 20px;border-bottom-right-radius: 20px;margin:0 -1px'}"></span>
+									<div data-bind="kendoProgressBar: { value: Initiative.GetCompletion($data),type:'percent', enabled: false }, attr:{'id': 'pg'+($index())}" class="width-percent95"></div>
+								</div>
+							</div>
+	                  	</div>
+	                  </div>
+	                  	{{end}}
+	              </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	scchart.getFilter = function(){
+		var BDList = scchart.DataSource().Data.SummaryBusinessDriver;
+		for(var i in BDList){
+			BDList[i].DisplayName = BDList[i].Name+" - "+BDList[i].Parentname;
+		}
+		scchart.Filter.BusinessDriverList(BDList);
+		var PMAEList = Enumerable.From(scchart.DataSource().Data.Project).Where("$.ProjectManager!==''").GroupBy("$.ProjectManager").Select("$.Key()").OrderBy(function(x){return x}).ToArray()
+		scchart.Filter.PMAEList(PMAEList);
+	}
+	
+	scchart.Filter.BusinessDriver.subscribe(function(){
+		scchart.GttProcessing(true);
+		scchart.applyGttFilter();	
+		setTimeout(function(){
+			scchart.GttProcessing(false);
+			RenderGanttChart(true);
+		}, 1000);
+	})
+	scchart.Filter.Impact.subscribe(function(){
+		scchart.GttProcessing(true);
+		scchart.applyGttFilter();	
+		setTimeout(function(){
+			scchart.GttProcessing(false);
+			RenderGanttChart(true);
+		}, 1000);
+	})
+	scchart.Filter.PMAE.subscribe(function(){
+		scchart.GttProcessing(true);
+		scchart.applyGttFilter();	
+		setTimeout(function(){
+			scchart.GttProcessing(false);
+			RenderGanttChart(true);
+		}, 1000);
+	})
+	scchart.applyGttFilter = function(){
+		var arr = ko.mapping.toJS(scchart.Data().Project);
+		var filter = scchart.Filter;
+		if(filter.Impact()!==""){
+			arr = Enumerable.From(arr).Where("$.BusinessImpact === '"+filter.Impact()+"'").ToArray();
+		}
+		if(filter.BusinessDriver()!==""){
+			arr = Enumerable.From(arr).Where("$.BusinessDriverId === '"+filter.BusinessDriver()+"'").ToArray();
+		}
+		if(filter.PMAE()!==""){
+			arr = Enumerable.From(arr).Where("$.ProjectManager === '"+filter.PMAE()+"'").ToArray();
+		}
+		
+		scchart.FilteredDataSource(arr);
+	}
+	scchart.getPopup = function(){
+		$("#modal-gntct").modal("show");
+		$(".modal-backdrop").attr("style","z-index:5;")
+		scchart.GttProcessing(true);
+		scchart.FilteredDataSource(scchart.Data().Project);
+		scchart.getFilter();
+		setTimeout(function(){
+			scchart.GttProcessing(false);
+			RenderGanttChart(true);
+		}, 1000);
+	}
+	scchart.selectDisplay = function(data){
+		if(scchart.Display().length===2){
+			if(scchart.Display().indexOf(data.idx)<0){
+				return false;
+			}
+		}
+		if(scchart.Display().indexOf(data.idx)>=0){
+			scchart.Display.remove(data.idx);
+		}else{
+			scchart.Display.push(data.idx);
+		}
+		setTimeout(function(){
+			scchart.render();
+		}, 100);
+		return true;
+	}
+
+	scchart.progressbarcolor = function(){
+		var sources = ko.mapping.toJS(scchart.DataSource().Data);
+	    var iList = Enumerable.From(sources.Project).GroupBy("$.InitiativeID").Select("$.Key()").ToArray();
+	    // sources.InitiativeList = [];
+	    for(var i in iList){
+	    	var d = Enumerable.From(sources.Project).Where("$.InitiativeID === '"+iList[i]+"'").FirstOrDefault();   	
+		    var color = (d.DisplayProgress == 'amber') ? '#ffd24d' : (d.DisplayProgress == 'green') ? '#6ac17b' : '#f74e4e';
+		    $('#pg'+i+' .k-state-selected').css('background-color', color).css('border-color', color);
+
+		    if (Initiative.GetCompletion(d) == 100) {
+		    } else if (Initiative.GetCompletion(d) != 0) {
+		    	$('#pg'+i+'').children("span").remove();
+	    		$('#pg'+i+' .k-state-selected .k-progress-status-wrap').css("width","");
+		    } else if (Initiative.GetCompletion(d) >= 0 && Initiative.GetCompletion(d) <= 5) {
+		    	$('#pg'+i+' .k-progress-status-wrap').css({'color':'black', 'text-align': 'left'});
+		    }
+	    }
+	}
+	scchart.GetDaysBetween = function(date1, date2 ){
+		//Get 1 day in milliseconds
+		var one_day=1000*60*60*24;
+
+		// Convert both dates to milliseconds
+		var date1_ms = date1.getTime();
+		var date2_ms = date2.getTime();
+
+		// Calculate the difference in milliseconds
+		var difference_ms = date2_ms - date1_ms;
+
+		// Convert back to days and return
+		return Math.round((difference_ms/one_day),2); 
+	}
+	scchart.GetData = function(IsRefreshingInitiative){
+		var url = "/web-cb/dashboard/getpaneldata";
+		var parm = {
+			BankWide:true,
+			CBLead:true,
+			Country:[],
+			CountryOne:"",
+			DisplayColor:"",
+			EndDate:"",
+			High:true,
+			Investment:true,
+			IsBE:true,
+			IsBP:true,
+			IsExellerator:true,
+			IsOperationalExcellence:true,
+			Low:true,
+			Medium:true,
+			Primary:true,
+			Region:[],
+			RegionCountry:[],
+			RegionCountryScorecard:false,
+			RegionOne:"",
+			Remaining:true,
+			Search:"",
+			Secondary:true,
+			StartDate:"",
+			Task:true,
+			YtdComplete:true
+		}
+		parm.Country = [];
+		parm.Region = [];
+		parm.BDFilter = [];
+		ajaxPost(url,parm,function(res){
+			scchart.OwnedData(res.OwnedInitiative);
+			scchart.MappingDataSource({Initiative:res},parm);
+		});
+	};
+	scchart.MappingDataSource = function(sources,parm){
+		// console.log(sources)
+		var allInitiate = [];
+
+		for(var i in sources){
+			// Check for Completed Initiative
+			for(var ip in sources[i].Project){
+				sources[i].Project[ip].IsCompleted = false;
+
+				if(sources[i].Project[ip].SetAsComplete){
+					sources[i].Project[ip].IsCompleted = true;
+
+					sources[i].Project[ip].StartDate = getUTCDate(sources[i].Project[ip].StartDate);
+					sources[i].Project[ip].FinishDate = getUTCDate(sources[i].Project[ip].FinishDate);
+					var Milestones = sources[i].Project[ip].Milestones;
+
+					for(var m in Milestones){
+						Milestones[m].Id = parseInt(m);
+						Milestones[m].StartDate = getUTCDate(Milestones[m].StartDate);
+						Milestones[m].EndDate = getUTCDate(Milestones[m].EndDate);
+						Milestones[m].DaysBetween = scchart.GetDaysBetween(Milestones[m].StartDate,Milestones[m].EndDate);
+						
+						if(Milestones[m].Seq == undefined){
+							Milestones[m].Seq = parseInt(m) + 1;
+						}
+
+					}
+
+					// sources[i].Project[ip].FinishDate =  getUTCDate(sources[i].Project[ip].CompletedDate); -- to enable tick mark logic in Chart Section [Logic:Ask Ainur]
+				}else{
+
+					sources[i].Project[ip].StartDate = getUTCDate(sources[i].Project[ip].StartDate);
+					sources[i].Project[ip].FinishDate = getUTCDate(sources[i].Project[ip].FinishDate);
+					var Milestones = sources[i].Project[ip].Milestones;
+
+					for(var m in Milestones){
+						Milestones[m].Id = parseInt(m);
+						Milestones[m].StartDate = getUTCDate(Milestones[m].StartDate);
+						Milestones[m].EndDate = getUTCDate(Milestones[m].EndDate);
+						Milestones[m].DaysBetween = scchart.GetDaysBetween(Milestones[m].StartDate,Milestones[m].EndDate);
+						
+						if(Milestones[m].Seq == undefined){
+							Milestones[m].Seq = parseInt(m) + 1;
+						}
+
+					}
+
+	        Milestones = Enumerable.From(Milestones).Where("$.Name.trim() !== ''").ToArray()
+	        var ProgressCompletion = 0;
+	        if (Milestones.length == 0){
+	        	if(Now>sources[i].Project[ip].FinishDate){
+	                ProgressCompletion = 100;
+	            }else if(Now>=sources[i].Project[ip].StartDate){
+	                ProgressCompletion = (scchart.GetDaysBetween(sources[i].Project[ip].StartDate,sources[i].Project[ip].FinishDate) == 0 ? 0 : scchart.GetDaysBetween(sources[i].Project[ip].StartDate,Now)/scchart.GetDaysBetween(sources[i].Project[ip].StartDate,sources[i].Project[ip].FinishDate))*100;
+	            }
+	        } else {
+	            var TotalDays = Enumerable.From(Milestones).Sum("$.DaysBetween");
+	            
+	        	
+	            for(var mt in Milestones){            
+	                var StartDate = Milestones[mt].StartDate;
+	                var EndDate = Milestones[mt].EndDate;
+	                
+	                var weight = TotalDays == 0 ? 0 : scchart.GetDaysBetween(StartDate,EndDate)/TotalDays;
+	                var progress = 0;
+	                if(Now>=StartDate){
+	                    if(Now>=EndDate){
+	                        progress = weight;
+	                    }else{
+	                        progress = (scchart.GetDaysBetween(StartDate,EndDate) === 0 ? 0 : scchart.GetDaysBetween(StartDate,Now)/scchart.GetDaysBetween(StartDate,EndDate))*weight;
+	                    }
+	                }
+	                ProgressCompletion+=(progress*100);
+	            }
+
+	        }
+
+	    //     if(sources[i].Project[ip]._id == "58b7a45b8365f42bc1515711"){
+					// 	console.log(Milestones)
+					// }
+
+	        if(ProgressCompletion>=100){
+	        	sources[i].Project[ip].IsCompleted = true;
+	        }
+				}
+			}
+
+			if(!parm.YtdComplete){
+				sources[i].Project = Enumerable.From(sources[i].Project).Where("!$.IsCompleted").ToArray();
+			}
+			if(!parm.Remaining){
+				sources[i].Project = Enumerable.From(sources[i].Project).Where("$.IsCompleted").ToArray();
+			}
+
+
+			
+			allInitiate = allInitiate.concat(sources[i].Project)
+
+			for(var ii in allInitiate){
+				if(allInitiate[ii].SetAsComplete == undefined || allInitiate[ii].SetAsComplete == null){
+					allInitiate[ii].SetAsComplete = false;
+				}
+
+				if(allInitiate[ii].CompletedDate == undefined || allInitiate[ii].CompletedDate == null){
+					allInitiate[ii].CompletedDate = new Date();
+				}
+
+				if(allInitiate[ii].DisplayProgress == undefined || allInitiate[ii].DisplayProgress == null){
+					allInitiate[ii].DisplayProgress = "green";
+				}
+
+				if(allInitiate[ii].Sponsor == undefined || allInitiate[ii].Sponsor == null){
+					allInitiate[ii].Sponsor = "";
+				}
+			}
+
+			var lifecycle = scchart.LifeCycleList();
+
+			sources[i].SummaryBusinessDriver = _.orderBy(sources[i].SummaryBusinessDriver, 'SeqParent');
+
+			zz = _.groupBy(sources[i].SummaryBusinessDriver, 'Parentid')
+			lenghtparent = sources[i].SummaryBusinessDriver.length
+			showparentList = [0]
+			totalparentList = []
+			tmp = 0;
+			for(zi in zz){
+				totalparentList.push(zz[zi].length)
+				tmp += zz[zi].length
+				if(tmp < lenghtparent){
+					showparentList.push(tmp)
+				}
+			}
+
+			var businessDriver = sources[i].SummaryBusinessDriver;
+			_.each(businessDriver, function(v,i){
+				// _.each(v.BusinessMetrics, function(vv,ii){
+
+				// 	if(vv.ActualData != null){
+				// 			zz = _.find(vv.ActualData, function (o) { return o.Flag == 'C1'; });
+				// 			if(zz != undefined){
+				// 				businessDriver[i].BusinessMetrics[ii].tmpCurrentValue = zz.Value;
+				// 			} else{
+				// 				vv.ActualData = _.sortBy(vv.ActualData, 'Period');
+				// 				businessDriver[i].BusinessMetrics[ii].tmpCurrentValue = vv.ActualData[vv.ActualData.length-1].Value;
+				// 			}
+				// 	} else{
+				// 		businessDriver[i].BusinessMetrics[ii].tmpCurrentValue = 0;
+				// 	}
+
+
+				// 	if(vv.ActualData != null){
+				// 		vv.ActualData = _.sortBy(vv.ActualData, 'Period')
+				// 		businessDriver[i].BusinessMetrics[ii].tmpMinValue = (vv.ActualData[0] != undefined) ? vv.ActualData[0].Value : 0;
+				// 		// console.log(vv.ActualData[vv.ActualData.length-1].Value)
+				// 	} else{
+				// 		businessDriver[i].BusinessMetrics[ii].tmpMinValue = 0
+				// 	}
+				// })
+				showparent = $.inArray(i, showparentList) != -1;
+				totalparent = $.inArray(i, showparentList) != -1 ? totalparentList[$.inArray(i, showparentList)] : 0;
+				businessDriver[i].ShowParent = showparent;
+				businessDriver[i].TotalParent = totalparent;
+				businessDriver[i].ShowHide = ko.observable(false);
+				businessDriver[i].ShowHideSecLvl = ko.observable(false);
+			})
+
+			sources[i].BusinessDriverData = [];
+			for(var bd in businessDriver){
+				businessDriver[bd]._id = businessDriver[bd].Id;
+				businessDriver[bd].Id = businessDriver[bd].Idx;
+
+				// Mapping Data Metrics Chart
+				businessDriver[bd].BusinessMetrics = businessDriver[bd].BusinessMetrics === null ? [] : businessDriver[bd].BusinessMetrics;
+				// var BusinessMetrics = businessDriver[bd].BusinessMetrics;
+				// for(var bm in BusinessMetrics){
+				// 	BusinessMetrics[bm].MaxValue = BusinessMetrics[bm].TargetValue
+				// 	BusinessMetrics[bm].MinValue = BusinessMetrics[bm].ActualData.length === 0 ? 0 : BusinessMetrics[bm].ActualData[0].value;
+				// }
+
+				var Initiatives = Enumerable.From(sources[i].Project).Where("$.BusinessDriverId === '"+businessDriver[bd].Id+"'").ToArray();
+				var DataCompletion = Enumerable.From(Initiatives).Sum("$.ProgressCompletion")
+				businessDriver[bd].Completion = Initiatives.length > 0 ? DataCompletion/Initiatives.length : 0;
+				var TargetRange = [businessDriver[bd].MinValue,businessDriver[bd].MaxValue];
+				var d = {
+					Id:businessDriver[bd].Id,
+					Parentid:businessDriver[bd].Parentid,
+					Parentname:businessDriver[bd].Parentname,
+					Category:businessDriver[bd].Category,
+					ShowParent:businessDriver[bd].ShowParent,
+					TotalParent:businessDriver[bd].TotalParent,
+					Name:businessDriver[bd].Name,
+					DataPoint:businessDriver[bd].DataPoint,
+					Initiative:Initiatives.length,
+					Completion:businessDriver[bd].Completion,
+					MinTarget:businessDriver[bd].MinLiabilities,
+					MaxTarget:businessDriver[bd].MaxLiabilities,
+					MetricType:businessDriver[bd].MetricType,
+					IsEditCompletion:false,
+					EditableCompletion:ko.observable(businessDriver[bd].Completion),
+					TargetRange:TargetRange,
+				};
+				sources[i].BusinessDriverData.push(d);
+			}
+
+			// Creating Table Sources Data
+			sources[i].TableSources = [];
+			var Connector = "";
+			for(var bd in businessDriver){
+				var bdData = {
+					Idx:bd,
+					Id:businessDriver[bd].Id,
+					Name:businessDriver[bd].Name,
+					Parentid:businessDriver[bd].Parentid,
+					Parentname:businessDriver[bd].Parentname,
+					Category:businessDriver[bd].Category,
+					ShowParent:businessDriver[bd].ShowParent,
+					TotalParent:businessDriver[bd].TotalParent,
+					LifeCycle:[],
+					ShowHide:false,
+					ShowHideSecLvl:false,
+				}
+				for(var lc in lifecycle){
+					var lcData = {
+						Idx:lc,
+						Id:lifecycle[lc].Id,
+						Name:lifecycle[lc].Name,
+						Seq:lifecycle[lc].Seq,
+					};
+					if(Connector!==""){
+						Connector += ",#"+bdData.Id+lcData.Id;
+					}else{
+						Connector += "#"+bdData.Id+lcData.Id;
+					}
+					var Initiatives = Enumerable.From(sources[i].Project).Where("$.LifeCycleId === '"+lcData.Id+"' && $.BusinessDriverId === '"+bdData.Id+"'").ToArray()
+					// var Initiatives = Enumerable.From(sources[i].Project).Where("$.LifeCycleId === '"+lcData.Id+"'").ToArray()
+					for(var init in Initiatives){
+						Initiatives[init].IsTask = false;
+					}
+					var Tasks = Enumerable.From(sources[i].TaskList).Where("$.LifeCycleId === '"+lcData.Id+"' && $.BusinessDriverId === '"+bdData.Id+"'").ToArray()
+					// var Tasks = Enumerable.From(sources[i].TaskList).Where("$.LifeCycleId === '"+lcData.Id+"'").ToArray()
+			    for(var t in Tasks){
+						Initiatives.push({
+					    "_id" : "task"+ Tasks[t].Id,
+					    "ProjectName" : Tasks[t].Name,
+					    // "Name" : t.Name,
+					    "IsTask": true,
+					    "BDId" : Tasks[t].BusinessDriverId,
+					    "LCId": Tasks[t].LifeCycleId,
+					    "InitiativeType" : Tasks[t].TaskType,
+					    "BusinessDriverImpact" : "Primary",
+					    "CBLedInitiatives":false,
+					    "type":"",
+					    "InitiativeID":"",
+					    "Attachments":[],
+					    "BusinessImpact":"",
+					    "ProgressCompletion":0,
+					    "EX":false,
+					    "OE":false,
+						});
+
+					}
+					lcData.Initiatives = Initiatives;
+					bdData.LifeCycle.push(lcData);
+				}
+				sources[i].TableSources.push(bdData);
+			}
+
+			//New Table Source
+			sources[i].TableSourcesVer2 = [];
+			for(var lc in lifecycle){
+				var lcData = {
+					Idx:lc,
+					Id:lifecycle[lc].Id,
+					Name:lifecycle[lc].Name,
+					Seq:lifecycle[lc].Seq,
+				};
+
+				// var Initiatives = Enumerable.From(sources[i].Project).Where("$.LifeCycleId === '"+lcData.Id+"' && $.BusinessDriverId === '"+bdData.Id+"'").ToArray()
+				var Initiatives = Enumerable.From(sources[i].Project).Where("$.LifeCycleId === '"+lcData.Id+"'").ToArray()
+				// console.log(Initiatives);
+				for(var init in Initiatives){
+					Initiatives[init].IsTask = false;
+				}
+				// var Tasks = Enumerable.From(sources[i].TaskList).Where("$.LifeCycleId === '"+lcData.Id+"' && $.BusinessDriverId === '"+bdData.Id+"'").ToArray()
+				var Tasks = Enumerable.From(sources[i].TaskList).Where("$.LifeCycleId === '"+lcData.Id+"'").ToArray()
+		    for(var t in Tasks){
+	        // console.log("-->koplo-->",Tasks[t])
+					Initiatives.push({
+				    "_id" : "task"+ Tasks[t].Id,
+				    "ProjectName" : Tasks[t].Name,
+				    // "Name" : t.Name,
+				    "IsTask": true,
+				    "BDId" : Tasks[t].BusinessDriverId,
+				    "LCId": Tasks[t].LifeCycleId,
+				    "InitiativeType" : Tasks[t].TaskType,
+				    "BusinessDriverImpact" : "Primary",
+				    "CBLedInitiatives":false,
+				    "type":"",
+				    "InitiativeID":"",
+				    "Attachments":[],
+				    "BusinessImpact":"",
+				    "ProgressCompletion":0,
+				    "EX":false,
+				    "OE":false,
+	          "Owner":Tasks[t].Owner,
+	          "Statement":Tasks[t].Statement,
+	          "Description":Tasks[t].Description,
+					});
+
+				}
+				lcData.Initiatives = Initiatives;
+				sources[i].TableSourcesVer2.push(lcData);
+			}
+
+			sources[i].TableSourcesVer3AlignVer = [];
+
+			for(var bd in sources[i].BusinessDriverL1){
+				var TableSourcesVer2 = []
+				var BDIdDefaultObj = _.find(businessDriver, function (o) { return o.Parentid == sources[i].BusinessDriverL1[bd].Idx; });
+				var BDIdDefault = BDIdDefaultObj == undefined ? "" : BDIdDefaultObj.Idx
+				var bdData = {
+					Id:sources[i].BusinessDriverL1[bd].Idx,
+					BDIdDefault:BDIdDefault,
+					Name:sources[i].BusinessDriverL1[bd].Name,
+				}
+				
+				for(var lc in lifecycle){
+					var lcData = {
+						Idx:lc,
+						Id:lifecycle[lc].Id,
+						Name:lifecycle[lc].Name,
+						Seq:lifecycle[lc].Seq,
+					};
+
+					var Initiatives = Enumerable.From(sources[i].Project).Where("$.LifeCycleId === '"+lcData.Id+"' && $.SCCategory === '"+bdData.Id+"'").ToArray()
+					// var Initiatives = Enumerable.From(sources[i].Project).Where("$.LifeCycleId === '"+lcData.Id+"'").ToArray()
+					// console.log(Initiatives);
+					for(var init in Initiatives){
+						Initiatives[init].IsTask = false;
+					}
+					var Tasks = Enumerable.From(sources[i].TaskList).Where("$.LifeCycleId === '"+lcData.Id+"' && $.SCCategory === '"+bdData.Id+"'").ToArray()
+					// var Tasks = Enumerable.From(sources[i].TaskList).Where("$.LifeCycleId === '"+lcData.Id+"'").ToArray()
+			    for(var t in Tasks){
+						Initiatives.push({
+					    "_id" : "task"+ Tasks[t].Id,
+					    "ProjectName" : Tasks[t].Name,
+					    // "Name" : t.Name,
+					    "IsTask": true,
+					    "BDId" : Tasks[t].BusinessDriverId,
+					    "LCId": Tasks[t].LifeCycleId,
+					    "InitiativeType" : Tasks[t].TaskType,
+					    "BusinessDriverImpact" : "Primary",
+					    "CBLedInitiatives":false,
+					    "type":"",
+					    "InitiativeID":"",
+					    "Attachments":[],
+					    "BusinessImpact":"",
+					    "ProgressCompletion":0,
+					    "EX":false,
+					    "OE":false,
+						});
+
+					}
+					lcData.Initiatives = Initiatives;
+					TableSourcesVer2.push(lcData);
+				}
+
+				var a = {
+					"Id":bdData.Id,
+					"BDIdDefault":bdData.BDIdDefault,
+					"TableSourcesVer2":ko.mapping.fromJS(TableSourcesVer2)
+				}
+				// console.log(a)
+				sources[i].TableSourcesVer3AlignVer.push(a)
+			}
+
+			var ScorecardList = []
+			_.each(_.groupBy(sources[i].SummaryBusinessDriver, 'Parentid'), function(v,i){
+			  tmpLvl1 = {}
+			  tmpLvl1.Id = i;
+			  tmpLvl1.Name = v[0].Parentname;
+			  tmpLvl1.Data = []
+			  _.each(v, function(vv,ii){
+			    tmpLvl2 = {}
+			    tmpLvl2.Id = vv.Id;
+			    tmpLvl2.Name = vv.Name;
+			    tmpLvl1.Data.push(tmpLvl2)
+			  })
+			  ScorecardList.push(tmpLvl1)
+			})
+
+			sources[i].ScorecardList = ScorecardList;
+
+			sources[i].Connector = Connector;
+			sources[i].TableSources = ko.mapping.fromJS(sources[i].TableSources)();
+			sources[i].TableSourcesVer2 = ko.mapping.fromJS(sources[i].TableSourcesVer2)();
+			sources[i].TableSourcesVer2Backup = ko.mapping.fromJS(sources[i].TableSourcesVer2)();
+			sources[i].TableSourcesVer3 = ko.observableArray([]);
+			sources[i].TableSourcesVer3BackupAll = [{Id:"All","BDIdDefault":"",TableSourcesVer2: sources[i].TableSourcesVer2}];
+			if (SortInitiative.Active()){
+	        sources[i].TableSourcesVer3(sources[i].TableSourcesVer3AlignVer)
+	    } else{
+	        sources[i].TableSourcesVer3(sources[i].TableSourcesVer3BackupAll)
+	    }
+			
+			// sources[i].TableSourcesVer3AlignVer = [{TableSourcesVer2: sources[i].TableSourcesVer2},{TableSourcesVer2: sources[i].TableSourcesVer2},{TableSourcesVer2: sources[i].TableSourcesVer2}];
+			//console.log(sources[i]);
+		}
+		var iHigh = Enumerable.From(sources["Initiative"].Project).Where("$.BusinessImpact === 'High'").Count();
+		var iMedium = Enumerable.From(sources["Initiative"].Project).Where("$.BusinessImpact === 'Medium'").Count();
+		var iLow = Enumerable.From(sources["Initiative"].Project).Where("$.BusinessImpact === 'Low'").Count();
+		var typeLed = Enumerable.From(sources["Initiative"].Project).Where("$.type === 'CBLED'").Count();
+		var typeWide = Enumerable.From(sources["Initiative"].Project).Where("$.type === 'BANKWIDE'").Count();
+		var iYTD = Enumerable.From(sources["Initiative"].Project).Where("$.IsCompleted").Count();
+		var iRemain =  Enumerable.From(sources["Initiative"].Project).Where("!$.IsCompleted").Count();
+
+		if(!parm.Investment){
+				sources[i].Project = Enumerable.From(sources[i].Project).Where("$.InvestmentId === ''").ToArray();
+		}
+
+		scchart.DataSource({
+			Data: sources["Initiative"]
+		});
+
+		scchart.getDataSource();
+	}
+
+	scchart.getDataSource = function(){
+	    var sources = ko.mapping.toJS(scchart.DataSource().Data);
+	    var iList = Enumerable.From(sources.Project).GroupBy("$.InitiativeID").Select("$.Key()").ToArray();
+	    sources.InitiativeList = [];
+	    for(var i in iList){
+	    	var d = Enumerable.From(sources.Project).Where("$.InitiativeID === '"+iList[i]+"'").FirstOrDefault();
+		    sources.InitiativeList.push(d);
+	    }
+
+	    var arr = Enumerable.From(sources.SummaryBusinessDriver).Where("$.BusinessMetrics.length>0").ToArray();
+	    var SelectedBM = [];
+    	
+		for(var i in sources.SummaryBusinessDriver){
+			for(var x in sources.SummaryBusinessDriver[i].BusinessMetrics){
+				if(sources.SummaryBusinessDriver[i].BusinessMetrics[x].CurrentValue===130895111188){
+					sources.SummaryBusinessDriver[i].BusinessMetrics[x].CurrentValue=0;
+					sources.SummaryBusinessDriver[i].BusinessMetrics[x].NAActual=true;
+				}
+				if(sources.SummaryBusinessDriver[i].BusinessMetrics[x].BaseLineValue===130895111188){
+					sources.SummaryBusinessDriver[i].BusinessMetrics[x].BaseLineValue=0;
+					sources.SummaryBusinessDriver[i].BusinessMetrics[x].NABaseline=true;
+				}
+				if(sources.SummaryBusinessDriver[i].BusinessMetrics[x].TargetValue===130895111188){
+					sources.SummaryBusinessDriver[i].BusinessMetrics[x].TargetValue=0;
+					sources.SummaryBusinessDriver[i].BusinessMetrics[x].NATarget=true;
+				}
+
+				SelectedBM.push(sources.SummaryBusinessDriver[i].BusinessMetrics[x]);
+			}
+		}
+
+    	sources.SelectedBD = arr;
+    	sources.SelectedBM = SelectedBM;
+
+		scchart.Data(sources);
+		scchart.SelectedBM([]);
+		scchart.Display([]);
+		for(var i in SelectedBM){
+			SelectedBM[i].idx = parseInt(i); 
+			SelectedBM[i].selected = ko.observable(false);
+			scchart.SelectedBM.push(SelectedBM[i]);	
+		}
+		scchart.renderBusinessMetrics();
+		
+		scchart.render();
+		setTimeout(function(){
+			scchart.Processing(false);
+		},300)
+	}
+	scchart.renderBusinessMetrics = function(){
+		var arr = scchart.SelectedBM();
+		for(var i in  arr){
+			scchart.ProgressBar("sc"+ i,arr[i]);
+		}
+	}
+
+	scchart.render = function(){
+		var BusinessMetrics = []
+    	var arr = scchart.Data().SelectedBM;
+    	var display = scchart.Display();
+
+    	for(var i in display){
+    		BusinessMetrics.push(arr[display[i]]);
+    	}
+
+	    var dataSource = [];
+	    // Get Chart Data
+	    var BMMinDate = new Date(Now);
+	    for(var bm in BusinessMetrics){
+	        BMMinDate = new Date(BusinessMetrics[bm].BaseLinePeriod)
+	        var mPeriod = Enumerable.From(BusinessMetrics[bm].ActualData).Min("jsonDate($.Period)");
+	        if(mPeriod<BMMinDate){
+	            BMMinDate = mPeriod;
+	        }
+	    }
+
+	    var ds = scchart.Data().Project;
+		for(var i in ds){
+			ds[i].IsCompleted = false;
+			if(ds[i].SetAsComplete){
+				ds[i].IsCompleted = true;
+				// ds[i].FinishDate =  getUTCDate(ds[i].CompletedDate); -- to enable tick mark logic in Chart Section [Logic:Ask Ainur]
+			}else{
+
+				ds[i].StartDate = getUTCDate(ds[i].StartDate);
+				ds[i].FinishDate = getUTCDate(ds[i].FinishDate);
+				var Milestones = ds[i].Milestones;
+
+				for(var m in Milestones){
+					Milestones[m].StartDate = getUTCDate(Milestones[m].StartDate);
+					Milestones[m].EndDate = getUTCDate(Milestones[m].EndDate);
+					Milestones[m].DaysBetween = scchart.GetDaysBetween(Milestones[m].StartDate,Milestones[m].EndDate);
+				}
+		        // console.log("milestone1: ",Milestones.length)
+		        Milestones = Enumerable.From(Milestones).Where("$.Name.trim() !== ''").ToArray()
+		        // console.log("milestone2: ",Milestones.length)
+		        var ProgressCompletion = 0;
+		        if (Milestones.length == 0){
+		        	if(Now>ds[i].FinishDate){
+		                ProgressCompletion = 100;
+		            }else if(Now>=ds[i].StartDate){
+		                ProgressCompletion = (scchart.GetDaysBetween(ds[i].StartDate,ds[i].FinishDate) == 0 ? 0 : scchart.GetDaysBetween(ds[i].StartDate,Now)/scchart.GetDaysBetween(ds[i].StartDate,ds[i].FinishDate))*100;
+		            }
+		        } else {
+		            var TotalDays = Enumerable.From(Milestones).Sum("$.DaysBetween");
+		            
+		            for(var mt in Milestones){     
+	            // console.log(Milestones[mt].Name)       
+		                var StartDate = Milestones[mt].StartDate;
+		                var EndDate = Milestones[mt].EndDate;
+		                
+		                var weight = TotalDays == 0 ? 0 : scchart.GetDaysBetween(StartDate,EndDate)/TotalDays;
+		                // console.log("-", weight, TotalDays, StartDate, EndDate,scchart.GetDaysBetween(StartDate,EndDate))
+		                // console.log("cuk",Milestones[mt].Name, TotalDays, weight)
+		                var progress = 0;
+		                if(Now>=StartDate){
+		                    if(Now>=EndDate){
+		                        progress = weight;
+		                    }else{
+		                        progress = (scchart.GetDaysBetween(StartDate,EndDate) === 0 ? 0 : scchart.GetDaysBetween(StartDate,Now)/scchart.GetDaysBetween(StartDate,EndDate))*weight;
+		                    }
+		                }
+		                // console.log("progress", progress)
+		                ProgressCompletion+=(progress*100);
+		            }
+
+		        }
+		        // console.log(ProgressCompletion)
+		        if(ProgressCompletion>=100){
+		        	ds[i].IsCompleted = true;
+		        }
+			}
+		}
+
+	    var BusinessImpactList = Initiative.BusinessImpactList()
+	    var StartDate = Enumerable.From(ds).Min("jsonDate($.FinishDate)");
+	    if(BMMinDate<StartDate){
+	        StartDate = BMMinDate;
+	    }
+	    
+	    var EndDate = Enumerable.From(ds).Max("jsonDate($.FinishDate)");
+	    var EndOfYear = new Date(Now.getFullYear(),11,1);
+		if(EndOfYear>EndDate){
+			EndDate = EndOfYear;
+		}
+	    var currentDMValue = {};
+	    var tempCmplt =0;
+		var strCurrDate = kendo.toString(Now,"dd MMM yy")
+
+	    for(var i = new Date(StartDate.setDate(1));i<=new Date(EndDate.setDate(1));i.setMonth(i.getMonth()+1)){
+			var d = {
+			  Period:kendo.toString(new Date(i),"MMM yy"),
+			};
+			var total = 0;
+			
+			for(var bi in BusinessImpactList){
+			      d[BusinessImpactList[bi].value] = Enumerable.From(ds).Where("!$.IsCompleted && $.BusinessImpact === '"+BusinessImpactList[bi].value+"' && kendo.toString(jsonDate($.FinishDate),'MMM yy') === '"+d.Period+"'").Count()
+			}
+
+			var CompletedInitiative = Enumerable.From(ds).Where("$.IsCompleted && kendo.toString(jsonDate($.FinishDate),'MMM yy') === '"+d.Period+"'").Count();
+			d['Completed'] = CompletedInitiative;
+			// console.log('cc',currMonthCount);
+			// }
+			for(var bm in BusinessMetrics){
+				var bmData = Enumerable.From(BusinessMetrics[bm].ActualData).Where("kendo.toString(jsonDate($.Period),'MMM yy') === '"+d.Period+"'").FirstOrDefault();
+				var date = new Date(i.getFullYear(),i.getMonth(),1);
+				if(bmData!==undefined && bmData.Value===130895111188){
+					bmData = undefined;
+				}
+				// var target = jsonDate(BusinessMetrics[bm].TargetPeriod);
+				// target = new Date(target.getFullYear(),11,1);
+				// console.log(target);
+				// console.log(date+"|"+BusinessMetrics[bm].ActualData.length+"|"+bmData+"|"+target);
+				var ActualDataLength  = BusinessMetrics[bm].ActualData.length-1;
+				if(BusinessMetrics[bm].ActualData.length>0){
+					var CurrentDate = getUTCDate(BusinessMetrics[bm].ActualData[ActualDataLength].Period);
+					var CurrentDateTarget = getUTCDate(BusinessMetrics[bm].ActualData[ActualDataLength].Period);
+					var target = getUTCDate(BusinessMetrics[bm].ActualData[ActualDataLength].Period);
+					target = new Date(CurrentDate.getFullYear(),11,1);
+					// console.log(CurrentDate+"|"+target)
+					BusinessMetrics[bm].BaseLinePeriod = new Date(CurrentDate.getFullYear(),-1,1);
+
+					if(BusinessMetrics[bm].NAActual){
+						CurrentDateTarget = new Date(CurrentDate.getFullYear(),-1,1);
+					}
+					// Enumerable.From(TmpCurrentDate).Max("jsonDate($.Period)");
+					if(date<=CurrentDate){
+					    if(kendo.toString(i,'MMM yy') == kendo.toString(new Date(BusinessMetrics[bm].BaseLinePeriod),'MMM yy')){
+					      d["bm"+bm] = BusinessMetrics[bm].BaseLineValue;
+					    } else{
+					      d["bm"+bm] = bmData !== undefined ? bmData.Value : undefined;
+					    }
+					    // console.log(bmData+"Period:"+d.Period+" | Current Date : "+kendo.toString(CurrentDate,'MMM yy'));
+					    if(d.Period === kendo.toString(CurrentDateTarget,'MMM yy')){
+					        currentDMValue[bm] = bmData !== undefined ? bmData.Value : 0;
+					        currentDMValue[bm+"Period"] = target == "" ? 0 : monthDiff(date,target)+1;
+					        currentDMValue[bm+"Idx"] = 1;
+					        if(BusinessMetrics[bm].NAActual){
+					        	if(BusinessMetrics[bm].NABaseline){
+					        		currentDMValue[bm] = 0;
+					        	}else{
+					        		currentDMValue[bm] = BusinessMetrics[bm].BaseLineValue;
+					        	}
+							}
+							d["ebm"+bm] = currentDMValue[bm] === undefined ? 0 : currentDMValue[bm];
+					    }else if(BusinessMetrics[bm].NAActual && date > BusinessMetrics[bm].BaseLinePeriod ){
+					    	var tvalue = currentDMValue[bm+"Period"] == 0 ? 0 : (BusinessMetrics[bm].TargetValue-currentDMValue[bm])/currentDMValue[bm+"Period"];
+						    d["ebm"+bm] = currentDMValue[bm]+(tvalue * (parseInt(currentDMValue[bm+"Idx"])));
+						    currentDMValue[bm+"Idx"] += 1;	
+					    }
+					    d["ebm"+bm] = undefined; // to hide the line
+
+					}else if(date<=target){
+					    var tvalue = currentDMValue[bm+"Period"] == 0 ? 0 : (BusinessMetrics[bm].TargetValue-currentDMValue[bm])/currentDMValue[bm+"Period"];
+					    d["ebm"+bm] = currentDMValue[bm]+(tvalue * (parseInt(currentDMValue[bm+"Idx"])));
+					    if(d.Period === kendo.toString(target,"MMM yy")){
+					        d["eLabel"+bm] = d["ebm"+bm];
+					     }
+					    if(d.Period !== kendo.toString(target,"MMM yy")){
+					     d["ebm"+bm] = undefined; // to hide the line
+					 	}
+					    currentDMValue[bm+"Idx"] += 1;
+					}
+					if(d.Period === kendo.toString(BusinessMetrics[bm].BaseLinePeriod,"MMM yy")){
+						if(BusinessMetrics[bm].NABaseline){
+							d["bm"+bm] = undefined;
+						}else{
+							d["baselineLabel"+bm] = d["bm"+bm];
+						}
+				     }else{
+				     	if(BusinessMetrics[bm].NAActual){
+							d["bm"+bm] = undefined;
+						}
+				     }
+				}
+			}
+			// console.log(d);
+			dataSource.push(d);
+	      }
+	    
+	    // Get Series
+	    var PSSeriesList = [];
+	    for(var bi in BusinessImpactList){
+	        PSSeriesList.push({field: BusinessImpactList[bi].value,name:BusinessImpactList[bi].text,axis:"value"});
+	    }
+	    PSSeriesList.push({field:'Completed',name:'Completed',axis:'value'});
+	    var valueAxisList = [
+	    ];
+	    var PSSeriesColors = ["#8A8B8D", "#00B0F1","#00DB9D","#ffd24d","#6D6E71","#939598","#2890C0","#6BA8D0","#6AC17B","#9FD18B"];
+	    if(BusinessMetrics.length>0){
+	    	var PSSeriesColors = ["#8A8B8D", "#00B0F1","#00DB9D","#ffd24d","#ffd24d","#6D6E71","#939598","#2890C0","#6BA8D0","#6AC17B","#9FD18B"];
+	    	PSSeriesList.push({field:'temp',name:'',axis:'tempaxis',
+	    		markers: {
+	              visible: false,
+	            },
+	            legend:{
+	                visible:false,
+	                color:"transparent",
+	                template:""
+	            },
+	            labels:{
+	            	color:"transparent"
+	            },
+	            tooltip:{
+	                visible:false
+	            },
+	            color:"transparent"
+	    	});
+	    	valueAxisList.push(
+	            {
+	            	visible:false,
+	                name:"tempaxis",
+	                majorGridLines: {
+	                    visible: false
+	                },
+	                line:{
+	                    visible:false
+	                },
+	                labels:{
+	                    font:chartFont,
+	                    template:"#:kendo.toString(value,'N0')#"
+	                },
+	                title: {
+	                    text: "",
+	                     // color: "#333",
+	                    font: "11px Helvetica Neue"
+	                }, 
+	            }
+	        );
+	    }
+
+	    axisCrossingValuesList = [0,0]
+	    for(var bm in BusinessMetrics){
+	        PSSeriesList.push({field:"bm"+bm,
+	        	dpname:"Actual YTD "+BusinessMetrics[bm].DataPoint,
+	        	// axis:BusinessMetrics[bm].DataPoint,
+	        	axis:BusinessMetrics[bm].DataPoint===""?"axis"+bm:BusinessMetrics[bm].DataPoint,
+	        	type:"line",stack:false,labels:{
+	        		visible:true,
+	                color:"#333",
+	                template:"#:dataItem.baselineLabel"+bm+"===undefined?kendo.toString(value,'N0'):'Baseline'#",
+	                position:"top"
+	        	},
+	            markers: {
+	              size:5
+	            },
+	            tooltip:{
+	            	template: "#= dataItem.baselineLabel"+bm+"===undefined?series.dpname:'Baseline' #: #= series.field=='conversion'?kendo.toString(value, 'P"+BusinessMetrics[bm].DecimalFormat+"'):kendo.toString(value, 'N"+BusinessMetrics[bm].DecimalFormat+"') #"
+	            }
+	        });
+	        now = PSSeriesList.length;
+	        // console.log("-----< ", jsonDate(BusinessMetrics[bm].TargetPeriod))
+        
+	        PSSeriesList.push({field:"ebm"+bm,
+	        	// dpname:"Target "+BusinessMetrics[bm].DataPoint,
+	        	// axis:BusinessMetrics[bm].DataPoint,
+	        	axis:BusinessMetrics[bm].DataPoint===""?"axis"+bm:BusinessMetrics[bm].DataPoint,
+	        	type:"line",stack:false,labels:{visible:false},
+	        	visible:!BusinessMetrics[bm].NATarget,
+	            markers: {
+	              visible: false,
+	            },
+	            legend:{
+	                visible:false,
+	            },
+	            tooltip:{
+	                visible:false
+	            },
+	            labels:{
+	                visible:true,
+	                color:"#333",
+	                template:"#:dataItem.eLabel===undefined?'':kendo.toString(dataItem.eLabel,'N0')#",
+	                position:"top"
+	            }
+	        });
+
+	        // console.log(bm, PSSeriesList[now])
+	        if(bm == 0){
+	            PSSeriesList[now].labels.template = "#:dataItem.eLabel0===undefined?'':'Target : '+kendo.toString(dataItem.eLabel0,'N0')#"
+	        } else if(bm == 1){
+	            PSSeriesList[now].labels.template = "#:dataItem.eLabel1===undefined?'':'Target : '+kendo.toString(dataItem.eLabel1,'N0')#"
+	        } else if(bm == 2){
+	            PSSeriesList[now].labels.template = "#:dataItem.eLabel2===undefined?'':'Target : '+:kendo.toString(dataItem.eLabel2,'N0')#"
+	        }
+	        valueAxisList.push(
+	            {
+	                // name:BusinessMetrics[bm].DataPoint,
+	                name:BusinessMetrics[bm].DataPoint===""?"axis"+bm:BusinessMetrics[bm].DataPoint,
+	                majorGridLines: {
+	                    visible: false
+	                },
+	                line:{
+	                    visible:false
+	                },
+	                labels:{
+	                    font:chartFont,
+	                    template:"#:kendo.toString(value,'N0')#"
+	                },
+	                visible: true,
+	                title: {
+	                    text: BusinessMetrics[bm].DataPoint,
+	                     // color: "#333",
+	                    font: "11px Helvetica Neue"
+	                }, 
+	                color: chartColorsonDetails[bm]
+	            }
+	        );
+	        axisCrossingValuesList.push(dataSource.length+bm);
+	    }
+
+	    valueAxisList.push({
+	            name:"value",
+	            majorGridLines: {
+	                visible: false
+	            },
+	            line:{
+	                visible:false
+	            },
+	            labels:{
+	                font:chartFont,
+	                template:"#:value<=1000?kendo.toString(value,'N0'):kendo.toString(value/1000,'N0')+'k'#"
+	            },
+	            visible: false,
+	            title: {
+	                text: "Number of Initiative",
+	                // color: "#333",
+	                font: "11px Helvetica Neue"
+	            }
+	        });
+
+		// console.log(dataSource)
+	    var ps = $("#progression-summary")
+	    ps.html("");
+	    ps.kendoChart({
+	        dataSource: {
+	            data:dataSource
+	        },
+	        title: {
+	            visible:false,            
+	            // text: "Progress vs Business Impact"
+	           
+	        },
+	        chartArea:{
+	            height:250,
+	            background:"transparent"
+	        },
+	        legend: {
+	            visible: true,
+	            position:"bottom",
+	            labels:{
+	                font:chartFont
+	            }
+	        },
+	        seriesDefaults: {
+	            type: "column",
+	            stack:true,
+	            overlay: {
+	              gradient: "none"
+	            },
+	            labels:{
+	                // visible: chartLabelDisplay,
+	                visible:false,
+	                font:chartFont,
+	                // color:chartLabelColor,
+	                color:"#FFF",
+	                background:"transparent",
+	                position:"center",
+	                template: "#= series.field=='conversion'?kendo.toString(value, 'P2'):kendo.toString(value, 'N0') #",
+	                padding:0,
+	                margin:0,
+	            }
+	        },
+	        series: PSSeriesList,
+	        valueAxis : valueAxisList,
+	        seriesClick: function(e){
+	            if(e.series.axis==="value"){
+	                var InitiativeList = scchart.Data().Project;
+	                for(var i in InitiativeList){
+						InitiativeList[i].IsCompleted = false;
+						if(InitiativeList[i].SetAsComplete){
+							InitiativeList[i].IsCompleted = true;
+						}else{
+
+							InitiativeList[i].StartDate = getUTCDate(InitiativeList[i].StartDate);
+							InitiativeList[i].FinishDate = getUTCDate(InitiativeList[i].FinishDate);
+							var Milestones = InitiativeList[i].Milestones;
+							for(var m in Milestones){
+								Milestones[m].StartDate = getUTCDate(Milestones[m].StartDate);
+								Milestones[m].EndDate = getUTCDate(Milestones[m].EndDate);
+								Milestones[m].DaysBetween = scchart.GetDaysBetween(Milestones[m].StartDate,Milestones[m].EndDate);
+							}
+					        Milestones = Enumerable.From(Milestones).Where("$.Name.trim() !== ''").ToArray()
+					        var ProgressCompletion = 0;
+					        if (Milestones.length == 0){
+					        	if(Now>InitiativeList[i].FinishDate){
+					                ProgressCompletion = 100;
+					            }else if(Now>=InitiativeList[i].StartDate){
+					                ProgressCompletion = (scchart.GetDaysBetween(InitiativeList[i].StartDate,InitiativeList[i].FinishDate) == 0 ? 0 : scchart.GetDaysBetween(InitiativeList[i].StartDate,Now)/scchart.GetDaysBetween(InitiativeList[i].StartDate,InitiativeList[i].FinishDate))*100;
+					            }
+					        } else {
+					            var TotalDays = Enumerable.From(Milestones).Sum("$.DaysBetween");
+					            
+					        	
+					            for(var mt in Milestones){            
+					                var StartDate = Milestones[mt].StartDate;
+					                var EndDate = Milestones[mt].EndDate;
+					                
+					                var weight = TotalDays == 0 ? 0 : scchart.GetDaysBetween(StartDate,EndDate)/TotalDays;
+					                var progress = 0;
+					                if(Now>=StartDate){
+					                    if(Now>=EndDate){
+					                        progress = weight;
+					                    }else{
+					                        progress = (scchart.GetDaysBetween(StartDate,EndDate) === 0 ? 0 : scchart.GetDaysBetween(StartDate,Now)/scchart.GetDaysBetween(StartDate,EndDate))*weight;
+					                    }
+					                }
+					                ProgressCompletion+=(progress*100);
+					            }
+
+					        }
+					        if(ProgressCompletion>=100){
+					        	InitiativeList[i].IsCompleted = true;
+					        }
+						}
+					}
+	                if(e.series.field == "Completed"){
+	                	var arr = Enumerable.From(InitiativeList).Where("$.IsCompleted && kendo.toString(jsonDate($.FinishDate),'MMM yy') === '"+e.category+"'").ToArray();
+	                }else{
+	                	var arr = Enumerable.From(InitiativeList).Where("!$.IsCompleted && $.BusinessImpact === '"+e.series.field+"' && kendo.toString(jsonDate($.FinishDate),'MMM yy') === '"+e.category+"'").ToArray();
+	                }
+	                
+	                scchart.SelectedBI(arr);
+	                $('#gntct').parent().css('overflow-y','scroll');
+	            }
+	        },
+	        categoryAxis: {
+	            field: "Period",
+	            majorGridLines: {
+	                visible: false
+	            },
+	            labels:{
+	                font:chartFont,
+	                rotation:-90
+	            },
+	            axisCrossingValues: axisCrossingValuesList
+	        },
+	        tooltip: {
+	            visible: true,
+	            font:chartFont,
+	            template: "#= series.name #: #= series.field=='conversion'?kendo.toString(value, 'P2'):kendo.toString(value, 'N0') #"
+	        },
+	        // seriesColors:chartColors,
+	        seriesColors:PSSeriesColors
+	    });
+
+		RenderGanttChart(false);
+		
+	}
+
+	RenderGanttChart = function(isPopup){
+		setTimeout(function(){
+			//gantt chart`
+			var dataSource = scchart.Data().Project;
+			var tagid = "#progression-gantt";
+			if(isPopup){
+				tagid = tagid+"popup";
+				dataSource = scchart.FilteredDataSource();
+			}
+			$(tagid).html("");
+			var data = [];
+
+			dataSource.forEach(function(xx){
+				var progressCompletionValue = 0
+				var dateDiff = moment(xx.FinishDate).diff(moment(xx.StartDate), 'days')
+				
+				var nowTime = new Date().getTime()
+				var startTime = moment(xx.StartDate).toDate().getTime()
+				var finishTime = moment(xx.FinishDate).toDate().getTime()
+
+				if (nowTime > startTime && nowTime < finishTime) {
+					var achievedDiff = moment(new Date()).diff(moment(xx.StartDate), 'days')
+					var progress = achievedDiff / dateDiff * 100
+					progressCompletionValue = progress
+				} else if (nowTime < startTime) {
+					progressCompletionValue = 0
+				} else if (nowTime > finishTime) {
+					progressCompletionValue = 100
+				}
+
+				var truncateTitleLength = 17
+				xx.ParentID = null;
+				xx.Start = jsonDate(xx.StartDate)
+				xx.End = jsonDate(xx.FinishDate)
+				xx.PercentComplete = toolkit.safeDiv(progressCompletionValue, 100)
+				xx.Summary = false;
+				xx.Expanded = false;
+				xx.ProjectNameTruncated = (xx.ProjectName.length <= truncateTitleLength) 
+					? xx.ProjectName 
+					: (xx.ProjectName.slice(0, truncateTitleLength - 4) + ' ...')
+				data.push(xx)
+			})
+
+			
+			var tasksDataSource = new kendo.data.GanttDataSource({
+				data: data,
+				schema: {
+					model: {
+						id: "id",
+						fields: {
+							id: { from: "_id", type: "string" },
+							parentId: { from: "ParentID", type: "number", defaultValue: null, validation: { required: true } },
+							start: { from: "Start", type: "date" },
+							end: { from: "End", type: "date" },
+							title: { from: "ProjectNameTruncated", defaultValue: "", type: "string" },
+							percentComplete: { from: "PercentComplete", type: "number" },
+							summary: { from: "Summary" },
+							expanded: { from: "Expanded" }
+						}
+					}
+				}
+			});
+
+			var milestoneIcon = '<div class="k-task-wrap k-milestone-wrap" style="left: 0px; padding-left: 0px; z-index: 3;"><div class="k-task k-task-milestone" style="height: 8px; width: 8px; top: 0px;"></div></div>';
+			var completedMilestone = '<div class="k-task-wrap k-milestone-wrap" style="left: 0px; padding-left: 0px; z-index: 3;"><div class="k-task k-task-milestone" style="background-color: #6ac17b; height: 8px; width: 8px; top: 0px;"></div></div>';
+			var greyThumb = '<i><img src="/web-cb/static/img/thumbsup-w.png" style="height: 87%;margin-top: -2px;"/></i>';
+
+			var blueThumb = '<div class="k-task-wrap k-milestone-wrap" style="left: 0px; padding-left: 0px; z-index: 3;"><i class="fa fa-thumbs-up" style="color: #2890C0;"></i></div>';
+			var maxDate = Enumerable.From(data).Max("$.End");
+			// console.log('max',moment(maxDate).format('YYYY'))
+			var ganttStart = new Date("01/01/2016");
+			var ganttEnd = new Date("12/31/"+moment(maxDate).format('YYYY'));
+
+			kendo.ui.GanttCustomView = kendo.ui.GanttView.extend({
+			name: "custom",
+			options: {
+				yearHeaderTemplate: kendo.template("#=kendo.toString(start, 'yyyy')#"),
+				monthHeaderTemplate: kendo.template("#=kendo.toString(start, 'MMM')#")
+			},
+
+			range: function(range) {
+				this.start = ganttStart;
+				this.end = ganttEnd;
+			},
+
+			_generateSlots: function(incrementCallback, span) {
+				var slots = [];
+				var slotStart = new Date(this.start);
+				var slotEnd;
+
+				while (slotStart < this.end) {
+				slotEnd = new Date(slotStart);
+				incrementCallback(slotEnd);
+
+				slots.push({ start: slotStart, end: slotEnd, span: span });
+
+				slotStart = slotEnd;
+				}
+
+				return slots;
+			},
+
+			_createSlots: function() {
+				var slots = [];
+
+				slots.push(this._generateSlots(function(date) { date.setFullYear(date.getFullYear() + 1); }, 12));
+				slots.push(this._generateSlots(function(date) { date.setMonth(date.getMonth() + 3); }, 3));
+				slots.push(this._generateSlots(function(date) { date.setMonth(date.getMonth() + 1); }, 1));
+
+				return slots;
+			},
+
+			_layout: function() {
+				var rows = [];
+				var options = this.options;
+
+				rows.push(this._slotHeaders(this._slots[0], kendo.template(options.yearHeaderTemplate)));
+				rows.push(this._slotHeaders(this._slots[2], kendo.template(options.monthHeaderTemplate)));
+
+				return rows;
+			}
+			});
+			
+			$(tagid).kendoGantt({
+				dataSource: tasksDataSource,
+				views: [
+					{ type: "kendo.ui.GanttCustomView", title: "Yearly", selected: true, slotSize: 50 }
+				],
+				columns: [
+					{ field: "title", title: "Title" }
+				],
+				height: isPopup ? 440 : 290,
+				editable: false,
+				dataBound: function () {
+					var dateDiff = moment(ganttEnd).diff(moment(ganttStart), 'days')
+					var areaWidth = $(tagid).find('.k-gantt-columns').width()
+					var widthEachDay = areaWidth / dateDiff
+
+					// ======== make completed activities color to be green
+					data.forEach(function (d) {
+						var todayDate = moment(new Date())
+						var startDate = (moment(ganttStart).diff(d.StartDate, 'days') < 0) 
+							? moment(d.StartDate) 
+							: moment(ganttStart)
+						var finishDate = (moment(ganttEnd).diff(d.FinishDate, 'days') > 0) 
+							? moment(d.FinishDate) 
+							: moment(ganttEnd)
+
+						var rowData = tasksDataSource.data().find(function (e) {
+							return (e.ProjectName == d.ProjectName)
+						})
+
+						var rowDataEl = $(tagid)
+							.find('div[data-uid="' + rowData.uid + '"]')
+							.find('.k-task-complete')
+
+						if (finishDate.diff(todayDate, 'days') > 0) {
+							// end date after today
+							// do nothing for now
+
+						} else {
+							// end date before today
+
+							var leftDays = finishDate.diff(startDate, 'days')
+							var leftWidth = (leftDays * widthEachDay)
+
+							rowDataEl.width(leftWidth)
+								.css('background-color', '#c6dfb6')
+
+							rowDataEl.closest('.k-task.k-task-single')
+								.css('border-color', '#7ba264')
+
+							if (d.SetAsComplete) {
+								var completeDate = moment(d.CompletedDate)
+								var rightDays = completeDate.diff(finishDate, 'days')
+								var rightWidth = (rightDays * widthEachDay)
+
+								if (rightDays > 0) {
+									rowDataEl.closest('.k-task.k-task-single')
+										.width(rowDataEl.width() + rightWidth)
+								}
+							} else {
+								var rightDays = todayDate.diff(finishDate, 'days')
+								var rightWidth = (rightDays * widthEachDay)
+
+								if (rightDays > 0) {
+									rowDataEl.closest('.k-task.k-task-single')
+										.width(rowDataEl.width() + rightWidth)
+								}
+							}
+							
+							// var eachDateDiff = moment(e.EndDate).diff(moment(ganttStart), 'days')
+							// var leftOffset = (eachDateDiff * widthEachDay) + 22
+	
+
+						}
+					});
+					// ======== add milestones as diamond
+					// arr = Enumerable.From(data).Where("$.ProjectName === 'CDD Ops Model for ME/HVSB'").ToArray();
+					// console.log('rrr',arr)
+					data.filter(function (d) {
+						return (d.Milestones.length > 0)
+					}).forEach(function (d) {
+						var rowData = tasksDataSource.data().find(function (e) {
+							return (e.ProjectName == d.ProjectName)
+						})
+						
+						var rowDataEl = $(tagid)
+							.find('div[data-uid="' + rowData.uid + '"]')
+							.closest('td')
+
+						d.Milestones.forEach(function (e, index) {
+							if(e.Completed === undefined){
+								e.Completed = false;
+							}
+							var eachDateDiff = moment(e.EndDate).diff(moment(ganttStart), 'days')
+							var plus = isPopup ? 8 : 22
+							var leftOffset = (eachDateDiff * widthEachDay) + plus
+							var $milestoneEl = e.Completed ? $(completedMilestone) : $(milestoneIcon)
+
+							$milestoneEl.css('left', leftOffset + 'px')
+							.appendTo(rowDataEl);
+								
+							var countries = (e.Country.length > 0) ? e.Country.join(', ') : ""
+							var normalContent = [
+							'<div class="milestone-tooltip">',
+			        			'<div><label>Name</label>: ' + e.Name + '</div>',
+			        			'<div><label>Country</label>: ' + countries + '</div>',
+			        			'<div><label>Start Date</label>: ' + moment(e.StartDate).format('DD-MM-YYYY') + '</div>',
+			        			'<div><label>Finish Date</label>: ' + moment(e.EndDate).format('DD-MM-YYYY') + '</div>',
+			        		'</div>'
+			        		]
+							var completedContent = [
+							'<div class="milestone-tooltip">',
+			        			'<div><label>Name</label>: ' + e.Name + '</div>',
+			        			'<div><label>Country</label>: ' + countries + '</div>',
+			        			'<div><label>Start Date</label>: ' + moment(e.StartDate).format('DD-MM-YYYY') + '</div>',
+			        			'<div><label>Finish Date</label>: ' + moment(e.EndDate).format('DD-MM-YYYY') + '</div>',
+			        			'<div ><label style="width: 100px;">Completed Date</label>: ' + moment(e.CompletedDate).format('DD-MM-YYYY') + '</div>',
+			        		'</div>'
+			        		]
+			        		var content = e.Completed ? completedContent : normalContent
+							$milestoneEl.tooltipster({
+						        theme: 'tooltipster-val2',
+						        animation: 'grow',
+						        delay: 0,
+						        touchDevices: false,
+						        trigger: 'hover',
+						        contentAsHTML: true,
+						        content: content
+					        	.join('')
+						    })
+						})
+					})
+
+
+
+					// ======= make left label as link
+
+					var ds = $(tagid).data('kendoGantt').dataSource;
+					$(tagid+" .k-grid-content tr").each(function (i, e) {
+						var uid = $(e).attr('data-uid')
+						var row = ds.getByUid(uid)
+						if (row !== undefined) {
+							$(e).find('.k-icon.k-i-none').remove()
+							$(e).find('td:eq(0) span:last').attr('title', row.ProjectName)
+
+							var $link = $('<a />')
+								.html($(e).find('td:eq(0) span:last').text())
+								.css('color', 'black')
+							$(e).find('td:eq(0) span:last').html($link)
+
+							$(e).find('td:eq(0)').css('cursor', 'pointer').on('click', function () {
+								Initiative.Get(row.id)
+							})
+
+							$(e).find('td:eq(0)').tooltipster({
+						        theme: 'tooltipster-val3',
+						        animation: 'grow',
+						        delay: 0,
+						        offsetY: -12,
+						        position: 'top',
+						        content: row.ProjectName
+						    })
+						}
+					})
+
+					// ====== resize left label
+					
+					var paddingWidth = $(tagid+' .k-splitbar').width() + 2
+					var ganttWidth = $(tagid+'').width();
+					var ganttLeftbarWidth = 106;
+					var ganttRightPaneWidth = ganttWidth - ganttLeftbarWidth - paddingWidth;
+
+					var eachColumnWidth = parseInt(ganttRightPaneWidth / 12, 10);
+					ganttRightPaneWidth = eachColumnWidth * 12;
+					ganttLeftbarWidth = ganttWidth - ganttRightPaneWidth - paddingWidth;
+
+					var totalColumns = $(tagid+' .k-gantt-layout.k-gantt-timeline .k-grid-header colgroup col').size();
+
+					$(tagid+' .k-gantt-layout.k-gantt-treelist').width(ganttLeftbarWidth);
+					$(tagid+' .k-gantt-layout.k-gantt-treelist .k-grid-content table').css('min-width', 'inherit');
+
+					$(tagid+' .k-gantt-layout.k-gantt-timeline').width(ganttRightPaneWidth);
+					$(tagid+' .k-gantt-layout.k-gantt-timeline .k-grid-header').css('padding-right', 0);
+					$(tagid+' .k-gantt-layout.k-gantt-timeline .k-task-content').each(function (i, e) {
+						$(e).remove();
+					});
+
+
+
+
+
+					// ======= some dark magic happen here, be careful
+					
+					var ganttOldWidth = $(tagid+' .k-gantt-layout.k-gantt-timeline .k-grid-header table').width()
+					var ganttNewWidth = totalColumns * eachColumnWidth
+					var scaleRatio = ganttNewWidth / ganttOldWidth
+
+
+					$(tagid+' .k-gantt-layout.k-gantt-timeline .k-grid-header table').width(ganttNewWidth)
+					$(tagid+' .k-gantt-layout.k-gantt-timeline .k-grid-header table colgroup col').each(function (i, e) {
+						$(e).width(eachColumnWidth)
+					})
+
+					$(tagid+' .k-gantt-layout.k-gantt-timeline .k-grid-content table').each(function (i, e) {
+						$(e).width(ganttNewWidth)
+						$(e).find('colgroup col').each(function (i, e) {
+							$(e).width(eachColumnWidth)
+						})
+					})
+
+					
+					$(tagid+' .k-gantt-tasks .k-task-wrap').each(function (i, e) {
+						var oldLeft = parseInt($(e).css('left').replace(/px/), 10)
+						var newLeft = oldLeft * scaleRatio
+						$(e).css('left', newLeft + 'px')
+
+						var $f = $(e).find('.k-task.k-task-single')
+						if ($f.size() > 0) {
+							var oldInsideWidth = $f.width()
+							var newInsideWidth = oldInsideWidth * scaleRatio
+							$f.width(newInsideWidth)
+
+							var $g = $f.find('.k-task-complete')
+							if ($g.size() > 0) {
+								var oldInside2LevelWidth = $g.width()
+								var newInside2LevelWidth = oldInside2LevelWidth * scaleRatio
+								$g.width(newInside2LevelWidth)
+
+								// ££££££ grey Thumb
+								if($g.css('background-color')=='rgb(198, 223, 182)'){
+									var greymargin = newInside2LevelWidth+3;
+									var greypos = $(greyThumb).css('margin-left',greymargin+'px').css('z-index',4);
+									$g.append(greypos)
+								}
+							}
+						}
+
+						var oldWidth = $(e).width()
+						var newWidth = oldWidth * scaleRatio
+						if(isPopup){
+							newWidth = oldWidth
+						}
+						
+						$(e).width(newWidth)
+					})
+					
+					
+
+					// £££££ blue Thumb
+					data.filter(function (d) {
+						return (d.ProgressCompletion > 0)
+					}).forEach(function (d){
+						var rowData = tasksDataSource.data().find(function (e) {
+							return (e.ProjectName == d.ProjectName)
+						})
+						var ele = $(tagid)
+						.find('div[data-uid="' + rowData.uid + '"]')
+						.closest('td')
+						.find('.k-task-complete');	
+						var rowDataEl = $(tagid)
+						.find('div[data-uid="' + rowData.uid + '"]')
+						.closest('td');
+
+						var kiri = ele.parent().parent().position();
+						var kekirian = ele.parent().width()+30;
+						if(kiri===undefined){
+							// console.log("kiri")
+						}else{
+							kekirian += kiri.left;
+						}
+						
+						if(d.SetAsComplete){
+							$(blueThumb)
+							.css('left', kekirian + 'px')
+							.appendTo(rowDataEl);
+						}
+					})
+				}
+			})
+
+			// $(tagid+' .k-header').css('background-color', '#a1afc2');
+			// $(tagid+' .k-gantt-timeline .k-grid-content').css('background-color','#f2f7fc');
+			$('.k-floatwrap.k-header.k-gantt-toolbar').css('display','none');
+			$('#gntct').parent().css('overflow','hidden');
+			$('.k-floatwrap.k-header.k-gantt-toolbar ul li').hide()
+			if(isPopup){
+				$(tagid+'').height('400px')
+			}else{
+				$(tagid+'').height('250px')
+			}
+		}, 100)
+	}
+
+	$("#brct").click(function(){
+		$(this).parent().css('overflow','scroll');
+	})
+</script>
+<script type="text/javascript">	
+	var scchartContainer = $("#scchart-container").html();
+	$("#curtainchart-container").html(scchartContainer);
+	$("#scchart-container").html("");
+	var btnContainer = $("#scchart-button").html();
+	$("#navbar-container").append(btnContainer);
+	$("#scchart-button").html("");
+	scchart.Init = function(){
+		ajaxPost("/web-cb/m/getlifecycledata",{},function(res){
+			var arr = res.Data;
+			for(var i in arr){
+				arr[i].Id = arr[i].LifeCycleId;
+			}
+			scchart.LifeCycleList(arr);
+		});
+	}
+	$(document).ready(function(){
+		scchart.Init();
+	})
+</script>

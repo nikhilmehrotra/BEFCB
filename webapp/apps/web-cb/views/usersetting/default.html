@@ -1,0 +1,162 @@
+
+<script type="text/javascript">
+model.PageId("UserSetting");
+model.BreadCrumbs.push(new BreadCrumb('{{.Menuname}}', '{{.Menuname}}', "#", "active", ""));
+model.Access = ko.observable('{{.Menuid}}');
+model.View = ko.observable('{{.View}}');
+model.Create= ko.observable('{{.Create}}');
+model.Delete= ko.observable('{{.Delete}}');
+model.Process= ko.observable('{{.Process}}');
+model.Edit= ko.observable('{{.Edit}}');
+model.User= ko.observable('{{.Username}}');
+</script>
+<script src="/web-cb/static/core/usersetting.js"></script>
+<script src="/web-cb/static/core/authentication.js"></script>
+<div  data-bind="with:usersett">
+    <div>
+      <!-- Filter -->    
+        <div  class="panel panel-default" >
+            <div class="panel-heading">
+                <label>Filter</label>
+                <a class="align-right showhide-filter" id="showHideFilter" data-toggle="collapse" href="#filter" aria-controls="filter">show / hide</a>
+            </div>
+            <div class="panel-body collapse in"  id="filter">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form class="navbar-form">
+                            <div class="col-md-12">
+                                <div class="col-md-3">
+                                    <div class="col-md-4">
+                                        <label class="filter-label">User Name</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" data-bind="kendoMultiSelect: {value:filterUser, data: listUserName, filter: 'startswith', dataTextField: 'text', dataValueField: 'value'}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-4">
+                                        <label class="filter-label">Role</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" data-bind="kendoMultiSelect: {value:filterRole, data: listRole, filter: 'startswith', dataTextField: 'text', dataValueField: 'value'}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-4">
+                                        <label class="filter-label">Status</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input id="StatusFilter" class="switch-mini" type="checkbox"  data-off-text="inactive" data-on-text="active" data-bind="click: FilterStatus">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-12">
+                                        <button  type="button" btn-sm class="btn btn-sm btn-primary btn-flat" data-bind="click:Search"><i class="fa fa-search"></i> Search</button>
+                                        <button  type="button" class="btn btn-sm btn-danger btn-flat" data-bind="click:Reset"><i class="fa fa-refresh"></i> Reset</button>
+                                        <button  type="button" class="btn btn-sm btn-success btn-flat" data-bind="click:AddNew"><i class="fa fa-plus"></i> Add New</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div  class="panel panel-default" >
+            <div class="panel-body collapse in" >
+                <div class="row">
+                    <div class="col-sm-12" data-bind="visible:loading">
+                        <div class="align-center">
+                            <h5>Please wait while processing your request</h5>
+                            <img src="/web-cb/static/img/loader.gif" alt="Loading..." />
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12"  data-bind="visible:!loading()">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-8">
+                            <div class="k-header k-grid-toolbar grid-table-action headerColorGrid">
+                                <div class="col-md-3 align-left no-margin no-padding" >
+                                </div>
+                                <div class="col-md-9 no-margin no-padding align-right">
+                                </div>
+                            </div>
+                            <div id="MasterGridUser"></div>
+                        </div>
+                        <div class="col-md-2"></div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="close" 
+                       data-dismiss="modal">
+                           <span aria-hidden="true">&times;</span>
+                           <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel" data-bind="text:titleModel"></h4>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form class="form-horizontal" id ="AddUserSetting">
+                      <div class="form-group">
+                        <label for="inputEmail3" class="col-sm-3 form-control-label">User Name<span class="mandatory">*</span></label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control input-sm" name="userName" id="userName" validationMessage="User Name required" required data-bind="value:userName"/>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="inputPassword3" class="col-sm-3 form-control-label">Full Name<span class="mandatory">*</span></label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control input-sm" name="fullName" id="fullName" validationMessage="Full Name required" required="" data-bind="value:fullName"/>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="inputPassword3" class="col-sm-3 form-control-label">Email<span class="mandatory">*</span></label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control input-sm" data-type="email" name="email" id="email" validationMessage="Email required" required="" data-bind="value:email"/>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="inputPassword3" class="col-sm-3 form-control-label">Password<span class="mandatory">*</span></label>
+                        <div class="col-sm-8">
+                          <input type="password" style="height: 23px;" class="form-control input-sm" data-type="password" name="password" id="password" validationMessage="Password required" required="" data-bind="value:password"/>
+                        </div>
+                      </div>
+                      <div  class="form-group" id ="confirmPass">
+                            <label for="inputPassword3" class="col-sm-3 form-control-label">Confirm Password<span class="mandatory">*</span></label>
+                            <div class="col-sm-8">
+                              <input type="password" style="height: 23px;" class="form-control" data-type="confirmPassword" name="confirmPassword" id="confirmPassword" validationMessage="Password required" required="" data-bind="value:confirmPassword"/>
+                            </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="inputPassword3" class="col-sm-3 form-control-label">Status</label>
+                        <div class="col-sm-8">
+                          <input id="Status" class="switch-mini" type="checkbox"  data-off-text="inactive" data-on-text="active" checked>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="inputEmail3" class="col-sm-3 form-control-label">Role</label>
+                        <div class="col-sm-8">
+                          <input type="text" name="role" id="role" data-bind="kendoDropDownList: {value: role, data:listRole, dataTextField: 'text', dataValueField: 'value', optionLabel: 'select roles'}"  />
+                        </div>
+                      </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-default btn-flat" data-dismiss="modal" data-bind="click:Cancel"><i class="fa fa-times"></i> Close</button>
+                    <button type="button" class="btn btn-sm btn-primary btn-flat" data-bind="click:(edit() != true)? SaveData : UpdateData"><i class="fa fa-floppy-o"></i> Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

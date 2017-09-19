@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<!--  manifest="/main/static/core/manifest.appcache" -->
+<head>
+    <!-- Layout initiated, developed, & maintained by Noval Agung Prayogo.
+         Everyone are allowed to use this layout as a reference or even copying it.
+         But please, try to write good-readable-reusable-modular code :-) -->
+    
+    {{template "_head.html"}}
+</head>
+<body class="page-login">
+
+    <div class="layout-container">
+        <div class="layout-content" data-bind="with: viewModel">
+
+			<script>viewModel.title('Login')</script>
+            <!-- content -->
+
+			<script src="{{ NoCacheUrl "/main/static/core/js/adm-auth-login.js" }}"></script>
+			<link rel="stylesheet" href="{{ NoCacheUrl "/main/static/core/css/adm-auth-login.css" }}" />
+
+			<div class="page-content page-login" data-bind="with: pageLogin">
+				<div class="left-side" style="background-image: url('/main/static/core/images/loginwall.jpg')"></div>
+				<div class="right-side">
+
+                    <div data-bind="visible:viewModel.isLoading()" class="align-center" id="Loader" style="padding-top: 150px;">
+                        <img src="/web-cb/static/img/loader.gif" alt="Loading..." />
+                    </div>
+					<form data-bind="with: userData,visible:!viewModel.isLoading()">
+						<div class="logo">
+							<img src="/main/static/core/images/1024px-Standard_Chartered.png">
+						</div>
+						<div id="Error" data-bind="visible:viewModel.ErrorMessage()!==''">
+                            <div>
+                                <div class="alert alert-danger" role="alert">
+                                <b><span class="fa fa-exclamation-triangle"></span>&nbsp;LOGIN FAILED</b><br/>
+                                <span id="LoginErrorMessage" data-bind="text:viewModel.ErrorMessage"></span>
+                                </div>
+                            </div>
+                        </div>
+						<div class="form-group">
+							<label>Login ID</label>
+							<!-- <input required type="text" class="form-control input-sm" placeholder="Your Login ID" data-bind="value: username"> -->
+							<input required type="text" class="form-control input-sm" placeholder="Your Login ID" data-bind="value: username" >
+							<!-- pattern="\d{7}" maxlength="7" oninput="this.value=this.value.replace(/[^0-9]/g,'');" -->
+						</div>
+						<div class="form-group">
+							<label>Password</label>
+							<input required type="password" class="form-control input-sm" placeholder="Your Password" data-bind="value: password">
+						</div>
+						<div class="pull-right">
+							<button type="submit" class="btn btn-sm btn-primary">
+								<!-- <i class="fa fa-paper-plane"></i>&nbsp; Submit -->
+								Login
+							</button>
+						</div>
+						<!-- <div class="pull-left">
+							<a href="#" class="forgot-password">Can't access your account?</a>
+						</div> -->
+						<div class="clearfix"></div>
+						<div class="footnote">
+							<label><b>© 2013 - 2017 EACIIT Pte Ltd</b></label>
+							<label>Earnings & Cash Improvement Information Technologies</label>
+						</div>
+					</form>
+				</div>
+			</div>
+
+
+            <!-- avoid broken tag -->
+            <div class="clearfix"></div>
+        </div>
+    </div>
+
+
+    <script>
+        ko.applyBindings(viewModel);
+    </script>
+</body>
+</html>

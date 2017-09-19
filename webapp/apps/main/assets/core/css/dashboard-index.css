@@ -1,0 +1,13 @@
+.box {
+    display: inline-block;
+    border: 1px solid #deefff;
+    padding: 30px 20px;
+    cursor: pointer;
+    border-radius: 11px;
+    margin-top: 10px;
+    margin-right: 10px;
+    background-color: #f7fbff;
+}
+.box:hover {
+    background-color: #deefff;
+}

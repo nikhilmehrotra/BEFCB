@@ -1,0 +1,1330 @@
+<style type="text/css">
+  #stagingarea .dashboard-filter.dropdown .fa,
+  #stagingarea .dashboard-filter.date .fa {
+      font-size: 19px;
+      margin-top: 4px;
+  }
+
+  .reset-countryregion{
+        cursor: pointer;
+    }
+
+  #stagingarea .k-autocomplete {
+        border: solid 1px #444;
+        margin-top: 1px;
+  }
+  #sa-header{
+    margin-bottom: 5px
+  }
+  #export-action .btn{
+    margin: 0px 5px;
+  }
+  #stagingarea{
+    margin-top: 10px;
+  }
+  .action-button{
+    margin-top: 5px;
+      float: left;
+      width: 12%;
+  }
+  .action-button button{
+    height: 100%;
+      width: 100%;
+      margin-bottom:2px;
+  }
+  #stagingarea #filter{
+    float:left;
+    width:76%;
+    padding: 0px 15px;
+  }
+  #publish-button{
+    height: 64px;
+  }
+  #stagingarea .btn-success{
+      background: #45a586;
+  }
+  #stagingarea .btn-success:hover{
+      background: #4ebd99;
+  }
+  #stagingarea .btn-warning{
+      background: #f5a451;
+  }
+  #stagingarea .btn-warning:hover{
+      background: #ffb365;
+  }
+  #stagingarea .btn-primary{
+      background: #3885ca;
+  }
+  #stagingarea .btn-primary:hover{
+      background: #4a91d0;
+  }
+  #stagingarea #filter-period{
+    margin-top: 15px;
+  }
+  #stagingarea #export-action{
+    margin-top: 19px;
+    text-align: center; 
+  }
+  #stagingarea #filter-period .form-label{
+    line-height: 30px;
+    margin-top: 4px;
+  }
+
+  #sa-data table > thead th{
+    background: #333f50;
+    text-align: center;
+    color:#FFF;
+    font-weight: normal;
+    border: 1px solid #FFF;
+  }
+  #sa-data table > thead th > div{
+    background: #333f50;
+    text-align: center;
+    color:#FFF;
+    font-weight: normal;
+    border-right: 1px solid #FFF;
+      border-left: 1px solid #FFF;
+      padding: 5px 0px;
+  }
+  #sa-data table > thead th > div.button-edit{
+    background: #b3b3b3;
+  }
+  #sa-data table > thead th > div.button-edit:hover{
+    background: #9a9a9a;
+    cursor: pointer;
+  }
+  #sa-data table > thead th > div.button-save{
+    background: #45a586;
+  }
+  #sa-data table > thead th > div.button-save:hover{
+    background: #2cbd8e;
+    cursor: pointer;
+  }
+  #sa-data table tbody td.businessmetric{
+    background: #333f50;
+    color: #FFF;
+    border: 1px solid #FFF;
+    padding: 5px 10px;
+  }
+  #sa-data table tbody td.businessmetric:hover{
+    cursor: pointer;
+    background: #435063;
+  }
+  
+  #sa-data .data-list td.countryname{
+    text-align: left;
+    padding: 5px;
+  }
+  #sa-data .data-list td{
+    background: #f2f2f2;
+    text-align: center;
+    padding: 5px 0px;
+    border: 1px solid #FFF;
+  }
+  #sa-data .data-list td.actual-value{
+    padding: 0px;
+  }
+  #sa-data .data-list td.actual-value > div{
+    padding: 5px 0px;
+    border-right: 1px solid #FFF;
+      border-left: 1px solid #FFF;
+    float: left;
+  }
+  #sa-data .data-list td.actual-value > input{
+      padding: 5px 4px;
+      background: #fbe5d6;
+      float: left;
+      text-align: right;
+      border: none;
+    border-right: 1px solid #FFF;
+      border-left: 1px solid #FFF;
+      outline: none;
+  }
+
+  /* kendo tree */
+  .my-selected-state {
+      background-color: lightskyblue;
+      color: white
+  }
+
+  body {
+      font-family: sans-serif
+  }
+
+  #treeview2 {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      border: #333 solid 1px;
+      z-index: 3;
+      width: 100%;
+      background-color: #fff;
+      border: #333 solid 1px;
+      max-height: 210px;
+      /*overflow-y: scroll;*/
+  }
+
+  #treeview2 .k-plus{
+      background-position: 0 -208px;
+  }
+
+  /* #multiselectTree {
+      width: 400px;
+      border: 2px solid lightskyblue
+  }*/
+
+  #multiselectTreeOneSelectedValue .k-delete {
+      display: none;
+      /*by default kendo tree view is hidden*/
+  }
+
+  #reset-regioncountry2{
+      color: #bbb;
+      font-size: 15px !important;
+      position: absolute;
+      right: 25px;
+      top: 2px;
+      z-index: 2;
+  }
+  .wrap-textmen{
+    word-wrap: break-word;      /* IE 5.5-7 */
+    white-space: -moz-pre-wrap; /* Firefox 1.0-2.0 */
+    white-space: pre-wrap;      /* current browsers */
+  }
+  .no-margin{
+    margin: 0 !important;
+  }
+  .fc-modified-1{
+    height: 23px !important;
+    font-size: 10px;
+    padding: 0 !important;
+  }
+</style>
+{{if (.StagingArea.Global.Upload) or (.StagingArea.Region.Upload) or (.StagingArea.Country.Upload)}}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (.StagingArea.Global.Curtain) or (.StagingArea.Region.Curtain) or (.StagingArea.Country.Curtain)}}
+{{template "initiative_chart.html" .}}
+{{end}}
+{{if (.StagingArea.Global.Read) or (.StagingArea.Region.Read) or (.StagingArea.Country.Read)}}
+<script type="text/javascript">
+  var SelectedBM = "";
+  var curl = document.URL;
+  if(curl.indexOf("access=")>=0){
+    SelectedBM = curl.substr(curl.indexOf("access=")+7+32).replace("s","").toUpperCase()  
+  }
+  
+  // sa = Staging Area
+  var sa = {
+    SelectedBM:SelectedBM,
+    PullRequest:ko.observable(0),
+    InitProcess:ko.observable(true),
+    Processing:ko.observable(true),
+    SelectedPeriod:ko.observableArray(),
+    SelectedYear:ko.observable(""),
+    Data:ko.observableArray(),
+    IsEditingBaseline:ko.observable(false),
+    IsEditingActualYTD:ko.observable(false),
+    IsEditingForecast:ko.observable(false),
+    IsEditingTarget:ko.observable(false),
+
+    Filter:{
+      From:ko.observable(""),
+      To:ko.observable(""),
+      Search:ko.observable(""),
+      BMID:ko.observable(""),
+      Region:ko.observable([]),
+      Country:ko.observable([]),
+      RegionCountryScorecard: ko.observable(false),
+      // RegionCountry: ko.observableArray([])
+    },
+    BMList:ko.observableArray([]),
+    RegionList:ko.observableArray([]),
+    CountryList:ko.observableArray([]),
+    OptionalValue:ko.observable('ActualYTD'),
+    RegionalData: ko.observableArray([])
+  }
+  sa.Filter.Search.subscribe(function(newval){
+    var data = Enumerable.From(sa.BMList()).Where("$.businessmetric.DataPoint === '"+newval+"'").FirstOrDefault();
+    if(data!== undefined){
+      sa.Filter.BMID(data.businessmetric.id);
+    }else{
+      sa.Filter.BMID("");
+    }
+    sa.GetData();
+  });
+  sa.OptionalList = ko.observableArray([
+    {Id: 'ActualYTD', Text: 'Actual YTD'},
+    {Id: 'Budget', Text: 'Budget'},
+    {Id: 'RAG', Text: 'RAG'},
+  ]);
+  sa.RAGList = ko.observableArray([
+    {Id: 'amber', Text: 'AMBER'},
+    {Id: 'green', Text: 'GREEN'},
+    {Id: 'red', Text: 'RED'},
+  ])
+  sa.OptionalValue.subscribe(function(newval){
+    // console.log(newval)
+  })
+  // sa.Filter.Country.subscribe(function(){
+  //  sa.GetData();
+  // })
+  // sa.Filter.Region.subscribe(function(){
+  //  sa.GetData();
+  // })
+  sa.Filter.From.subscribe(function(){
+    sa.GetData();
+  })
+  sa.Filter.To.subscribe(function(){
+    sa.GetData();
+  })
+  sa.Check = function(){
+    var CurrentEditablePeriod = Enumerable.From(ko.mapping.toJS(sa.SelectedPeriod())).Where("$.IsEditing").ToArray().length;
+    if(CurrentEditablePeriod>0){
+      return true;
+    }
+    return false;
+  }
+  sa.SaveAllChanges = function(){
+    var SelectedPeriod = ko.mapping.toJS(sa.SelectedPeriod());
+    var SelectedData = ko.mapping.toJS(sa.Data());
+    var totalChanges = 0;
+    for(var i in SelectedData){
+      for(var s in SelectedData[i].DataList){
+        for(var p in SelectedPeriod){
+          if(SelectedData[i].DataList[s]["Prev"+SelectedPeriod[p].Period]!== SelectedData[i].DataList[s][SelectedPeriod[p].Period]){
+           sa.Data()[i].DataList()[s]["Prev"+SelectedPeriod[p].Period](SelectedData[i].DataList[s][SelectedPeriod[p].Period])
+          }
+          if(SelectedData[i].DataList[s]["PrevBudget"+SelectedPeriod[p].Period]!== SelectedData[i].DataList[s]["Budget"+SelectedPeriod[p].Period]){
+           sa.Data()[i].DataList()[s]["PrevBudget"+SelectedPeriod[p].Period](SelectedData[i].DataList[s]["Budget"+SelectedPeriod[p].Period])
+          }
+          if(SelectedData[i].DataList[s]["PrevRAG"+SelectedPeriod[p].Period]!== SelectedData[i].DataList[s]["RAG"+SelectedPeriod[p].Period]){
+           sa.Data()[i].DataList()[s]["PrevRAG"+SelectedPeriod[p].Period](SelectedData[i].DataList[s]["RAG"+SelectedPeriod[p].Period])
+          }
+        }
+      }
+    }
+    return totalChanges;
+  }
+  sa.CheckForChanges = function(){
+    var SelectedPeriod = ko.mapping.toJS(sa.SelectedPeriod());
+    var SelectedData = ko.mapping.toJS(sa.Data());
+    var totalChanges = 0;
+    for(var i in SelectedData){
+      for(var s in SelectedData[i].DataList){
+        for(var p in SelectedPeriod){
+          if(SelectedData[i].DataList[s]["Prev"+SelectedPeriod[p].Period]!== SelectedData[i].DataList[s][SelectedPeriod[p].Period]){
+           totalChanges += 1;
+          }
+        }
+      }
+    }
+    return totalChanges;
+  }
+  sa.Publish = function(){
+    if(sa.Check()){
+      swal("","Please save your changes to do this action","info")
+      return false;
+    }
+    if(sa.CheckForChanges()>0){
+      swal("","Please save your changes to do this action","info")
+      return false;
+    }
+    swal({
+      title: "Are you sure?",
+      text: "You will not be able to reset",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#2cbd8e",
+      confirmButtonText: "Yes, Publish Now!",
+      closeOnConfirm: true
+    },
+    function(){
+        sa.Processing(true);
+        var parm = ko.mapping.toJS(sa.Filter);
+        if(parm.From!==null && parm.From !== ""){
+          parm.From = kendo.toString(parm.From,"yyyyMM");
+        }
+        if(parm.To!==null && parm.To !== ""){
+          parm.To = kendo.toString(parm.To,"yyyyMM");
+        }
+        parm.Search = parm.Search.toLowerCase();
+        parm.BMList = ko.mapping.toJS(sa.Data());
+        for(var b in parm.BMList){
+          if(parm.BMList[b].DataList.length === 0){
+            parm.BMList[b].DataList = parm.BMList[b].DataListTmp;
+          }
+        }
+        ajaxPost("/web-cb/stagingarea/publish",parm,function(res){
+          sa.Processing(false);
+          if (res.IsError) {
+            swal("",res.Message,"error")
+            return;
+          }
+          swal("","Data has been published","success")
+        })
+
+    });
+    
+  }
+  sa.ExportXLS = function(){
+    if(sa.Check()){
+      swal("","Please save your changes to do this action","info")
+      return false;
+    }
+    sa.Processing(true);
+    var parm = ko.mapping.toJS(sa.Filter);
+    if(parm.From!==null && parm.From !== ""){
+      parm.From = kendo.toString(parm.From,"yyyyMM");
+    }
+    if(parm.To!==null && parm.To !== ""){
+      parm.To = kendo.toString(parm.To,"yyyyMM");
+    }
+    parm.Search = parm.Search.toLowerCase();
+    parm.BMList = ko.mapping.toJS(sa.Data());
+    parm.OptionValue = sa.OptionalValue();
+    ajaxPost("/web-cb/stagingarea/exportxls",parm,function(res){
+      window.open(
+        "/web-cb/static/download/"+res.Data,
+        '_blank'
+      );
+      sa.Processing(false);
+    })
+  }
+  sa.ExportPDF = function(){
+      kendo.pdf.defineFont({
+          // "Open Sans": "/web-cb/static/fonts/OpenSans-Regular.ttf",
+          "Helvetica Neue": "/web-cb/static/fonts/HelveticaNeue.ttf"
+      });
+      kendo.drawing.drawDOM($('#sa-data > table')).then(function (group) {
+          var title = "StagingArea.pdf"
+          kendo.drawing.pdf.saveAs(group, title);
+    //       $('.btn-export-png').show()
+      // $('.btn-export-pdf').show()
+      // $('#ovheader').hide()
+      })
+  }
+  sa.SaveAsDraft = function(){
+    if(sa.Check()){
+      swal("","Please save your changes to do this action","info")
+      return false;
+    }
+    sa.Processing(true);
+    var parm = ko.mapping.toJS(sa.Filter);
+    if(parm.From!==null && parm.From !== ""){
+      parm.From = kendo.toString(parm.From,"yyyyMM");
+    }
+    if(parm.To!==null && parm.To !== ""){
+      parm.To = kendo.toString(parm.To,"yyyyMM");
+    }
+    parm.Search = parm.Search.toLowerCase();
+    parm.BMList = ko.mapping.toJS(sa.Data());
+    parm.LogAction = sa.GenerateReport();
+    ajaxPost("/web-cb/stagingarea/save",parm,function(res){
+      sa.GetData();
+      // sa.Processing(false);
+      swal("","Data has been saved","success")
+      // sa.SaveAllChanges();
+    })
+
+  }
+
+  sa.GenerateReport = function(){
+    ddata = ko.mapping.toJS(sa.Data());
+    tmpchanges = []
+    var SelectedPeriod = ko.mapping.toJS(sa.SelectedPeriod());
+    _.each(ddata, function(v,i){
+      _.each(v.DataList, function(vv,ii){
+        if(vv.BaseLine != vv.PrevBaseLine){
+          var NewChanges = {
+            Whatchanged:v.DataPoint+" Baseline | "+vv.CountryName,
+            OldValue:""+parseFloat(vv.PrevBaseLine),
+            NewValue:""+parseFloat(vv.BaseLine),
+          }
+          tmpchanges.push(NewChanges)
+        }
+        if(vv.FullYearForecast != vv.PrevFullYearForecast){
+          var NewChanges = {
+            Whatchanged:v.DataPoint+" Full Year Forecast | "+vv.CountryName,
+            OldValue:""+parseFloat(vv.PrevFullYearForecast),
+            NewValue:""+parseFloat(vv.FullYearForecast),
+          }
+          tmpchanges.push(NewChanges)
+        }
+        if(vv.Target != vv.PrevTarget){
+          var NewChanges = {
+            Whatchanged:v.DataPoint+" Target | "+vv.CountryName,
+            OldValue:""+parseFloat(vv.PrevTarget),
+            NewValue:""+parseFloat(vv.Target),
+          }
+          tmpchanges.push(NewChanges)
+        }
+        _.each(SelectedPeriod, function(vvv,iii){
+          
+          if(vv[vvv.Period] != vv["Prev"+vvv.Period]){
+                    var NewChanges = {
+                        Whatchanged:v.DataPoint+" Actual YTD | "+vv.CountryName+" - "+vvv.Title,
+                        OldValue:""+parseFloat(vv["Prev"+vvv.Period]),
+                        NewValue:""+parseFloat(vv[vvv.Period]),
+                    }
+                    tmpchanges.push(NewChanges)
+                } 
+
+          if(vv["Budget"+vvv.Period] != vv["PrevBudget"+vvv.Period]){
+                    var NewChanges = {
+                        Whatchanged:v.DataPoint+" Budget | "+vv.CountryName+" - "+vvv.Title,
+                        OldValue:""+parseFloat(vv["PrevBudget"+vvv.Period]),
+                        NewValue:""+parseFloat(vv["Budget"+vvv.Period]),
+                    }
+                    tmpchanges.push(NewChanges)
+                } 
+
+          if(vv["RAG"+vvv.Period] != vv["PrevRAG"+vvv.Period]){
+                    var NewChanges = {
+                        Whatchanged:v.DataPoint+" RAG | "+vv.CountryName+" - "+vvv.Title,
+                        OldValue:""+vv["PrevRAG"+vvv.Period],
+                        NewValue:""+vv["RAG"+vvv.Period],
+                    }
+                    tmpchanges.push(NewChanges)
+                } 
+
+        })
+      })
+    })
+    return tmpchanges;
+  }
+
+  sa.GetData = function(){
+    sa.Processing(true);
+    sa.SelectedPeriod([])
+    sa.Data([])
+    var parm = ko.mapping.toJS(sa.Filter);
+    var selectedYear = new Date().getFullYear();
+    var selectedYearFrom, selectedYearTo;
+    if(parm.From!==null && parm.From !== ""){
+      selectedYearFrom = parm.From.getFullYear()
+      selectedYear = parm.From.getFullYear();
+      parm.From = kendo.toString(parm.From,"yyyyMM");
+      
+    }
+    if(parm.To!==null && parm.To !== ""){
+      selectedYearTo = parm.To.getFullYear()
+      selectedYear = parm.To.getFullYear();
+      parm.To = kendo.toString(parm.To,"yyyyMM");
+      
+    }
+    if(parm.From!==null && parm.From !== "" && parm.To!==null && parm.To !== ""){
+      if(selectedYearFrom!==selectedYearTo){
+        swal("","You only be able to select a year of data","info")
+        return false;
+      }
+    }
+    sa.SelectedYear(selectedYear);
+    parm.Search = parm.Search.toLowerCase();
+    ajaxPost("/web-cb/stagingarea/getdata",parm,function(res){
+      var SelectedPeriod = res.Data.SelectedPeriod;
+      var SelectedData = res.Data.SelectedData;
+      // SelectedData = [SelectedData[0]]
+      for(var i in SelectedPeriod){
+        SelectedPeriod[i].IsEditing = false;
+      }
+      for(var i in SelectedData){
+        SelectedData[i].IsExpand = false;
+        for(var s in SelectedData[i].DataList){
+          if(SelectedData[i].DataList[s].BaseLine==130895111188){
+            SelectedData[i].DataList[s].BaseLine = ""
+          }
+          if(SelectedData[i].DataList[s].YTDActual==130895111188){
+            SelectedData[i].DataList[s].YTDActual = ""
+          }
+          if(SelectedData[i].DataList[s].FullYearForecast==130895111188){
+            SelectedData[i].DataList[s].FullYearForecast = ""
+          }
+          if(SelectedData[i].DataList[s].FullYearForecast==130895111188){
+            SelectedData[i].DataList[s].FullYearForecast = ""
+          }
+          if(SelectedData[i].DataList[s].Target==130895111188){
+            SelectedData[i].DataList[s].Target = ""
+          }
+          SelectedData[i].DataList[s].PrevBaseLine = SelectedData[i].DataList[s].BaseLine;
+          SelectedData[i].DataList[s].PrevYTDActual = SelectedData[i].DataList[s].YTDActual;
+          SelectedData[i].DataList[s].PrevFullYearForecast = SelectedData[i].DataList[s].FullYearForecast;
+          SelectedData[i].DataList[s].PrevTarget = SelectedData[i].DataList[s].Target;
+
+          for(var p in SelectedPeriod){
+            if(SelectedData[i].DataList[s][SelectedPeriod[p].Period]==130895111188){
+              SelectedData[i].DataList[s][SelectedPeriod[p].Period] = "";
+            }
+
+            if(SelectedData[i].DataList[s]["Budget"+SelectedPeriod[p].Period]==130895111188){
+              SelectedData[i].DataList[s]["Budget"+SelectedPeriod[p].Period] = "";
+            }
+
+            SelectedData[i].DataList[s]["Prev"+SelectedPeriod[p].Period] = SelectedData[i].DataList[s][SelectedPeriod[p].Period];
+            SelectedData[i].DataList[s]["PrevBudget"+SelectedPeriod[p].Period] = SelectedData[i].DataList[s]["Budget"+SelectedPeriod[p].Period];
+            SelectedData[i].DataList[s]["PrevRAG"+SelectedPeriod[p].Period] = SelectedData[i].DataList[s]["RAG"+SelectedPeriod[p].Period];
+          }
+        }
+        SelectedData[i].DataListTmp = SelectedData[i].DataList;
+        SelectedData[i].DataList = []; //trial
+        SelectedData[i].LoaderBMId = false;
+
+        //datadummy
+        // SelectedData[i].NotificationOwner = [];
+        // SelectedData[i].NotificationFinance = [];
+        // if(i == 1 || i == 5){
+        //   SelectedData[i].NotificationOwner = [{
+        //     BMId: "BM"+i,
+        //   }];
+        //   SelectedData[i].NotificationFinance = [];
+        // }else if(i == 0 || i == 5){
+        //   SelectedData[i].NotificationFinance = [{
+        //     BMId: "BM"+i,
+        //   }];
+        //   SelectedData[i].NotificationOwner = [];
+        // }
+
+        //dataprocessnotification
+        if(SelectedData[i].NotificationOwner == null){
+          SelectedData[i].NotificationOwner = [];
+        } 
+        if(SelectedData[i].NotificationFinance == null){
+          SelectedData[i].NotificationFinance = [];
+        } 
+
+        if(SelectedData[i].NotificationOwner.length > 0){
+          SelectedData[i].NotificationOwnerTrigger = true;
+          // console.log(SelectedData[i].NotificationOwner[0].BMData)
+
+        }else{
+          SelectedData[i].NotificationOwnerTrigger = false;
+        }
+
+        if(SelectedData[i].NotificationFinance.length > 0){
+          SelectedData[i].NotificationFinanceTrigger = true;
+        }else{
+          SelectedData[i].NotificationFinanceTrigger = false;
+        }
+
+        SelectedData[i].DecimalFormat = (SelectedData[i].DecimalFormat == "") ? 0 : SelectedData[i].DecimalFormat; 
+
+        // console.log(SelectedData[i])
+      }
+
+      sa.SelectedPeriod(ko.mapping.fromJS(SelectedPeriod)())
+
+      var arr = sortStringNumber(100, SelectedData, "DataPoint")
+
+      var tmpmapping = ko.mapping.fromJS(arr);
+
+      sa.Data(tmpmapping())
+
+      sa.Processing(false);
+
+    })
+  }
+  sa.InitProcess.subscribe(function(newVal){
+    if(!newVal&&sa.SelectedBM!==""){
+      var data = Enumerable.From(sa.BMList()).Where("$.businessmetric.id === '"+sa.SelectedBM+"'").FirstOrDefault();
+      if(data!==undefined){
+        sa.Filter.Search(data.businessmetric.DataPoint);
+        sa.SelectedBM = "";
+      }
+    }
+    sa.GetData();
+  });
+  sa.Init = function(){
+    sa.InitProcess(true);
+    sa.PullRequest(1);
+    sa.Processing(true);
+    ajaxPost("/web-cb/businessmetrics/getunassigneddata",{},function(res){
+      sa.PullRequest(sa.PullRequest()-1);
+      sa.BMList(res.Data);
+      if(sa.PullRequest()==0){
+        setTimeout(function(){
+          sa.InitProcess(false);
+        }, 200);
+        
+      }
+    })
+    ajaxPost("/web-cb/masterregion/getdata",{},function(res){
+      sa.PullRequest(sa.PullRequest()-1);
+      sa.RegionalData(res.Data);
+      var regionList = Enumerable.From(res.Data).GroupBy("$.Major_Region").Select("$.Key()").ToArray();
+      sa.RegionList(regionList);
+      sa.CountryList(res.Data);
+      if(sa.PullRequest()==0){
+        setTimeout(function(){
+          sa.InitProcess(false);
+        }, 200);
+      }
+    })
+    
+  }
+  sa.Expand = function(data){
+    index = sa.Data().indexOf(data);
+
+    tmpType = sa.OptionalValue();
+    if( tmpType == "ActualYTD" && sa.Data()[index].NotificationOwnerTrigger() ){
+      sa.Data()[index].NotificationOwnerTrigger(false)
+      param = {BMId:sa.Data()[index].BMId(), Type:'owner'}
+      // console.log(param, sa.Data()[index].NotificationFinanceTrigger())
+      ajaxPost("/web-cb/stagingarea/updatenotification",param,function(res){
+
+      })
+    }else if( tmpType == "Budget" && sa.Data()[index].NotificationFinanceTrigger() ){
+      sa.Data()[index].NotificationFinanceTrigger(false)
+      param = {BMId:sa.Data()[index].BMId(), Type:'finance'}
+      // console.log(param, sa.Data()[index].NotificationFinanceTrigger())
+      ajaxPost("/web-cb/stagingarea/updatenotification",param,function(res){
+
+      })
+    }
+
+    sa.Data()[index].LoaderBMId(true);
+    
+    if(sa.Data()[index].DataList().length == 0){
+      var parm = ko.mapping.toJS(sa.Filter);
+      var selectedYear = new Date().getFullYear();
+      var selectedYearFrom, selectedYearTo;
+      if(parm.From!==null && parm.From !== ""){
+        selectedYearFrom = parm.From.getFullYear();
+        selectedYear = parm.From.getFullYear();
+        parm.From = kendo.toString(parm.From,"yyyyMM");
+      }
+      if(parm.To!==null && parm.To !== ""){
+        selectedYearTo = parm.To.getFullYear();
+        selectedYear = parm.To.getFullYear();
+        parm.To = kendo.toString(parm.To,"yyyyMM");
+      }
+      if(parm.From!==null && parm.From !== "" && parm.To!==null && parm.To !== ""){
+        if(selectedYearFrom!==selectedYearTo){
+          swal("","You only be able to select a year of data","info")
+          return false;
+        }
+      }
+      sa.SelectedYear(selectedYear);
+      parm.Search = parm.Search.toLowerCase();
+      parm.BMID = sa.Data()[index].BMId();
+      console.log(parm)
+      ajaxPost("/web-cb/stagingarea/getdatalist",parm,function(res){
+        if(!res.IsError){
+          for(var s in res.Data){
+            if(res.Data[s].BaseLine==130895111188){
+              res.Data[s].BaseLine = ""
+            }
+            if(res.Data[s].YTDActual==130895111188){
+              res.Data[s].YTDActual = ""
+            }
+            if(res.Data[s].FullYearForecast==130895111188){
+              res.Data[s].FullYearForecast = ""
+            }
+            if(res.Data[s].FullYearForecast==130895111188){
+              res.Data[s].FullYearForecast = ""
+            }
+            if(res.Data[s].Target==130895111188){
+              res.Data[s].Target = ""
+            }
+            res.Data[s].PrevBaseLine = res.Data[s].BaseLine;
+            res.Data[s].PrevYTDActual = res.Data[s].YTDActual;
+            res.Data[s].PrevFullYearForecast = res.Data[s].FullYearForecast;
+            res.Data[s].PrevTarget = res.Data[s].Target;
+
+            SelectedPeriod = ko.mapping.toJS(sa.SelectedPeriod());
+            for(var p in SelectedPeriod){
+
+              if(res.Data[s][SelectedPeriod[p].Period]==130895111188){
+                res.Data[s][SelectedPeriod[p].Period] = "";
+              }
+
+              if(res.Data[s]["Budget"+SelectedPeriod[p].Period]==130895111188){
+                res.Data[s]["Budget"+SelectedPeriod[p].Period] = "";
+              }
+
+              res.Data[s]["Prev"+SelectedPeriod[p].Period] = res.Data[s][SelectedPeriod[p].Period];
+              res.Data[s]["PrevBudget"+SelectedPeriod[p].Period] = res.Data[s]["Budget"+SelectedPeriod[p].Period];
+              res.Data[s]["PrevRAG"+SelectedPeriod[p].Period] = res.Data[s]["RAG"+SelectedPeriod[p].Period];
+            }
+          }
+          console.log("---",res.Data)
+          tmpdata = ko.mapping.fromJS(res.Data)
+          sa.Data()[index].DataList( tmpdata() );
+
+          // sa.Data()[index].DataList(sa.Data()[index].DataListTmp())
+          tmpdata = ko.mapping.toJS(sa.Data()[index]);
+          // console.log(tmpdata)
+
+          if(tmpdata.NotificationOwner.length > 0){
+            _.each(tmpdata.NotificationOwner[0].BMData, function(v,i){
+              // console.log(v,i)
+              var tmpclass = "owner-"+v.BMId+"-"+v.Country.split(' ').join('')+"-"+kendo.toString(moment(v.Period, 'MMM yyyy')._d, "MMMyyyy");
+              // console.log(tmpclass)
+              $("."+tmpclass).css("background-color", "#FFF2CE")
+            })
+          }
+          if(tmpdata.NotificationFinance.length > 0){
+            _.each(tmpdata.NotificationFinance[0].BMData, function(v,i){
+              // console.log(v,i)
+              var tmpclass = "finance-"+v.BMId+"-"+v.Country.split(' ').join('')+"-"+kendo.toString(moment(v.Period, 'MMM yyyy')._d, "MMMyyyy");
+              // console.log(tmpclass)
+              $("."+tmpclass).css("background-color", "#FFF2CE")
+            })
+          }
+
+          data.IsExpand(!data.IsExpand());
+          sa.Data()[index].LoaderBMId(false)
+        }
+      })
+    }else{
+      data.IsExpand(!data.IsExpand());
+      sa.Data()[index].LoaderBMId(false)
+    }
+
+  }
+
+  sa.Edit = function(data){
+    data.IsEditing(true);
+  }
+  sa.Save = function(data){
+    data.IsEditing(false);
+  }
+  sa.GetRowStyle = function(data){
+    if(data.CountryName().indexOf("TOTAL") >= 0 || data.CountryName()=="GLOBAL"){
+      return "font-weight:bold;"
+    }
+  }
+
+  function ResetCountryRegionFilter2(){
+
+        
+        $("#multiselectOneSelectedValue").data("kendoMultiSelect").value([]);
+        multiSelectOneSelectedValue.dataSource.data([]);
+        multiSelectOneSelectedValue.value([]);
+        selectedVlauesOneSelectedValue = [];
+        $('#mytree2').data("kendoTreeView").dataSource.read();
+        sa.Filter.RegionCountryScorecard(false);
+        sa.Filter.Region([])
+        sa.Filter.Country([])
+        sa.GetData();
+  }
+
+  var selectedVlauesOneSelectedValue = [];
+  var multiSelectOneSelectedValue;
+
+  function createMultiSelectOneSelectedValue() {
+
+    // Create kedno multiselect
+    multiSelectOneSelectedValue = $("#multiselectOneSelectedValue").kendoMultiSelect({
+        placeholder: "Region / Country",
+        dataTextField: "text",
+        dataValueField: "value",
+        readonly: true,
+        // disabled: true
+    }).data("kendoMultiSelect");
+
+    // Kendo multiselect in read only mode
+     multiSelectOneSelectedValue.readonly(true);
+        
+  }
+
+  function createTreeViewOneSelectedValue(UserCountry) {
+    $('#mytree2').html("");
+        /// map tree datasource
+    var dataSourceForTreeView = [];
+    var checkGLobal = false;
+    sa.RegionList().forEach(function(xx){
+        var region = xx
+        if(region === "GLOBAL"){
+            checkGLobal = true;
+        }
+        
+        var countries = [];
+        var filteredCountry = Enumerable.From(sa.RegionalData()).Where("$.Major_Region == '"+region+"'").Select("$.Country").ToArray();
+        {{if .StagingArea.Country.Read }}
+            // UserCountry = "BAHRAIN"
+            filteredCountry.forEach(function(yy){
+                if(UserCountry != "" && UserCountry == yy){
+                    countries.push({"text": yy, selected: true})
+
+                    c.Filter.RegionCountryScorecard(true)
+
+                    c.Filter.CountryOne(UserCountry)
+                    c.Filter.RegionOne("Region")
+
+                    multiSelectOneSelectedValue.dataSource.data([{text:UserCountry,value:UserCountry}]);
+                    var values = $.map(multiSelectOneSelectedValue.dataSource.data(), function(dataItem) {
+                        return dataItem.value;
+                    });
+                    multiSelectOneSelectedValue.value(values);
+                } else if(UserCountry===""){
+                    countries.push({"text": yy})
+                }
+                
+            });
+            {{end}}
+            {{if .StagingArea.Region.Read }}
+            if(countries.length >0){
+                dataSourceForTreeView.push({"text":region, "items":countries});
+            }else{
+                dataSourceForTreeView.push({"text":region});
+            }
+            {{else}}
+                {{if .StagingArea.Country.Read }}
+                    if(UserCountry===""){
+                        filteredCountry.forEach(function(yy){
+                            dataSourceForTreeView.push({"text": yy})
+                        });
+                    }else{
+                        filteredCountry.forEach(function(yy){
+                            if(UserCountry != "" && UserCountry == yy){
+                                dataSourceForTreeView.push({"text": yy})
+                            }
+                        });
+                    }
+                    
+                {{end}}
+            {{end}}
+        
+    });
+
+    {{if .StagingArea.Global.Read }}
+    if(!checkGLobal){
+        dataSourceForTreeView.unshift({"text":"GLOBAL"});
+    }
+    {{end}}
+
+    $('#mytree2').kendoTreeView({
+        dataSource: {
+            data: dataSourceForTreeView
+        },
+        select: function(e) {
+
+            // $(".my-selected-state").removeClass("my-selected-state");
+
+            var SELECTOR = '.my-selected-state';
+            var SELCLASS = 'my-selected-state';
+
+            var node = $(e.node).closest('.k-item');
+            var kin = node.find('>div span.k-in');
+            var isSel = kin.is(SELECTOR);
+            // selectedVlauesOneSelectedValue = [];
+            // console.log()
+
+            var multinode = 1; // any number of node in any number of paths 
+            var multitree = 2; // any number of paths, however each node must be in separate subtrees
+            var mode = $('input[name=modegroup]:checked').val();
+            // console.log(kin)
+            if (mode == multitree) {
+                // uncomnment to ensure specificity, i.e. only one node in a given path 
+                node.find(SELECTOR).removeClass(SELCLASS);
+                $.map(node.parentsUntil('.k-treeview ', '.k-item'), function(kitem) {
+                    $(kitem).find('>div span.k-in').filter(SELECTOR).removeClass(SELCLASS);
+                });
+            }
+
+            if (!isSel) {
+                kin.addClass(SELCLASS)
+            } else {
+                kin.removeClass(SELCLASS)
+            }
+
+            // Get collection of selected values
+            console.log("-",selectedVlauesOneSelectedValue)
+            var itemId = e.node.innerText.split("\n")[0];
+            if (selectedVlauesOneSelectedValue.filter(e => e.text == itemId).length > 0) {
+                var temp;
+                $.each(selectedVlauesOneSelectedValue, function(ix, val) {
+                    if (val.value == itemId) {
+                        temp = ix;
+                    }
+                });
+                if (!isNaN(temp)) {
+                    selectedVlauesOneSelectedValue.splice(temp, 1);
+                }
+
+            } else {
+                selectedVlauesOneSelectedValue.push({
+                    text: itemId,
+                    value: itemId
+                });
+            }
+
+            // Set selected value to kendo multiselect
+            multiSelectOneSelectedValue.dataSource.data(selectedVlauesOneSelectedValue);
+            var values = $.map(multiSelectOneSelectedValue.dataSource.data(), function(dataItem) {
+                return dataItem.value;
+            });
+            multiSelectOneSelectedValue.value(values);
+            // sa.Filter.RegionCountry(values);
+
+            var countries = [];
+            var regions = [];
+            // console.log(values)
+            values.forEach(function(yy){
+              a = _.groupBy(sa.CountryList(), "Major_Region") 
+              b = _.groupBy(sa.CountryList(), "Country") 
+              if(yy == 'GLOBAL'){
+                regions.push(yy)
+              } else if(yy in a){   
+                regions.push(yy)
+              } else if(yy in b){ 
+                getCountryCode = Enumerable.From(sa.CountryList()).Where("$.Country == '"+yy+"'").Select("$.CountryCode").ToArray();  
+                countries.push(getCountryCode[0])
+              }
+
+            });
+            sa.Filter.Region(regions)
+            sa.Filter.Country(countries)
+            sa.Filter.RegionCountryScorecard(true)
+            // parm.Country = countries;
+            // parm.Region = regions;
+            // if(values.length > 0){
+            //     a = _.groupBy(sa.RegionList(), "Major_Region") 
+            //     b = _.groupBy(sa.RegionList(), "Region") 
+
+            //     _.forEach(values, function(vv,ii){
+            //       console.log(vv,ii)
+            //     })
+
+            //     if(values[0] == "GLOBAL"){
+            //         sa.Filter.Region("")
+            //         sa.Filter.Country("")
+            //     }
+            //     else if(values[0] in a){   
+            //         sa.Filter.Region(values[0])
+            //         sa.Filter.Country("")
+            //     } else{
+            //         tmp = _.find(sa.RegionList(), function(e){return e.Country == values[0]})
+            //         if(tmp == undefined){
+            //             sa.Filter.Region("")
+            //             sa.Filter.Country("")
+            //         } else{
+            //             getCountryCode = Enumerable.From(sa.RegionList()).Where("$.Country == '"+values[0]+"'").Select("$.CountryCode").ToArray();
+            //             sa.Filter.Region("")
+            //              sa.Filter.Country(getCountryCode[0])
+            //         }
+            //     }
+            //     sa.Filter.RegionCountryScorecard(true)
+
+            // } else{
+            //     sa.Filter.Region("")
+            //     sa.Filter.Country("")
+            //     sa.Filter.RegionCountryScorecard(false)
+            // }
+
+            sa.GetData();
+            
+            e.preventDefault();
+            
+        }
+    });
+
+    // $('#mytree ').data('kendoTreeView').expand(".k-item");
+    
+  }
+
+  $(document).ready(function(){
+    var UserCountry = "{{.UserCountry}}";
+    sa.Init();
+    setTimeout(function() {
+      createMultiSelectOneSelectedValue()
+      createTreeViewOneSelectedValue(UserCountry)
+    }, 600);
+
+    $("#lblSelectTreeOneSelectedValue").click(function(e) {
+        $("#treeview2").show();
+        setTimeout(function() {
+            $('.k-state-selected.k-in').addClass('my-selected-state').removeClass("k-state-selected");
+        }, 100);
+    })
+
+    $("#treeview2").on('click', '.k-icon', function () {
+        var tree = $("#treeview2").data('kendoTreeView');
+        var item = $(this).closest('.k-item');
+
+        if (item.attr('aria-expanded') === "true") {
+            $("#treeview2").css("overflow-y","scroll");
+        }
+        else {
+            // tree.expand(item);
+            $("#treeview2").css("overflow-y","auto");
+            
+        }
+        setTimeout(function() {
+            $('.k-state-selected.k-in').addClass('my-selected-state').removeClass("k-state-selected");
+        }, 100);
+    });
+
+    $('body').click(function(evt) {
+        if ($(evt.target).parents('#multiselectTree').length == 0) {
+            $("#treeview").hide();
+            // c.GetData();
+        }
+        if ($(evt.target).parents('#multiselectTreeOneSelectedValue').length == 0) {
+            $("#treeview2").hide();
+            // c.GetData();
+        }
+    });
+
+  })
+</script>
+<style type="text/css">
+#IdOptional {
+  padding: 0 !important;
+}
+#IdOptional .k-input,#IdOptional .k-select{
+    background: #333f50;
+    color: #FFF;
+    font-weight: normal;
+}
+#IdOptional .k-dropdown,#IdOptional .k-dropdown-wrap{
+  border:none;
+  padding: 0px;
+}
+#IdOptional .k-i-arrow-s {
+    background-position: -17px -32px;
+}
+.dropdownrag{
+  padding: 1px 1px !important;
+}
+/*.dropdownrag select{
+  height: 23px !important;
+}*/
+.dropdownrag .k-input,.dropdownrag .k-select{
+    background: #f2f2f2;
+    color: #000;
+}
+.dropdownrag .k-dropdown,.dropdownrag .k-dropdown-wrap{
+  border:none;
+  padding: 0px;
+}
+.dashboard-filter {
+    margin-top: 5px;
+}
+</style>
+<link href="/web-cb/static/css/core/dashboard.css?cache_counter=1" type="text/css" rel="stylesheet" />
+
+<div class="row" id="stagingarea" data-bind="with:sa">
+  <div class="col-sm-12" data-bind="visible:!InitProcess()" id="sa-header">
+      {{if (.StagingArea.Global.Update) or (.StagingArea.Region.Update) or (.StagingArea.Country.Update)}}
+      <div class="action-button">
+        <button class="btn btn-sm btn-success" data-bind="click:SaveAsDraft">Save</button>
+        <button class="btn btn-sm btn-warning" onclick="location.href=model.MainMenus()[0].Url()">Return</button>
+      </div>
+      {{end}}
+      <div id="filter" data-bind="with:Filter">
+        <div class="row">
+          <div class="col-md-5 col-sm-5 col-xs-5">
+            <div class="row">
+            <div class= "form-input dashboard-filter search col-sm-12">
+              <div class="col-sm-1 icon-for-dropdown">
+                  <i class="fa fa-search fa-2x begrey" style="font-size: 19px;margin-top: 4px" aria-hidden="true"></i>
+              </div>
+              <div class="searchh-wrapper col-md-10 col-sm-10 col-xs-10">
+                <input class="input-sm form-control width-percent100" data-bind="kendoAutoComplete: { data: $parent.BMList,search: BMID, value: Search, dataTextField:'businessmetric.DataPoint',dataValueField:'businessmetric.id',filter:'contains'}" >
+              </div>
+            </div>
+
+            </div>
+            <div class="row">
+              <div  class="form-input dashboard-filter dropdown col-sm-12">
+                      <div class="col-md-1 col-sm-1 icon-for-dropdown">
+                          <i class="fa fa-globe fa-2x begrey" aria-hidden="true"></i>
+                      </div>
+                      <div class="col-md-10 col-sm-10 col-xs-10">
+                          <div id="multiselectTreeOneSelectedValue" >
+                          <!--Kendo multiselect start-->
+                          <div id="lblSelectTreeOneSelectedValue">
+                              <select id="multiselectOneSelectedValue" multiple="multiple" placeholder="select leagal topics">
+                                  <option value="" >Select your option</option>
+                              </select>
+                          </div>
+                          <!--Kendo multiselect end-->
+                          <!--kendo tree view start-->
+                          <div id="treeview2" style="width: 90%">
+
+                              <div id='mytree2'></div>
+                          </div>
+                          <!--Kendo tree view end-->
+                          </div>
+                          <div  class="reset-countryregion fa fa-remove" id="reset-regioncountry2" data-bind="visible:sa.Filter.RegionCountryScorecard()" onclick="ResetCountryRegionFilter2()"></div>
+                      </div>
+                      
+              </div>
+              <!-- <div class="col-sm-6 form-input dashboard-filter dropdown">
+                      <div class="col-sm-2 icon-for-dropdown">
+                          <i class="fa fa-globe fa-2x begrey" aria-hidden="true"></i>
+                      </div>
+                      <div class="col-sm-10">
+                        <input data-bind="kendoDropDownList:{value:Region,data:$parent.RegionList,optionLabel:'Region'}">
+                      </div>
+        
+              </div>
+              <div class="col-sm-6  form-input dashboard-filter dropdown">
+                      <div class="col-sm-2 icon-for-dropdown">
+                          <i class="fa fa-map-marker fa-2x begrey" aria-hidden="true"></i>
+                      </div>
+                      <div class="col-sm-10">
+                        <input data-bind="kendoDropDownList:{value:Country,data:$parent.CountryList,optionLabel:'Country',dataTextField:'Country',dataValueField:'CountryCode'}">
+                      </div>
+            
+              </div> -->
+            </div>
+          </div>
+          <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+            <div class="row" id="filter-period">
+              <div class="form-label col-md-2 col-sm-2 no-padding-right">From :</div>
+              <div class="form-input dashboard-filter dropdown col-md-4 col-sm-4">
+                <input data-bind="kendoDatePicker:{value:From, depth:'year', start: 'year', format: 'MMM-yyyy'}, attr:{placeholder:'From'}">
+              </div>
+              <div class="form-label col-md-2 col-sm-2">To :</div>
+              <div class="form-input dashboard-filter dropdown col-md-4 col-sm-4">
+                <input data-bind="kendoDatePicker:{value:To,  depth:'year', start: 'year', format: 'MMM-yyyy'}, attr:{placeholder:'To'}">
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-2" id="export-action">
+            <button class="btn btn-sm btn-success" title="EXCEL" data-bind="click:sa.ExportXLS"><i class="fa fa-file-excel-o"></i></button>
+            <button class="btn btn-sm btn-danger" title="PDF" onclick="sa.ExportPDF()"><i class="fa fa-file-pdf-o"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="action-button" id="publish-button">
+        {{if (.StagingArea.Global.Update) or (.StagingArea.Region.Update) or (.StagingArea.Country.Update)}}
+        <button class="btn btn-sm btn-primary wrap-textmen" data-bind="click:sa.Publish">Publish to Scorecard</button>
+        {{end}}
+      </div>
+  </div>
+  <div class="loader col-sm-12 text-center" data-bind="visible:sa.Processing()||sa.InitProcess()">
+        <img src="/web-cb/static/img/hex-loader2.gif">
+  </div>
+  <div class="col-sm-12" data-bind="visible:!sa.Processing()&&!sa.InitProcess()" id="sa-data">
+    <table width="100%">
+      <thead>
+        <tr>
+          <th width="14%" rowspan="3">Metrics</th>
+          <th width="6%" rowspan="2" data-bind="attr:{'style':(IsEditingBaseline()?'background:#ed7d31;':'')}">Baseline<br/><span data-bind="text:SelectedYear"></span></th>
+          <th><div id="IdOptional"><input data-bind="kendoDropDownList:{value:sa.OptionalValue, data:sa.OptionalList, dataTextField:'Text', dataValueField:'Id'}"></div></th>
+          <th width="6%" rowspan="3" data-bind="attr:{'style':(IsEditingActualYTD()?'background:#ed7d31;':'')}">YTD<br/>Actual<br/><span data-bind="text:SelectedYear"></span></th>
+          <th width="6%" rowspan="2" data-bind="attr:{'style':(IsEditingForecast()?'background:#ed7d31;':'')}">Full Year<br/>Forecast<br/><span data-bind="text:SelectedYear"></span></th>
+          <th width="6%" rowspan="2" data-bind="attr:{'style':(IsEditingTarget()?'background:#ed7d31;':'')}">Target<br/><span data-bind="text:SelectedYear"></span></th>
+        </tr>
+        <tr>
+          <th data-bind="foreach:sa.SelectedPeriod">
+            <div data-bind="text:Title,attr:{'style':(IsEditing()?'background:#ed7d31;':'')+'float:left;width:'+(100/sa.SelectedPeriod().length)+'%;'}"></div>
+          </th>
+        </tr>
+        {{if (.StagingArea.Global.Update) or (.StagingArea.Region.Update) or (.StagingArea.Country.Update)}}
+        <tr>
+          <th>
+            <div class="button-edit" onclick="sa.IsEditingBaseline(!sa.IsEditingBaseline())" data-bind="attr:{'style':(IsEditingBaseline()?'display:none;':'')+'float:left;width:100%;'}">Edit</div>
+            <div class="button-save" onclick="sa.IsEditingBaseline(!sa.IsEditingBaseline())" data-bind="attr:{'style':(!IsEditingBaseline()?'display:none;':'')+'float:left;width:100%;'}">Save</div>
+          </th>
+          <th data-bind="foreach:sa.SelectedPeriod">
+            <div class="button-edit" data-bind="click:sa.Edit,attr:{'style':(IsEditing()?'display:none;':'')+'float:left;width:'+(100/sa.SelectedPeriod().length)+'%;'}">Edit</div>
+            <div class="button-save" data-bind="click:sa.Save,attr:{'style':(!IsEditing()?'display:none;':'')+'float:left;width:'+(100/sa.SelectedPeriod().length)+'%;'}">Save</div>
+          </th>
+          <!-- <th>
+            <div class="button-edit" onclick="sa.IsEditingActualYTD(!sa.IsEditingActualYTD())" data-bind="attr:{'style':(IsEditingActualYTD()?'display:none;':'')+'float:left;width:100%;'}">Edit</div>
+            <div class="button-save" onclick="sa.IsEditingActualYTD(!sa.IsEditingActualYTD())" data-bind="attr:{'style':(!IsEditingActualYTD()?'display:none;':'')+'float:left;width:100%;'}">Save</div>
+          </th> -->
+          <th>
+            <div class="button-edit" onclick="sa.IsEditingForecast(!sa.IsEditingForecast())" data-bind="click:sa.EditForecast,attr:{'style':(IsEditingForecast()?'display:none;':'')+'float:left;width:100%;'}">Edit</div>
+            <div class="button-save" onclick="sa.IsEditingForecast(!sa.IsEditingForecast())" data-bind="attr:{'style':(!IsEditingForecast()?'display:none;':'')+'float:left;width:100%;'}">Save</div>
+          </th>
+          <th>
+            <div class="button-edit" onclick="sa.IsEditingTarget(!sa.IsEditingTarget())" data-bind="click:sa.EditTarget,attr:{'style':(IsEditingTarget()?'display:none;':'')+'float:left;width:100%;'}">Edit</div>
+            <div class="button-save" onclick="sa.IsEditingTarget(!sa.IsEditingTarget())" data-bind="attr:{'style':(!IsEditingTarget()?'display:none;':'')+'float:left;width:100%;'}">Save</div>
+          </th>
+        </tr>
+        {{end}}
+      </thead>
+      <tbody data-bind="foreach:sa.Data">
+        <tr>
+          <td colspan="6" class="businessmetric" data-bind="click:sa.Expand">
+            
+            <i data-bind="visible:!IsExpand()" class="fa fa-caret-down"></i>
+            <i data-bind="visible:IsExpand()" class="fa fa-caret-right"></i>
+            
+            &nbsp;<span data-bind="text:DataPoint"></span>
+            &nbsp;<img src="/web-cb/static/img/new-loading.gif" height="10px" data-bind="visible: LoaderBMId()">
+
+            <span class="fa fa-bell" style="color: #ffd80c;" data-bind="visible:sa.OptionalValue() == 'ActualYTD' && $data.NotificationOwnerTrigger"></span>
+            <span class="fa fa-bell" style="color: #ffd80c;" data-bind="visible:sa.OptionalValue() == 'Budget' && $data.NotificationFinanceTrigger"></span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="6" data-bind="visible:IsExpand()">
+            <table width="100%" class="data-list">
+              <tbody data-bind="foreach:DataList">
+                <tr data-bind="attr:{style:sa.GetRowStyle($data)}">
+                  <td width="14%" class="countryname" data-bind="text:CountryName"></td>
+                  <td width="6%" class="actual-value">
+                    <div data-bind="text:BaseLine()===''?'N/A':($parents[0].MetricType() == 'PERCENTAGE' ? kendo.toString(BaseLine(),'N'+$parents[0].DecimalFormat()) + ' %' : kendo.toString(BaseLine(),'N'+$parents[0].DecimalFormat())),attr:{'style':(sa.IsEditingBaseline()?'display:none;':'')+'width:100%;'+
+                    (BaseLine()!==PrevBaseLine()?'background:#fff2ce':'')
+                    }"></div>
+                    <input data-bind="value:BaseLine,attr:{'style':(!sa.IsEditingBaseline()?'display:none;':'')+'width:100%;'}"/>
+                  </td>
+                  
+                  <td class="actual-value" data-bind="foreach:sa.SelectedPeriod,visible:sa.OptionalValue() == 'ActualYTD'">
+                    <div data-bind="text:$parent[$data.Period()]()===''?'N/A':($parents[1].MetricType() == 'PERCENTAGE' ? kendo.toString($parent[$data.Period()](),'N'+$parents[1].DecimalFormat()) + ' %' : kendo.toString($parent[$data.Period()](),'N'+$parents[1].DecimalFormat())),attr:{'style':(IsEditing()?'display:none;':'')+'width:'+(100/sa.SelectedPeriod().length)+'%;'+
+                    ($parent[$data.Period()]()!==$parent['Prev'+$data.Period()]()?'background:#fff2ce':''), 'class':'owner-'+$parents[1].BMId()+'-'+$parent.CountryName().split(' ').join('')+'-'+$data.Period()
+                    }"></div>
+                    <input data-bind="value:$parent[$data.Period()],attr:{'style':(!IsEditing()?'display:none;':'')+'width:'+(100/sa.SelectedPeriod().length)+'%;'}"/>
+                  </td>
+
+                  <td class="actual-value" data-bind="foreach:sa.SelectedPeriod,visible:sa.OptionalValue() == 'Budget'">
+                    <div data-bind="text:$parent['Budget'+$data.Period()]()===''?'N/A':($parents[1].MetricType() == 'PERCENTAGE' ? kendo.toString($parent['Budget'+$data.Period()](),'N'+$parents[1].DecimalFormat()) + ' %' : kendo.toString($parent['Budget'+$data.Period()](),'N'+$parents[1].DecimalFormat())),attr:{'style':(IsEditing()?'display:none;':'')+'width:'+(100/sa.SelectedPeriod().length)+'%;'+
+                    ($parent['Budget'+$data.Period()]()!==$parent['PrevBudget'+$data.Period()]()?'background:#fff2ce':''), 'class':'finance-'+$parents[1].BMId()+'-'+$parent.CountryName().split(' ').join('')+'-'+$data.Period()
+                    }"></div>
+                    <input data-bind="value:$parent['Budget'+$data.Period()],attr:{'style':(!IsEditing()?'display:none;':'')+'width:'+(100/sa.SelectedPeriod().length)+'%;'}"/>
+                  </td>
+
+                  <td class="actual-value" data-bind="foreach:sa.SelectedPeriod,visible:sa.OptionalValue() == 'RAG'">
+                    <div data-bind="text:'&nbsp;',attr:{'style':(IsEditing()?'display:none;':'')+'width:'+(100/sa.SelectedPeriod().length)+'%;'+
+                    ($parent['RAG'+$data.Period()]()=='red'?'background:#f74e4e':$parent['RAG'+$data.Period()]()=='amber'?'background:#ffd24d':$parent['RAG'+$data.Period()]()=='green'?'background:#6ac17b':'background:#f2f2f2')
+                    }"></div>
+                    <div class="dropdownrag" data-bind="visible: IsEditing(),attr:{'style':(!IsEditing()?'display:none;':'')+'width:'+(100/sa.SelectedPeriod().length)+'%;'}">
+                      <select class="form-control fc-modified-1" data-bind="value: $parent['RAG'+$data.Period()]">
+                        <option value="">RAG</option>
+                        <option value="amber">AMBER</option>
+                        <option value="green">GREEN</option>
+                        <option value="red">RED</option>
+                      </select>
+                      <!-- <select data-bind="kendoDropDownList:{value:$parent['RAG'+$data.Period()], data:sa.RAGList, dataTextField:'Text', dataValueField:'Id', optionLabel: 'RAG'}"></select>   -->
+                    </div>
+                  </td>
+
+                  <!-- <td width="6%" data-bind="text:YTDActual()===130895111188?'N/A':YTDActual()"></td> -->
+                  <td width="6%" class="actual-value">
+                    <div data-bind="text:YTDActual()===''?'N/A':($parents[0].MetricType() == 'PERCENTAGE' ? kendo.toString(YTDActual(),'N'+$parents[0].DecimalFormat()) + ' %' : kendo.toString(YTDActual(),'N'+$parents[0].DecimalFormat())),attr:{'style':(sa.IsEditingActualYTD()?'display:none;':'')+'width:100%;'+
+                    (YTDActual()!==PrevYTDActual()?'background:#fff2ce':'')
+                    }"></div>
+                    <input data-bind="value:YTDActual,attr:{'style':(!sa.IsEditingActualYTD()?'display:none;':'')+'width:100%;'}"/>
+                  </td>
+
+                  <!-- <td width="6%" data-bind="text:FullYearForecast()===130895111188?'N/A':FullYearForecast()"></td> -->
+                  <td width="6%" class="actual-value">
+                    <div data-bind="text:FullYearForecast()===''?'N/A':($parents[0].MetricType() == 'PERCENTAGE' ? kendo.toString(FullYearForecast(),'N'+$parents[0].DecimalFormat()) + ' %' : kendo.toString(FullYearForecast(),'N'+$parents[0].DecimalFormat())),attr:{'style':(sa.IsEditingForecast()?'display:none;':'')+'width:100%;'+
+                    (FullYearForecast()!==PrevFullYearForecast()?'background:#fff2ce':'')
+                    }"></div>
+                    <input data-bind="value:FullYearForecast,attr:{'style':(!sa.IsEditingForecast()?'display:none;':'')+'width:100%;'}"/>
+                  </td>
+
+                  <!-- <td width="6%" data-bind="text:Target()===130895111188?'N/A':Target()"></td> -->
+                  <td width="6%" class="actual-value">
+                    <div data-bind="text:Target()===''?'N/A':($parents[0].MetricType() == 'PERCENTAGE' ? kendo.toString(Target(),'N'+$parents[0].DecimalFormat()) + ' %' : kendo.toString(Target(),'N'+$parents[0].DecimalFormat())),attr:{'style':(sa.IsEditingTarget()?'display:none;':'')+'width:100%;'+
+                    (Target()!==PrevTarget()?'background:#fff2ce':'')
+                    }"></div>
+                    <input data-bind="value:Target,attr:{'style':(!sa.IsEditingTarget()?'display:none;':'')+'width:100%;'}"/>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}

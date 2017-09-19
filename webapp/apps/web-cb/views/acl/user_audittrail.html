@@ -1,0 +1,120 @@
+<script type="text/javascript">
+	var UserAuditTrail = {
+		Processing:ko.observable(false),
+		StartPeriod:ko.observable(),
+		EndPeriod:ko.observable(),
+	}
+	UserAuditTrail.GetUserMetrics = function(){
+		UserAuditTrail.Processing(true)
+		ajaxPost("/web-cb/acl/getusermetricsreport",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			// console.log(res)
+			setTimeout(function() {
+				UserAuditTrail.Processing(false)
+				location.href = "/web-cb/static/download/"+encodeURIComponent(res.Data);
+			}, 500);
+		})
+	}
+	UserAuditTrail.GetRoleMetrics = function(){
+		UserAuditTrail.Processing(true)
+		ajaxPost("/web-cb/acl/getrolemetricsreport",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			// console.log(res)
+			setTimeout(function() {
+				UserAuditTrail.Processing(false)
+				location.href = "/web-cb/static/download/"+encodeURIComponent(res.Data);
+			}, 500);
+		})
+	}
+	UserAuditTrail.GetFilterAuditTrail = function(){
+		$("#filterModal").modal("show");
+	}
+	UserAuditTrail.GetAuditTrail = function(){
+		var parm = {
+			StartPeriod:kendo.toString(UserAuditTrail.StartPeriod(),"yyyyMMdd"),
+			EndPeriod:kendo.toString(UserAuditTrail.EndPeriod(),"yyyyMMdd"),
+		};
+		UserAuditTrail.Processing(true)
+		ajaxPost("/web-cb/acl/getaudittrailreport",parm,function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			setTimeout(function() {
+				UserAuditTrail.Processing(false)
+				location.href = "/web-cb/static/download/"+encodeURIComponent(res.Data);
+			}, 500);
+		})
+	}
+
+	UserAuditTrail.GetData = function(){
+		
+	}
+	$(document).ready(function(){
+		var StartPeriod  = (new Date).setDate(1);
+		UserAuditTrail.StartPeriod(new Date(StartPeriod));
+		UserAuditTrail.EndPeriod(new Date());
+	})
+</script>
+<style type="text/css">
+	.loader{
+		text-align: center;
+		height: 250px;
+    	padding: 50px 10px;
+	}
+	.loader img{
+		height: 100%;
+	}
+	.text-center {
+		text-align: center;
+	}
+</style>
+<div data-bind="with:UserAuditTrail, visible:!UserAuditTrail.Processing()">
+	<div>
+		<button onclick="UserAuditTrail.GetUserMetrics();" class="btn btn-sm btn-success">User Metrics Report</button>
+		<button onclick="UserAuditTrail.GetRoleMetrics();" class="btn btn-sm btn-success">Role Metrics Report</button>
+		<button onclick="UserAuditTrail.GetFilterAuditTrail();" class="btn btn-sm btn-success">Audit Trail Report</button>
+	</div>
+
+
+	<!-- Start Modal -->
+	<div id="filterModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog" style="width: 300px;">
+	    <!-- Modal content-->
+	    <div class="modal-content" id="form">
+			<div class="modal-header" style="padding: 10px 15px;">
+				<h5 class="modal-title">Audit Trail Report Filter</h5>
+			</div>
+	      <div class="modal-body">
+	        <div class="row">
+	        	<label class="col-sm-4">Start</label>
+	        	<div class="col-sm-8">
+					<input data-bind="kendoDatePicker:{value:StartPeriod,format:'dd-MMM-yyyy'}">
+	        	</div>
+	        </div>
+	        <div class="row">
+	        	<label class="col-sm-4">End</label>
+	        	<div class="col-sm-8">
+	        		<input data-bind="kendoDatePicker:{value:EndPeriod,format:'dd-MMM-yyyy'}">
+	        	</div>
+	        </div>
+	      </div>
+	      <div class="modal-footer text-center">
+	        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+	        &nbsp;
+	        <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal" onclick="UserAuditTrail.GetAuditTrail();">Download Now</button>
+	      </div>
+	    </div>
+
+	  </div>
+	</div>
+</div>
+<div data-bind="visible:UserAuditTrail.Processing()" class="loader col-sm-12 text-center">
+	<img src="/web-cb/static/img/hex-loader2.gif">
+</div>

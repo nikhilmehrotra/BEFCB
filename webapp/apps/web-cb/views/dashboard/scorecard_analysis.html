@@ -1,0 +1,65 @@
+<!-- Work Space for Ujiek -->
+<link href="/web-cb/static/css/core/scorecard_analysis.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/scorecard_analysis.js"></script>
+<div class="modal fade" id="Scorecard-Analysis" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document" data-bind="with: ScorecardAnalysis" style="width: 1320px;">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title" data-bind="text: Name"></h5>
+      </div>
+      <div class="modal-body">
+          <div class="row" id="ScorecardCountryAnalysisandFullYear">
+              <div class="col-sm-12">
+                <ul class="nav nav-pills" role="tablist">
+                  <li data-bind="visible:!ScorecardAnalysis.IsMetricsCountryRanking(), attr:{class:!ScorecardAnalysis.IsMetricsCountryRanking() ? 'def active' : ''}" onclick="ScorecardCountryAnalysis.Get()"><a href="#sc_countryanalysis" role="tab" data-toggle="tab">
+                    <i class="fa fa-database"></i>&nbsp;
+                    Country Analysis
+                  </a></li>
+                  <li class="nondef" data-bind="visible:!ScorecardAnalysis.IsMetricsCountryRanking()&&ScorecardAnalysis.IsRelativeCumulative()" onclick="ScorecardFullyearProjection.Get()"><a href="#sc_fullyearprojection" role="tab" data-toggle="tab">
+                    <i class="fa fa-database"></i>&nbsp;
+                    Full Year Projection (Budget)
+                  </a></li>
+                  <li class="nondef" data-bind="visible:!ScorecardAnalysis.IsMetricsCountryRanking()" onclick="ScorecardFullyearRanking.Get()"><a href="#sc_fullyearranking" role="tab" data-toggle="tab">
+                    <i class="fa fa-database"></i>&nbsp;
+                    Full Year Ranking
+                  </a></li>
+                  <!-- <li data-bind="visible:ScorecardAnalysis.IsMetricsCountryRanking(), attr:{class:!ScorecardAnalysis.IsMetricsCountryRanking() ? '' : 'active'}" onclick="ScorecardMetricCountryRanking.Get()"><a href="#sc_metriccountryranking" role="tab" data-toggle="tab">
+                    <i class="fa fa-database"></i>&nbsp;
+                    Metrics Country Ranking
+                  </a></li> -->
+                </ul>   
+                <div class="tab-content">
+                  <div role="tabpanel" id="sc_countryanalysis" data-bind=" attr:{class:!ScorecardAnalysis.IsMetricsCountryRanking() ? 'def tab-pane active' : 'tab-pane'}">
+                    <div data-bind="visible: !ScorecardAnalysis.Processing()">
+                      {{template "scorecard_countryanalysis.html" .}}
+                    </div>
+                    <div class="loader col-sm-12 text-center" data-bind="visible:ScorecardAnalysis.Processing()">
+                      <img src="/web-cb/static/img/hex-loader2.gif">
+                    </div>
+                  </div>
+                  <div role="tabpanel" class="tab-pane nondef" id="sc_fullyearprojection" data-bind="visible:!ScorecardAnalysis.IsMetricsCountryRanking()">
+                    {{template "scorecard_fullyearprojection.html" .}}
+                  </div>
+
+                  <div role="tabpanel" class="tab-pane nondef" id="sc_fullyearranking" data-bind="visible:!ScorecardAnalysis.IsMetricsCountryRanking()">
+                    {{template "scorecard_fullyearranking.html" .}}
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="sc_metriccountryranking" data-bind=" attr:{class:!ScorecardAnalysis.IsMetricsCountryRanking() ? 'tab-pane' : 'tab-pane active'}">
+                    <div data-bind="visible: !ScorecardAnalysis.Processing()">
+                      {{template "scorecard_metriccountryranking.html" .}}
+                    </div>
+                    <div class="loader col-sm-12 text-center" data-bind="visible:ScorecardAnalysis.Processing()">
+                      <img src="/web-cb/static/img/hex-loader2.gif">
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

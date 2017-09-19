@@ -1,0 +1,201 @@
+{{if (or (.BEFSponsor.Global.Upload) (.BEFSponsor.Region.Upload) (.BEFSponsor.Country.Upload))}}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (or (.BEFSponsor.Global.Curtain) (.BEFSponsor.Region.Curtain) (.BEFSponsor.Country.Curtain))}}
+{{template "initiative_chart.html" .}}
+{{end}}
+<script type="text/javascript">
+	model.PageId("BEFSponsor");
+	var BEFSponsor = {
+		Processing:ko.observable(true),
+		Mode:ko.observable(""),
+		DataList:ko.observableArray([]),
+		FormValue:ko.observable(),
+	}
+	// UI Magician :
+	BEFSponsor.Create = function(){
+		BEFSponsor.Mode("create");
+		BEFSponsor.FormValue().Id("");
+		BEFSponsor.FormValue().Name("");
+		BEFSponsor.FormValue().IsDeleted(false);
+	}
+	BEFSponsor.Save = function(){
+		
+			BEFSponsor.Mode("");
+			var parm = {
+				SponsorData:ko.mapping.toJS(BEFSponsor.FormValue)
+			}
+			parm.SponsorID = parm.SponsorData.Id;
+			parm.Name = parm.SponsorData.Name;
+			if(parm.Name.trim()=== ""){
+				swal("Please input who are the user you want add", "", "info");
+				return false;
+			}
+			var checkdata = Enumerable.From(BEFSponsor.DataList()).Where("$.Name==='"+parm.Name+"'").FirstOrDefault();
+			if(typeof checkdata!=="undefined" && parm.SponsorID == ""){
+				swal("This user has been set as BEF Sponsor", "", "info");
+				return false;
+			}
+			ajaxPost("/web-cb/befsponsor/save",parm,function(res){
+				swal("Saved!", "", "success");
+				BEFSponsor.GetData();
+			});
+	}
+	BEFSponsor.Edit = function(id){
+		var data = ko.mapping.toJS(Enumerable.From(BEFSponsor.DataList()).Where("$.Id == '"+id+"'").FirstOrDefault());
+		BEFSponsor.FormValue(ko.mapping.fromJS(data));
+		BEFSponsor.Mode("edit");
+	}
+	BEFSponsor.Delete = function(id){
+		swal({
+		  title: "Are you sure?",
+		  text: "You will not be able to recover this!",
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: "#DD6B55",
+		  confirmButtonText: "Yes, remove it!",
+		  closeOnConfirm: false
+		},
+		function(){
+			BEFSponsor.Mode("");
+			var parm = {
+				SponsorID:id
+			}
+			ajaxPost("/web-cb/befsponsor/delete",parm,function(res){
+				swal("Deleted!", "Your selected sponsor has been removed.", "success");
+				BEFSponsor.GetData();
+			});
+		});
+	}
+	BEFSponsor.Cancel = function(){
+		BEFSponsor.Mode("");
+	}
+	BEFSponsor.Render = function(dataSource){
+		for(var i in dataSource){
+			dataSource[i].Updated_Date = new Date();
+			dataSource[i].Updated_By = "eaciit"; 
+		}
+		$("#grid").kendoGrid({
+		    selectable: "multiple cell",
+		    scrollable:false,
+		    filterable:true,
+		    sortable:true,
+		    columns: [
+		        { field: "Name" },
+		        { 
+		        	title: "Last Updated", 
+		        	width:200,
+		        	template:"#:kendo.toString(Updated_Date,'dd-MMM-yyyy hh:mm tt')# by #:Updated_By#",
+		    	},
+		    	{{if (or (.BEFSponsor.Global.Update) (.BEFSponsor.Region.Update) (.BEFSponsor.Country.Update) (.BEFSponsor.Global.Delete) (.BEFSponsor.Region.Delete) (.BEFSponsor.Country.Delete)) }}
+            	{
+		        	title:"",
+		        	width:60,
+		        	template:
+		        	{{if (or (.BEFSponsor.Global.Update) (.BEFSponsor.Region.Update) (.BEFSponsor.Country.Update)) }}
+		        	"<button class='btn btn-xs btn-warning' onclick='BEFSponsor.Edit(\"#:Id#\")'><i class='fa fa-pencil'></i></button> "
+		        	{{else}}
+		        		""
+		        	{{end}}
+		        	{{if (or (.BEFSponsor.Global.Delete) (.BEFSponsor.Region.Delete) (.BEFSponsor.Country.Delete)) }}
+		        	+"<button class='btn btn-xs btn-danger' onclick='BEFSponsor.Delete(\"#:Id#\")'><i class='fa fa-times'></i></button>"
+		        	{{end}}
+		    	}
+		    	{{end}}
+		    ],
+		    dataSource:dataSource
+		});
+	}
+	// Get Data From Sources : 
+	BEFSponsor.GetPrototype = function(){
+		ajaxPost("/web-cb/befsponsor/getprototype",{},function(res){
+			BEFSponsor.FormValue(ko.mapping.fromJS(res.Data));
+		});
+	}
+	BEFSponsor.GetData = function(){
+		var parm = {
+			IsDeleted:false
+		};
+		ajaxPost("/web-cb/befsponsor/getdata",parm,function(res){
+			BEFSponsor.DataList(res.Data);
+			BEFSponsor.Render(res.Data);
+			BEFSponsor.Processing(false);
+		});
+	}
+	BEFSponsor.Init = function(){
+		BEFSponsor.GetPrototype();
+		BEFSponsor.GetData();
+	}
+	$(document).ready(function(){
+		{{if (or (.BEFSponsor.Global.Read) (.BEFSponsor.Region.Read) (.BEFSponsor.Country.Read)) }}
+			BEFSponsor.Init();
+		{{else}}
+		BEFSponsor.Processing(false);
+		{{end}}
+	})
+</script>
+<style type="text/css">
+	#BEFSponsor{
+		margin-top: 10px;
+	}
+	#BEFSponsor .actionbutton{
+		margin-bottom: 5px;
+	}
+	#BEFSponsor .hide{
+		display: none;
+	}
+	#BEFSponsor .form-wrapper{
+		margin-bottom: 15px;
+	}
+	#BEFSponsor .form-input{
+		line-height: 25px;
+		padding-right: 0px;
+	}
+	#BEFSponsor .form-input:after{
+		content: ":";
+		float: right;
+	}
+</style>
+<div data-bind="with:BEFSponsor" id="BEFSponsor">
+	<div class="row" data-bind="visible:!Processing()">
+		<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+			<div class="row actionbutton">
+				<h4 class="col-lg-4 col-md-4 col-sm-4 col-xs-4">BEF Sponsor</h4>
+				{{if (or (.BEFSponsor.Global.Create) (.BEFSponsor.Region.Create) (.BEFSponsor.Country.Create)) }}
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right" data-bind="visible:Mode()===''">
+						<button class="btn btn-sm btn-primary" data-bind="click:BEFSponsor.Create">
+							Create New Sponsor
+						</button>
+					</div>
+				{{end}}
+
+
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right" data-bind="visible:Mode()!==''">
+					<button class="btn btn-sm btn-success" data-bind="click:BEFSponsor.Save">
+						Save
+					</button>
+					<button class="btn btn-sm btn-warning" data-bind="click:BEFSponsor.Cancel">
+						Cancel
+					</button>
+				</div>
+			</div>
+
+			<div class="row form-wrapper" data-bind="visible:Mode()!=='',with:FormValue">
+				<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 form-input">
+					BEF Sponsor Name
+				</label>
+				<div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+					<input type="text" class="form-control input-sm" data-bind="value:Name">
+				</div>
+			</div>
+
+			<div class="row" data-bind="visible:Mode()==''">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					{{if (or (.BEFSponsor.Global.Read) (.BEFSponsor.Region.Read) (.BEFSponsor.Country.Read)) }}
+						<div id="grid"></div>
+					{{end}}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

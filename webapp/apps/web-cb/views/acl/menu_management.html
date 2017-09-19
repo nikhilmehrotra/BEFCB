@@ -1,0 +1,374 @@
+<script type="text/javascript">
+	var MenuManagement = {
+		Mode:ko.observable(""),
+		IsFormOpen:ko.observable(false),
+		Processing:ko.observable(false),
+		Data:ko.observable(),
+		MenuData:ko.observable(),
+
+		// Data Source
+		AccessTypeList:ko.observableArray([
+			{value:2,title:"Menu"},
+			{value:5,title:"Tabular"},
+		]),
+		ParentList:ko.observableArray([]),
+		ListMenu:ko.observableArray([]),
+		TreelistView:ko.observableArray([]),
+		ListMenuTree:ko.observableArray([]),
+		SourceDataMenu: ko.observable(),
+		MenuSelectedId:ko.observable(""),
+	}
+	MenuManagement.Add = function(){
+		MenuManagement.Data(ko.mapping.fromJS(MenuManagement.MenuData()))
+		MenuManagement.IsFormOpen(true);
+		MenuManagement.Mode("create");
+	}
+	MenuManagement.Edit = function(){
+		var id = MenuManagement.MenuSelectedId();
+		ajaxPost("/web-cb/acl/getmenu",{Id:id},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			MenuManagement.OpenEditForm(res.Data)
+		});
+	}
+	MenuManagement.OpenEditForm = function(d){
+		MenuManagement.Mode("update");
+		MenuManagement.Data(ko.mapping.fromJS(d));
+		MenuManagement.IsFormOpen(true);
+	}
+	MenuManagement.Save = function(){
+		var validator = $("#MenuManagement").data("kendoValidator")
+		if(validator==undefined){
+       		validator= $("#MenuManagement").kendoValidator().data("kendoValidator");
+  		}
+  		if (validator.validate()) {
+			swal({
+			  title: "",
+			  text: 'Are You Sure?',
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonClass: "btn-danger",
+			  confirmButtonText: "Yes, Save Now",
+			  closeOnConfirm: true
+			},
+			function(){			
+				var data = ko.mapping.toJS(MenuManagement.Data());
+				data.ID = data._id;
+				data.Category = parseInt(data.Category)
+				data.Index = parseInt(data.Index)
+				ajaxPost("/web-cb/acl/savemenu",{Mode:MenuManagement.Mode(),Data:data},function(res){
+					if (res.IsError) {
+						swal("", res.Message, "info");
+						return false;
+					}
+					setTimeout(function(){swal('Save success', '', 'success');},100);
+					MenuManagement.IsFormOpen(false);
+					MenuManagement.Mode("");
+					MenuManagement.GetData();
+					$('body').animate({scrollTop:0}, 500, 'swing');
+				});
+			});
+  			
+		}	
+	}
+	MenuManagement.Cancel = function(){
+		MenuManagement.MenuSelectedId("");
+		MenuManagement.Mode("");
+		MenuManagement.IsFormOpen(false);
+	}
+	MenuManagement.Remove = function(){
+		var id = MenuManagement.MenuSelectedId();
+		swal({
+		  title: "",
+		  text: 'Are you sure, this data cannot be restore?',
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonClass: "btn-danger",
+		  confirmButtonText: "Yes, Delete Now",
+		  closeOnConfirm: true
+		},
+		function(){	
+			ajaxPost("/web-cb/acl/removemenu",{Id:id},function(res){
+				if (res.IsError) {
+					swal("", res.Message, "info");
+					return false;
+				}
+				MenuManagement.Mode("");
+				setTimeout(function(){swal('Delete success', '', 'success');},100);
+				MenuManagement.GetData();
+			});
+		});
+	}
+	MenuManagement.GetData = function(){
+		MenuManagement.MenuSelectedId("");
+		ajaxPost("/web-cb/acl/getmenulist",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			MenuManagement.Render(res.Data);
+		})
+	}
+	MenuManagement.Render = function(dataSource){
+		$("#MenuList").html("");
+		var dataTree =  MenuManagement.convert(dataSource);
+        var spacer = "--";
+        var listSubmenu = [];
+        MenuManagement.ListMenu([{title: "[TOP LEVEL]", Id: ""}]);
+    	MenuManagement.TreelistView([]);
+        for (var i in dataTree){
+            if (dataTree[i].Submenus.length  != 0 ){
+                MenuManagement.ListMenu.push({
+                        "title" : spacer + " " + dataTree[i].title,
+                        "Id" : dataTree[i]._id
+                    });
+                MenuManagement.SubMenuMaster(dataTree[i].Submenus, spacer);
+                //=================== 
+                MenuManagement.TreelistView.push({
+                    "_id" : dataTree[i]._id,
+                    "title" : dataTree[i].title,
+                    "url" : "#",
+                    "icon" : dataTree[i].icon,
+                    "parentid" : dataTree[i].parentid,
+                    "index" : dataTree[i].index,
+                    "enable" : dataTree[i].enable,
+                });
+                MenuManagement.subtreelist(dataTree[i].Submenus);
+
+            }else{
+                MenuManagement.ListMenu.push({
+                        "title" : spacer + " " + dataTree[i].title,
+                        "Id" : dataTree[i]._id
+                    });
+
+                MenuManagement.TreelistView.push({
+                    "_id" : dataTree[i]._id,
+                    "title" : dataTree[i].title,
+                    "url" : "#",
+                    "icon" : dataTree[i].icon,
+                    "parentid" : dataTree[i].parentid,
+                    "index" : dataTree[i].index,
+                    "enable" : dataTree[i].enable,
+                });
+
+            }
+        }
+
+        var sortdataTree =  MenuManagement.convert(MenuManagement.TreelistView());
+        MenuManagement.ListMenuTree(sortdataTree);
+
+        var inline = new kendo.data.HierarchicalDataSource({
+                        data: MenuManagement.ListMenuTree(),
+                        schema: {
+                            model: {
+                                children: "Submenus"
+                            }
+                        }
+                    }); 
+
+
+        var treeview = $("#MenuList").kendoTreeView({
+            animation: false,
+            template: kendo.template($("#menulist-template").html()),
+            dataTextField: "Title",
+            dataSource:inline,
+            select: MenuManagement.selectDirFolder,
+            loadOnDemand: false
+        }).data("kendoTreeView");
+        treeview.expand(".k-item");
+		// $("#MenuList").html();
+	}
+
+	MenuManagement.selectDirFolder = function(e){
+		MenuManagement.MenuSelectedId($(e.node).find("input").val());
+	}
+
+	MenuManagement.Init = function(){
+		ajaxPost("/web-cb/acl/getmenumanagementreferences",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			var d = res.Data;
+			d.MenuData.Category = 2;
+			MenuManagement.MenuData(d.MenuData);
+			MenuManagement.Data(undefined)
+			MenuManagement.GetData();
+		})
+	}
+	$(document).ready(function(){
+		MenuManagement.Init();
+	})
+
+	MenuManagement.convert = function (array){
+	    var map = {};
+	    for(var i = 0; i < array.length; i++){
+	        var obj = array[i];
+	        obj.Submenus= [];
+
+	        map[obj._id] = obj;
+
+	        var parent = obj.parentid || '-';
+	        if(!map[parent]){
+	            map[parent] = {
+	                Submenus: []
+	            };
+	        }
+	        map[parent].Submenus.push(obj);
+	    }
+	    return map['-'].Submenus;
+	}
+
+	MenuManagement.SubMenuMaster = function(SubData, spacer){
+	    spacer += "--";
+	    for (var i in SubData){
+	            if (SubData[i].Submenus.length != 0 ){
+	                MenuManagement.ListMenu.push({
+	                        "title" : spacer + " " + SubData[i].title,
+	                        "Id" : SubData[i]._id
+	                    });
+	                MenuManagement.SubMenuMaster(SubData[i].Submenus, spacer);
+	            }else{
+	                MenuManagement.ListMenu.push({
+	                        "title" : spacer + " " + SubData[i].title,
+	                        "Id" : SubData[i]._id
+	                    });
+	            }
+	        }
+	}
+
+	MenuManagement.subtreelist = function(SubData){
+    	for (var i in SubData){
+            if (SubData[i].Submenus.length != 0 ){
+                MenuManagement.TreelistView.push({
+                        "_id" : SubData[i]._id,
+                        "title" : SubData[i].title,
+                        "url" : "#",
+                        "icon" : SubData[i].icon,
+                        "parentid" : SubData[i].parentid,
+                        "index" : SubData[i].index,
+                        "enable" : SubData[i].enable,
+                    });
+                MenuManagement.subtreelist(SubData[i].Submenus);
+            }else{
+                MenuManagement.TreelistView.push({
+                        "_id" : SubData[i]._id,
+                        "title" : SubData[i].title,
+                        "url" : "#",
+                        "icon" : SubData[i].icon,
+                        "parentid" : SubData[i].parentid,
+                        "index" : SubData[i].index,
+                        "enable" : SubData[i].enable,
+                    });
+            }
+        }
+	}
+</script>
+<div id="MenuManagement" data-bind="with:MenuManagement">
+	<div class="row">
+		<div class="col-sm-3" style="margin-bottom: 5px;" data-bind="visible:!IsFormOpen()">
+			<button class="btn btn-sm btn-primary" data-bind="click:MenuManagement.Add"><i class="fa fa-plus-circle"></i>&nbsp;Create New Access</button>
+		</div>
+		<div class="col-sm-3 text-right" style="margin-bottom: 5px;" data-bind="visible:MenuManagement.Mode()==''&&MenuManagement.MenuSelectedId()!==''">
+			<button class="btn btn-sm btn-warning" data-bind="click:MenuManagement.Edit"><i class="fa fa-pencil"></i>&nbsp;Edit</button>
+			<button class="btn btn-sm btn-danger" data-bind="click:MenuManagement.Remove"><i class="fa fa-trash"></i>&nbsp;Remove</button>
+		</div>
+		<div class="col-sm-12" data-bind="visible:!IsFormOpen()">
+			<script id="menulist-template" type="text/kendo-ui-template">
+               <input type="hidden" value="#:item._id#" />
+               <span class="glyphicon glyphicon-credit-card"></span>&nbsp;#: item.title #
+            </script>
+			<div id="MenuList"></div>
+		</div>
+		<div class="col-sm-12" data-bind="visible:IsFormOpen(),with:Data" id="form">
+			<div class="row">
+				<label class="col-sm-2">Access Type</label>
+				<div class="col-sm-2">
+					<input style="width: 100%;" data-bind="kendoDropDownList:{value:Category,data:$parent.AccessTypeList,dataValueField:'value',dataTextField:'title'}">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Parent</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" data-bind="kendoDropDownList:{value:ParentId,data:$parent.ListMenu,dataValueField:'Id',dataTextField:'title'}">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Access ID</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" required pattern="[a-zA-Z0-9_]+" data-pattern-msg="Only alphabet, number and underscore allowed for Menu ID" type="text" name="menuid" id="menuid" class="input-sm form-control" placeholder="Input Menu ID" data-bind="value:_id,attr:{'disabled':$parent.Mode()=='update'?true:false}" validationMessage="Menu ID cannot be empty">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Title</label>
+				<div class="col-sm-5">
+					<input required style="width: 100%;" data-bind="value:Title" type="text" class="form-control input-sm" placeholder="Input Title" validationMessage="Title cannot be empty" id="Title" name="Title">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">URL</label>
+				<div class="col-sm-5">
+					<input required style="width: 100%;" data-bind="value:Url" type="text" class="form-control input-sm" placeholder="Input URL" validationMessage="Url cannot be empty" id="Url" name="Url">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Index</label>
+				<div class="col-sm-1">
+					<input required style="width: 100%;" data-bind="value:Index" type="number" class="form-control input-sm" placeholder="Index" validationMessage="Index cannot be empty" id="Index" name="Index">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Enable</label>
+				<div class="col-sm-5" style="line-height: 38px;">
+					<input type="checkbox" data-bind="checked:Enable">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					&nbsp;
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-7">
+					<div class="alert alert-info">
+						<b>*</b> Use Special Access in case you have more privillage rather than <b>CREATE / READ / MODIFY / REMOVE</b>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Special Access 1</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" data-bind="value:SpecialAccess1" type="text" class="form-control input-sm" placeholder="Input Special Access 1">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Special Access 2</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" data-bind="value:SpecialAccess2" type="text" class="form-control input-sm" placeholder="Input Special Access 2">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Special Access 3</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" data-bind="value:SpecialAccess3" type="text" class="form-control input-sm" placeholder="Input Special Access 3">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Special Access 4</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" data-bind="value:SpecialAccess4" type="text" class="form-control input-sm" placeholder="Input Special Access 4">
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-12" style="margin-bottom: 5px;" data-bind="visible:IsFormOpen()">
+			<div class="row">
+				<div class="col-sm-7 text-right">
+					<button class="btn btn-sm btn-default" data-bind="visible:IsFormOpen(),click:MenuManagement.Cancel"><i class="fa fa-undo"></i>&nbsp;Cancel</button>
+					<button class="btn btn-sm btn-success" data-bind="visible:IsFormOpen(),click:MenuManagement.Save"><i class="fa fa-floppy-o"></i>&nbsp;Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

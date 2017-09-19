@@ -1,0 +1,11 @@
+/*scorecard_fullyearranking style*/
+	#Scorecard-Analysis .borderleft1px{
+		border-left: 1px solid #FFF;
+	}
+	#Scorecard-Analysis .marginbottom10{
+		margin-bottom: 10px;
+	}
+	#Scorecard-Analysis .tdmodified.mark{
+		background: #FF9933;
+		color: white;
+	}

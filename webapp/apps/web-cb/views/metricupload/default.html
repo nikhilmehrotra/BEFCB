@@ -1,0 +1,97 @@
+{{if (or (.MetricUpload.Global.Upload) (.MetricUpload.Region.Upload) (.MetricUpload.Country.Upload))}}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (or (.MetricUpload.Global.Curtain) (.MetricUpload.Region.Curtain) (.MetricUpload.Country.Curtain))}}
+{{template "initiative_chart.html" .}}
+{{end}}
+<script type="text/javascript">
+	TabMenuValue = ko.observable('')
+	var MetricUpload = {
+
+	}
+
+	MetricUpload.GetData = function(){
+		ajaxPost("/web-cb/metricupload/getdata",{},function(res){
+			// console.log(res.Data);
+			MetricUpload.Render(res.Data);
+		})
+	}
+
+	MetricUpload.Render = function(dataSource){
+		// console.log(dataSource)
+		$("#upload-history").html("");
+		$("#upload-history").kendoGrid({
+		    dataSource: {
+		    	data:dataSource,
+		    	pageSize: 10
+		    }, 
+		    columns: [
+				{
+				  field:"KeyMetrics",
+				  title:'Key Metrics'
+				},
+				{
+				  field:"Name",
+				  title:'Scorecard Category'
+				},
+				{
+				  field:"Period",
+				  title:'Period',
+				  width:100,
+				  template:"#:MetricUpload.GetTruePeriod(Period)#",
+				  attributes:{class:'text-center'}
+				},
+				{
+				  field:"UploadedBy",
+				  width:100,
+				  title:'Uploaded By',
+				  attributes:{class:'text-center'}
+				},
+				{
+				  field:"UploadedDate",
+				  title:'Uploaded Date',
+				  width:200,
+				  template:"#:kendo.toString(new Date(UploadedDate),'dddd, MMMM dd, yyyy h:mm:ss tt')#"
+				},
+				{
+				  field:"FileName",
+				  title:'&nbsp;',
+				  width:100,
+				  template:"<a class='btn btn-success btn-xs' href='/web-cb/static/metricfiles/#:FileName#' target='_blank'><span class='fa fa-download'></span> Download</a>",
+				  attributes:{class:'text-center'}
+				}
+			],
+			sortable: true,
+			pageable: {
+			  refresh: true,
+			  pageSizes: true
+			},
+			// height: 380,
+		});
+		// Render DataSource to $("#upload-history")
+	}
+
+	MetricUpload.GetTruePeriod = function(data){
+		data = moment(data,'YYYYMM').format('MMM YYYY')
+		return data;
+	}
+	MetricUpload.Init = function(){
+		MetricUpload.GetData();
+	}
+	$(document).ready(function(){
+		MetricUpload.Init();
+	})
+</script>
+<div id="MetricUpload" style="margin-top: 10px !important;">
+	<div class="col-sm-12 no-padding" style="padding-bottom: 10px !important;">
+		{{if (or (.MetricUpload.Global.Upload) (.MetricUpload.Region.Upload) (.MetricUpload.Country.Upload))}}
+			<button class="btn btn-primary btn-sm" onclick="MU.UploadDownload()" style="margin-top: 10px;float: right;"><span class="fa fa-upload"></span> Upload / Download</button>
+		{{end}}
+		<h4>Metric Upload</h4>
+	</div>
+	<div class="col-sm-12 no-padding">
+		<div data-bind="with:MetricUpload">
+				<div id="upload-history"></div>
+		</div>
+	</div>
+</div>

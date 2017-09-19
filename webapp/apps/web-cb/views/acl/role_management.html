@@ -1,0 +1,1152 @@
+<script type="text/javascript">
+	var accesslock=false;
+	function checktheaction(e){
+		var d = $(e)
+		var checked = d.is(":checked");
+		var selection = d.attr("class");
+		var segmentation = d.attr("segmentation");
+		var accessid = d.attr("accessid");
+		var parentid = d.attr("parentid");
+		var category = d.attr("category");
+		switch(category){
+			case "access-menu":
+				if(checked){
+					var tabular = $("input[parentid='"+selection+accessid+"'][segmentation='"+segmentation+"'][category='access-tabular']");
+					tabular.each(function(i,x){
+						if(!$(x).is(":checked")){
+						$(x).click();
+						}
+					})
+				}else{
+					if(!accesslock){
+						var tabular = $("input[parentid='"+selection+accessid+"'][segmentation='"+segmentation+"'][category='access-tabular']");
+						// console.log(tabular);
+						tabular.each(function(i,x){
+							if($(x).is(":checked")){
+								$(x).click();
+							}
+						})
+						accesslock = false;
+					}
+					accesslock = false;
+				}
+				break;
+			case "access-tabular":
+				if(!checked){
+					var accid = parentid.replace(selection,"")
+					var menu = $("input[accessid='"+accid+"'][parentid='"+selection+"'][segmentation='"+segmentation+"'][category='access-menu']");
+					if($(menu).is(":checked")){
+						accesslock = true;
+						$(menu).click();
+					}
+				}
+				break;
+			default:
+				break;	
+		}
+	}
+	var RoleManagement = {
+		Mode:ko.observable(""),
+		IsFormOpen:ko.observable(false),
+		Processing:ko.observable(false),
+		Data:ko.observable(),
+		RoleData:ko.observable(),
+		// Data Source
+		RoleTypeList:ko.observableArray([
+			{value:0,title:'BASIC'},
+			{value:1,title:'LDAP'},
+		]),
+		MenuList:ko.observableArray([]),
+		Accessibility:ko.observableArray([]),
+		RoleList:ko.observableArray([])
+	}
+	RoleManagement.GetMenuList = function(){
+		ajaxPost("/web-cb/acl/getmenulist",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			}
+			RoleManagement.MenuList(res.Data);
+		})
+	}
+	RoleManagement.GetData = function(){
+		RoleManagement.GetMenuList();
+		RoleManagement.Mode("");
+		RoleManagement.Accessibility([]);
+		ajaxPost("/web-cb/acl/getrolelist",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			}
+			RoleManagement.RoleList(res.Data);
+			RoleManagement.Render(res.Data);
+		})
+	}
+	RoleManagement.Render = function(dataSource){
+		for(var i in dataSource){
+			dataSource[i].roleid = dataSource[i]._id.replace(/CB_/g,"");
+			dataSource[i].enablestring = (dataSource[i].enable) ? "enabled" : "disabled";
+			if(dataSource[i].IsPartOfInitiativeOwner == undefined){
+				dataSource[i].IsPartOfInitiativeOwner = false;
+			}
+		}
+		var d = $("#RoleList");
+		d.html("");
+		d.kendoGrid({
+			dataSource:{
+				data:dataSource,
+				pageSize:20,
+			},
+			columns: [
+				// {
+				//   field:"grouptype",
+				//   title:"Role Type",
+				//   width:100,
+				//   template:function(d){
+				//     if(d.grouptype == 1){
+				//       return "<span class=\'label label-success status-info\' style=\'font-size: 10px;font-weight: normal;text-transform: uppercase;\'>LDAP</span>";
+				//     }else{
+				//       return "<span class=\'label label-default status-info\' style=\'font-size: 10px;font-weight: normal;text-transform: uppercase;\'>BASIC</span>";
+				//     }
+				//   },
+				//   attributes:{class:'text-center'}
+				// },
+				{
+				  field:"roleid",
+				  title:"Role ID",
+				  width:150,
+				},
+				{
+				  field:"title",
+				  title:"Title",
+				},
+				{
+				  field:"enablestring",
+				  title:"Status",
+				  width:100,
+				  template:function(d){
+				    if(d.enable){
+				      return "<span class=\'label label-success status-info\' style=\'font-size: 10px;font-weight: normal;text-transform: uppercase;\'>enabled</span>";
+				    }else{
+				      return "<span class=\'label label-default status-info\' style=\'font-size: 10px;font-weight: normal;text-transform: uppercase;\'>disabled</span>";
+				    }
+				  },
+				  attributes:{class:'text-center'}
+				},
+				{{if (or (.Global.Update) (.Region.Update) (.Country.Update) (.Global.Delete) (.Region.Delete) (.Country.Delete)) }}
+				{
+				  title:"",
+				  width: 80,
+				  attributes:{class:'text-center'},
+				  template:"{{if (or (.Global.Update) (.Region.Update) (.Country.Update)) }}<button onclick='RoleManagement.Edit(\"#:_id #\")' class='btn btn-xs btn-warning'><i class='fa fa-pencil'></i></button>{{end}} {{if (or (.Global.Delete) (.Region.Delete) (.Country.Delete)) }}<button onclick='RoleManagement.Remove(\"#:_id #\", \"#:IsAvailableUser #\")' class='btn btn-xs btn-danger'><i class='fa fa-trash'></i></button>{{end}}"
+				}
+				{{end}}
+			],
+			filterable:true,
+			sortable: true,
+			pageable: {
+			  refresh: true,
+			  pageSizes: true,
+			  buttonCount: 5
+			},
+			// toolbar: ["excel"],
+			excel: {
+				fileName: "User List Name.xlsx",
+				allPages: true
+			},
+		});
+	}
+	RoleManagement.Add = function(){
+		var data = RoleManagement.RoleData();
+		if(data.IsPartOfInitiativeOwner == undefined){
+			data.IsPartOfInitiativeOwner = false;
+		}
+		RoleManagement.GetAccessibility(undefined);
+		RoleManagement.Data(ko.mapping.fromJS(data))
+		RoleManagement.IsFormOpen(true);
+		RoleManagement.Mode("create");
+		
+		RoleManagement.Data()._id.subscribe(function(x){
+			y = x
+			y = y.toUpperCase();
+			x = "CB_"+y
+			// console.log(x)
+			var existingRoleId = Enumerable.From(RoleManagement.RoleList()).Where("$._id==='"+x+"'").ToArray()
+			if(existingRoleId.length > 0){
+				swal("Warning","Role Id already exists","warning")
+				RoleManagement.Data()._id("");
+			} else{
+				RoleManagement.Data()._id(y);
+			}
+			
+		})
+		
+		RoleManagement.Data().Title.subscribe(function(x){
+			// console.log(x)
+			var existingRoleTitle = Enumerable.From(RoleManagement.RoleList()).Where("$.title.toLowerCase()==='"+x.toLowerCase()+"'").ToArray()
+			if(existingRoleTitle.length > 0){
+				swal("Warning","Role Title already exists","warning")
+				RoleManagement.Data().Title("");
+			}
+			
+		})
+	}
+	RoleManagement.GetMenuOrder = function (d){
+	    var map = {};
+	    for(var i = 0; i < d.length; i++){
+	        var obj = d[i];
+	        obj.Submenus= [];
+
+	        map[obj._id] = obj;
+
+	        var parent = obj.parentid || '-';
+	        if(!map[parent]){
+	            map[parent] = {
+	                Submenus: []
+	            };
+	        }
+	        map[parent].Submenus.push(obj);
+	    }
+	    return map['-'].Submenus;
+	}
+	RoleManagement.AddAccessibility = function(d,space){
+		var AccessibilityValueModel = {
+			All: false,
+			Create: false,
+			Read: false,
+			Update: false,
+			Delete: false,
+			Owned: false,
+			Curtain: false,
+			Upload: false,
+		}
+		var newdata = {
+			AccessID:d._id,
+			Url:d.url,
+			Title:space+" "+d.title,
+			Category:d.category,
+			ParentID:d.parentid,
+			Global: ko.mapping.fromJS(AccessibilityValueModel),
+			Region: ko.mapping.fromJS(AccessibilityValueModel),
+			Country: ko.mapping.fromJS(AccessibilityValueModel),
+		}
+		newddata = ko.mapping.fromJS(newdata)
+		// console.log(newdata)
+
+		AllSubscribe(newddata,newdata)
+
+		RoleManagement.Accessibility.push(newddata);
+		for(var x in d.Submenus){
+			RoleManagement.AddAccessibility(d.Submenus[x],space+"--");
+		}		
+
+		// ddata.Create.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Read.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Update.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Delete.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Special1.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Special2.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Special3.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Special4.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Global.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Region.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+		// ddata.Country.subscribe(function(e){
+		// 	if(!e){
+		// 		a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == data.AccessID });
+		// 		if(a != undefined){
+		// 			RoleManagement.Accessibility()[a].All(false)
+		// 		}
+		// 	}
+		// })
+
+		// RoleManagement.Accessibility.push(ddata);
+		// for(var x in d.Submenus){
+		// 	RoleManagement.AddAccessibility(d.Submenus[x],space+"--");
+		// }
+	}
+	RoleManagement.GetAccessibility = function(d){
+		// console.log(d)
+		var MenuList = RoleManagement.GetMenuOrder(RoleManagement.MenuList());
+		RoleManagement.Accessibility([]);
+		for(var x in MenuList){
+			RoleManagement.AddAccessibility(MenuList[x],"");
+		}
+		if(typeof d !== "undefined" && d.length > 0){
+			var a = RoleManagement.Accessibility();
+			var map = {};
+			for(var x in d){
+				map[d[x].AccessID] = d[x];
+			}
+			for(var i in a){
+				var z = map[a[i].AccessID()];
+				// console.log(z)
+				if(typeof z !== "undefined"){
+					a[i].Url(z.Url)
+					a[i].Global.Create(z.Global.Create);
+					a[i].Global.Read(z.Global.Read);
+					a[i].Global.Update(z.Global.Update);
+					a[i].Global.Delete(z.Global.Delete);
+					a[i].Global.Owned(z.Global.Owned);
+					a[i].Global.Curtain(z.Global.Curtain);
+					a[i].Global.Upload(z.Global.Upload);
+
+					a[i].Region.Create(z.Region.Create);
+					a[i].Region.Read(z.Region.Read);
+					a[i].Region.Update(z.Region.Update);
+					a[i].Region.Delete(z.Region.Delete);
+					a[i].Region.Owned(z.Region.Owned);
+					a[i].Region.Curtain(z.Region.Curtain);
+					a[i].Region.Upload(z.Region.Upload);
+
+					a[i].Country.Create(z.Country.Create);
+					a[i].Country.Read(z.Country.Read);
+					a[i].Country.Update(z.Country.Update);
+					a[i].Country.Delete(z.Country.Delete);
+					a[i].Country.Owned(z.Country.Owned);
+					a[i].Country.Curtain(z.Country.Curtain);
+					a[i].Country.Upload(z.Country.Upload);
+				}
+			}
+		}
+	}
+
+	RoleManagement.Remove = function(id, IsAvailableUser){
+		var s = IsAvailableUser+""
+		// console.log(s,IsAvailableUser)
+		if(s == "true"){
+			swal("Warning","Users have been assigned this role. Please update or delete those users before proceeding further","warning");
+		} else{
+			swal({
+			  title: "",
+			  text: 'Are you sure, this data cannot be restore?',
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonClass: "btn-danger",
+			  confirmButtonText: "Yes, Delete Now",
+			  closeOnConfirm: true
+			},
+			function(){	
+				ajaxPost("/web-cb/acl/removerole",{Id:id},function(res){
+					if (res.IsError) {
+						swal("", res.Message, "info");
+						return false;
+					}
+					setTimeout(function(){swal('Delete success', '', 'success');},100);
+					RoleManagement.GetData();
+				});
+			});
+		}
+	}
+
+	RoleManagement.Edit = function(id){
+		ajaxPost("/web-cb/acl/getrole",{Id:id},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			var d = res.Data;
+			if(d.GroupData.IsPartOfInitiativeOwner == undefined){
+				d.GroupData.IsPartOfInitiativeOwner = false;
+			}
+			RoleManagement.GetAccessibility(d.AccessibilityData);
+			RoleManagement.OpenEditForm(d.GroupData);
+		});
+	}
+	RoleManagement.OpenEditForm = function(d){
+		d._id = d._id.replace(/CB_/g,"");
+		RoleManagement.Mode("update");
+		RoleManagement.Data(ko.mapping.fromJS(d));
+		RoleManagement.Data()._id.subscribe(function(x){
+			y = x
+			y = y.toUpperCase();
+			x = "CB_"+y
+			// console.log(x)
+			var existingRoleId = Enumerable.From(RoleManagement.RoleList()).Where("$._id==='"+x+"'").ToArray()
+			if(existingRoleId.length > 0){
+				swal("Warning","Role Id already exists","warning")
+				RoleManagement.Data()._id("");
+			} else{
+				RoleManagement.Data()._id(y);
+			}
+			
+		})
+		
+		RoleManagement.Data().Title.subscribe(function(x){
+			// console.log(x)
+			var existingRoleTitle = Enumerable.From(RoleManagement.RoleList()).Where("$.title==='"+x+"'").ToArray()
+			if(existingRoleTitle.length > 0){
+				swal("Warning","Role Id already exists","warning")
+				RoleManagement.Data().Title("");
+			}
+			
+		})
+		RoleManagement.IsFormOpen(true);
+	}
+	RoleManagement.Cancel = function(){
+		RoleManagement.IsFormOpen(false);
+		RoleManagement.Mode("");
+	}
+	RoleManagement.Save = function(){
+		var validator = $("#RoleManagement").data("kendoValidator")
+		if(validator==undefined){
+       		validator= $("#RoleManagement").kendoValidator().data("kendoValidator");
+  		}
+  		if (validator.validate()) {
+			swal({
+			  title: "",
+			  text: 'Are You Sure?',
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonClass: "btn-danger",
+			  confirmButtonText: "Yes, Save Now",
+			  closeOnConfirm: true
+			},
+			function(){			
+				var data = ko.mapping.toJS(RoleManagement.Data());
+				data.ID = data._id;
+				data.GroupType = parseInt(data.GroupType);
+				var parm = {
+					Mode:RoleManagement.Mode(),
+					Data:data,
+					Accessibility:ko.mapping.toJS(RoleManagement.Accessibility())
+				};
+				ajaxPost("/web-cb/acl/saverole",parm,function(res){
+					if (res.IsError) {
+						swal("", res.Message, "info");
+						return false;
+					}
+					RoleManagement.IsFormOpen(false);
+					RoleManagement.Mode("");
+					RoleManagement.GetData();
+					$('body').animate({scrollTop:0}, 500, 'swing');
+					setTimeout(function(){swal('Save success', '', 'success');},100);
+				});
+			});
+  			
+		}	
+	}
+	RoleManagement.Init = function(){
+		ajaxPost("/web-cb/acl/getrolemanagementreferences",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			var d = res.Data;
+			d.GroupData.GroupType = 0;
+			RoleManagement.RoleData(d.GroupData);
+			RoleManagement.Data(undefined)
+			RoleManagement.GetData();
+		})
+	}
+	RoleManagement.GetExcel = function(){
+		// var parm = {
+  //   		page:1,
+		// 	pageSize:10,
+		// 	skip:0,
+		// 	take:10,
+		// 	filter:$("#RoleList").data("kendoGrid").dataSource.filter(),
+		// 	sort:$("#RoleList").data("kendoGrid").dataSource.sort(),
+  //   	}
+  //   	if(parm.filter != undefined){
+  //   		if(parm.filter.filters.length > 0){
+  //   			_.each(parm.filter.filters, function(v,i){
+  //   				if(v.filters != undefined && v.filters.length > 0){
+	 //        			_.each(v.filters, function(vv,ii){
+	 //        				if(vv.field == "created" || vv.field == "expired"){
+	 //        					parm.filter.filters[i].filters[ii].value = kendo.toString(vv.value, "yyyyMMddHHmmss")
+	 //        					parm.filter.filters[i].filters[ii].type = "date"
+	 //        				} else{
+	 //        					parm.filter.filters[i].filters[ii].type = ""
+	 //        				}
+	 //        			})	
+	 //        		} else{
+	 //        			if(v.field == "created" || v.field == "expired"){
+	 //        				parm.filter.filters[i].value = kendo.toString(v.value, "yyyyMMddHHmmss")
+	 //        				parm.filter.filters[i].type = "date"
+  //       				} else{
+  //       					parm.filter.filters[i].type = ""
+  //       				}
+	 //        		}
+  //   			})	
+  //   		}
+  //   	}
+		ajaxPost("/web-cb/acl/exportxlsrolemanagemet",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			// console.log(res)
+			location.href = "/web-cb/static/download/"+encodeURIComponent(res.Data);
+		})
+	}
+	RoleManagement.GetAccessCategory = function(category){
+
+		switch(category){
+			case 2 : 
+				return "access-menu"
+				break;
+			case 5 : 
+				return "access-tabular"
+				break;
+			default:
+				return ""
+				break;
+		}
+	}
+	$(document).ready(function(){
+		RoleManagement.Init();
+	})
+</script>
+<style type="text/css">
+	#accessibility h5{
+		border-bottom: 1px solid #333;padding-left: 20px;padding-bottom: 5px;
+	}
+	#accessibility table th{
+		border: 1px solid #fff;
+	    border-bottom: 2px solid #ddd;
+	    background: #6D6E71;
+		letter-spacing: 0.5px;
+		color: white;
+		font-weight: normal !important;
+		vertical-align: middle;
+		text-align: center;
+	}
+	#accessibility table td{
+		text-align: center;
+	}
+	#accessibility table td > span{
+		font-size: 8px;
+    	display: block;
+	}
+	#accessibility table td > label{
+		font-weight: normal !important;
+	    line-height: normal !important;
+	    letter-spacing: normal !important;
+	    padding: 0px;
+	    text-align: left !important;
+	    margin: 0px;
+	    display: inline;
+	    font-size: 11px;
+	}
+	#accessibility table td > label:after{
+		content: "" !important;
+	    float: none !important;
+	    margin: 0px !important;
+	}
+	#accessibility .access-menu:after{
+		content: "MENU" !important;
+		float: right !important;
+		background: #2bb776;
+		padding: 2px 5px;
+		font-size: 10px;
+		margin-right: 5px;
+		color: #FFF;
+	}
+	#accessibility .access-tabular:after{
+		content: "TABULAR" !important;
+	    float: right !important;
+	    background: #717171;
+	    padding: 2px 5px;
+	    font-size: 10px;
+	    margin-left: 10px;
+	    margin-right: 5px;
+	    color: #FFF;
+	}
+	.text-left{
+		text-align: left !important;
+	}
+	.no-padding{
+		padding: 0;
+	}
+</style>
+<div id="RoleManagement" data-bind="with:RoleManagement">
+	<div class="row">
+		{{if (or (.Global.Create) (.Region.Create) (.Country.Create)) }}
+		<div class="col-sm-12" style="margin-bottom: 5px;" data-bind="visible:!IsFormOpen()">
+			<button class="btn btn-sm btn-primary" data-bind="click:RoleManagement.Add"><i class="fa fa-plus-circle"></i>&nbsp;Create New Role</button>
+		</div>
+		{{end}}
+		<div class="col-sm-12" data-bind="visible:!IsFormOpen()">
+			<div id="RoleList"></div>
+		</div>
+		<div class="col-sm-12" data-bind="with:Data,visible:IsFormOpen()" id="form">
+			<div class="row">				
+				<label class="col-sm-2">Role ID</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;text-transform: uppercase;" class="input-sm form-control" placeholder="Input Role ID" data-bind="value:_id,attr:{'disabled':$parent.Mode()=='update'?true:false}" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'');">
+				</div>
+			</div>
+			<div class="row">				
+				<label class="col-sm-2">Title</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" class="input-sm form-control" placeholder="Input Role Title" data-bind="value:Title" name="Title" id="Title" required>
+				</div>
+			</div>
+			<!-- 			<div class="row">				
+				<label class="col-sm-2">Role Type</label>
+				<div class="col-sm-2">
+					<input style="width: 100%;" data-bind="kendoDropDownList:{value:GroupType,data:$parent.RoleTypeList,dataValueField:'value',dataTextField:'title'}">
+				</div>
+			</div> -->
+			<div class="row">
+				<label class="col-sm-2">Enable</label>
+				<div class="col-sm-5" style="line-height: 38px;">
+					<input type="checkbox" data-bind="checked:Enable">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Is Part Of Initiative Owner</label>
+				<div class="col-sm-5" style="line-height: 38px;">
+					<input type="checkbox" data-bind="checked:IsPartOfInitiativeOwner">
+				</div>
+			</div>
+			<div class="row" id="accessibility">
+				<div class="col-sm-12">
+					<div class="col-sm-2 no-padding">
+						<h5>Accessibility</h5>
+					</div>
+				</div>
+				<div class="col-sm-12">
+				<ul class="nav nav-pills" role="tablist">
+					<li class="active" onclick=""><a href="#roledetailGlobal" role="tab" data-toggle="tab">
+						<!-- <i class="fa fa-globe"></i>&nbsp; -->
+						Global
+					</a></li>
+					<li onclick=""><a href="#roledetailRegion" role="tab" data-toggle="tab">
+						<!-- <i class="fa fa-database"></i>&nbsp; -->
+						Region
+					</a></li>
+					<li onclick=""><a href="#roledetailCountry" role="tab" data-toggle="tab">
+						<!-- <i class="fa fa-history"></i>&nbsp; -->
+						Country
+					</a></li>
+				</ul>
+				<div class="tab-content">
+				    <div role="tabpanel" class="tab-pane active" id="roledetailGlobal" >
+						<div class="col-sm-12 no-padding">
+							<table class="table">
+								<thead>
+									<tr>
+										<th rowspan="2" class="text-left">Access</th>
+										<th colspan="8" class="text-center">Privilages</th>
+									</tr>
+									<tr>
+										<th width="50px">All</th>
+										<th width="50px">Create</th>
+										<th width="50px">Read</th>
+										<th width="50px">Update</th>
+										<th width="50px">Delete</th>
+										<th width="70px">Owned</th>
+										<th width="70px">Curtain</th>
+										<th width="70px">Upload</th>
+									</tr>
+								</thead>
+								<tbody data-bind="foreach:RoleManagement.Accessibility">
+									<tr data-bind="with:$data.Global,visible:AccessID()!=='LOGOUT'">
+										<td class="text-left">
+											<label data-bind="text:$parent.Title"></label>
+											<label data-bind="attr:{'class':RoleManagement.GetAccessCategory($parent.Category())}"></label>
+										</td>
+										<td>
+											<input class="all" segmentation="global" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:All,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'all'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="create" segmentation="global"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Create,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'create'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="read" segmentation="global"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Read,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'read'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="update" segmentation="global"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Update,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'update'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="delete" segmentation="global"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Delete,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'delete'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="owned" segmentation="global"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Owned,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'owned'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="curtain" segmentation="global"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Curtain,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'curtain'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="upload" segmentation="global"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Upload,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'upload'+$parent.ParentID()}">
+										</td>										
+									</tr>
+								</tbody>
+							</table>
+						</div>
+				    </div>
+				    <div role="tabpanel" class="tab-pane" id="roledetailRegion" >
+						<div class="col-sm-12 no-padding">
+							<table class="table">
+								<thead>
+									<tr>
+										<th rowspan="2" class="text-left">Access</th>
+										<th colspan="8" class="text-center">Privilages</th>
+									</tr>
+									<tr>
+										<th width="50px">All</th>
+										<th width="50px">Create</th>
+										<th width="50px">Read</th>
+										<th width="50px">Update</th>
+										<th width="50px">Delete</th>
+										<th width="70px">Owned</th>
+										<th width="70px">Curtain</th>
+										<th width="70px">Upload</th>
+									</tr>
+								</thead>
+								<tbody data-bind="foreach:RoleManagement.Accessibility">
+									<tr data-bind="with:$data.Region,visible:AccessID()!=='LOGOUT'">
+										<td class="text-left">
+											<label data-bind="text:$parent.Title"></label>
+											<label data-bind="attr:{'class':RoleManagement.GetAccessCategory($parent.Category())}"></label>
+										</td>
+										<td>
+											<input class="all" segmentation="region"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:All,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'all'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="create" segmentation="region"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Create,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'create'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="read" segmentation="region"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Read,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'read'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="update" segmentation="region"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Update,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'update'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="delete" segmentation="region"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Delete,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'delete'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="owned" segmentation="region"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Owned,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'owned'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="curtain" segmentation="region"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Curtain,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'curtain'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="upload" segmentation="region"onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Upload,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'upload'+$parent.ParentID()}">
+										</td>									
+									</tr>
+								</tbody>
+							</table>
+						</div>
+				    </div>
+				    <div role="tabpanel" class="tab-pane" id="roledetailCountry" >
+						<div class="col-sm-12 no-padding">
+							<table class="table">
+								<thead>
+									<tr>
+										<th rowspan="2" class="text-left">Access</th>
+										<th colspan="8" class="text-center">Privilages</th>
+									</tr>
+									<tr>
+										<th width="50px">All</th>
+										<th width="50px">Create</th>
+										<th width="50px">Read</th>
+										<th width="50px">Update</th>
+										<th width="50px">Delete</th>
+										<th width="70px">Owned</th>
+										<th width="70px">Curtain</th>
+										<th width="70px">Upload</th>
+									</tr>
+								</thead>
+								<tbody data-bind="foreach:RoleManagement.Accessibility">
+									<tr data-bind="with:$data.Country,visible:AccessID()!=='LOGOUT'">
+										<td class="text-left">
+											<label data-bind="text:$parent.Title"></label>
+											<label data-bind="attr:{'class':RoleManagement.GetAccessCategory($parent.Category())}"></label>
+										</td>
+										<td>
+											<input class="all" segmentation="country" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:All,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'all'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="create" segmentation="country" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Create,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'create'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="read" segmentation="country" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Read,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'read'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="update" segmentation="country" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Update,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'update'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="delete" segmentation="country" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Delete,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'delete'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="owned" segmentation="country" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Owned,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'owned'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input class="curtain" segmentation="country" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Curtain,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'curtain'+$parent.ParentID()}">
+										</td>
+										<td>
+											<input onclick="checktheaction(this)" class="upload" segmentation="country" onclick="checktheaction(this)"  type="checkbox" data-bind="checked:Upload,attr:{'accessid':$parent.AccessID(),'category':RoleManagement.GetAccessCategory($parent.Category()),'parentid':'upload'+$parent.ParentID()}">
+										</td>										
+									</tr>
+								</tbody>
+							</table>
+						</div>
+				    </div>
+			    </div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-7 text-right">
+					<button class="btn btn-sm btn-default" data-bind="click:RoleManagement.Cancel"><i class="fa fa-undo"></i>&nbsp;Cancel</button>
+					<button class="btn btn-sm btn-success" data-bind="click:RoleManagement.Save"><i class="fa fa-floppy-o"></i>&nbsp;Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function AllSubscribe(newddata,newdata){
+		newddata.Global.All.subscribe(function(e){
+			if(e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.Create(true)
+					RoleManagement.Accessibility()[a].Global.Read(true)
+					RoleManagement.Accessibility()[a].Global.Update(true)
+					RoleManagement.Accessibility()[a].Global.Delete(true)
+					RoleManagement.Accessibility()[a].Global.Owned(true)
+					RoleManagement.Accessibility()[a].Global.Curtain(true)
+					RoleManagement.Accessibility()[a].Global.Upload(true)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					if(RoleManagement.Accessibility()[a].Global.Create() && RoleManagement.Accessibility()[a].Global.Read() && RoleManagement.Accessibility()[a].Global.Update() && RoleManagement.Accessibility()[a].Global.Delete() && RoleManagement.Accessibility()[a].Global.Owned() && RoleManagement.Accessibility()[a].Global.Curtain() && RoleManagement.Accessibility()[a].Global.Upload()){
+						RoleManagement.Accessibility()[a].Global.Create(false)
+						RoleManagement.Accessibility()[a].Global.Read(false)
+						RoleManagement.Accessibility()[a].Global.Update(false)
+						RoleManagement.Accessibility()[a].Global.Delete(false)
+						RoleManagement.Accessibility()[a].Global.Owned(false)
+						RoleManagement.Accessibility()[a].Global.Curtain(false)
+						RoleManagement.Accessibility()[a].Global.Upload(false)
+					}
+				}
+			}
+		})
+		newddata.Country.All.subscribe(function(e){
+			if(e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.Create(true)
+					RoleManagement.Accessibility()[a].Country.Read(true)
+					RoleManagement.Accessibility()[a].Country.Update(true)
+					RoleManagement.Accessibility()[a].Country.Delete(true)
+					RoleManagement.Accessibility()[a].Country.Owned(true)
+					RoleManagement.Accessibility()[a].Country.Curtain(true)
+					RoleManagement.Accessibility()[a].Country.Upload(true)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					if(RoleManagement.Accessibility()[a].Country.Create() && RoleManagement.Accessibility()[a].Country.Read() && RoleManagement.Accessibility()[a].Country.Update() && RoleManagement.Accessibility()[a].Country.Delete() && RoleManagement.Accessibility()[a].Country.Owned() && RoleManagement.Accessibility()[a].Country.Curtain() && RoleManagement.Accessibility()[a].Country.Upload()){
+						RoleManagement.Accessibility()[a].Country.Create(false)
+						RoleManagement.Accessibility()[a].Country.Read(false)
+						RoleManagement.Accessibility()[a].Country.Update(false)
+						RoleManagement.Accessibility()[a].Country.Delete(false)
+						RoleManagement.Accessibility()[a].Country.Owned(false)
+						RoleManagement.Accessibility()[a].Country.Curtain(false)
+						RoleManagement.Accessibility()[a].Country.Upload(false)
+					}
+				}
+			}
+		})
+		newddata.Region.All.subscribe(function(e){
+			if(e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.Create(true)
+					RoleManagement.Accessibility()[a].Region.Read(true)
+					RoleManagement.Accessibility()[a].Region.Update(true)
+					RoleManagement.Accessibility()[a].Region.Delete(true)
+					RoleManagement.Accessibility()[a].Region.Owned(true)
+					RoleManagement.Accessibility()[a].Region.Curtain(true)
+					RoleManagement.Accessibility()[a].Region.Upload(true)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					if(RoleManagement.Accessibility()[a].Region.Create() && RoleManagement.Accessibility()[a].Region.Read() && RoleManagement.Accessibility()[a].Region.Update() && RoleManagement.Accessibility()[a].Region.Delete() && RoleManagement.Accessibility()[a].Region.Owned() && RoleManagement.Accessibility()[a].Region.Curtain() && RoleManagement.Accessibility()[a].Region.Upload()){
+						RoleManagement.Accessibility()[a].Region.Create(false)
+						RoleManagement.Accessibility()[a].Region.Read(false)
+						RoleManagement.Accessibility()[a].Region.Update(false)
+						RoleManagement.Accessibility()[a].Region.Delete(false)
+						RoleManagement.Accessibility()[a].Region.Owned(false)
+						RoleManagement.Accessibility()[a].Region.Curtain(false)
+						RoleManagement.Accessibility()[a].Region.Upload(false)
+					}
+				}
+			}
+		})
+
+		newddata.Global.Create.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.All(false)
+				}
+			}
+		})
+		newddata.Global.Read.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.All(false)
+				}
+			}
+		})
+		newddata.Global.Update.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.All(false)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.Read(true)
+				}
+			}
+		})
+		newddata.Global.Delete.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.All(false)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.Read(true)
+				}
+			}
+		})
+		newddata.Global.Owned.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.All(false)
+				}
+			}
+		})
+		newddata.Global.Curtain.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.All(false)
+				}
+			}
+		})
+		newddata.Global.Upload.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Global.All(false)
+				}
+			}
+		})
+
+		newddata.Region.Create.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.All(false)
+				}
+			}
+		})
+		newddata.Region.Read.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.All(false)
+				}
+			}
+		})
+		newddata.Region.Update.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.All(false)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.Read(true)
+				}
+			}
+		})
+		newddata.Region.Delete.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.All(false)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.Read(true)
+				}
+			}
+		})
+		newddata.Region.Owned.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.All(false)
+				}
+			}
+		})
+		newddata.Region.Curtain.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.All(false)
+				}
+			}
+		})
+		newddata.Region.Upload.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Region.All(false)
+				}
+			}
+		})
+
+		newddata.Country.Create.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.All(false)
+				}
+			}
+		})
+		newddata.Country.Read.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.All(false)
+				}
+			}
+		})
+		newddata.Country.Update.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.All(false)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.Read(true)
+				}
+			}
+		})
+		newddata.Country.Delete.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.All(false)
+				}
+			} else{
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.Read(true)
+				}
+			}
+		})
+		newddata.Country.Owned.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.All(false)
+				}
+			}
+		})
+		newddata.Country.Curtain.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.All(false)
+				}
+			}
+		})
+		newddata.Country.Upload.subscribe(function(e){
+			if(!e){
+				a = _.findIndex(RoleManagement.Accessibility(), function (o) { return o.AccessID() == newdata.AccessID });
+				if(a != undefined){
+					RoleManagement.Accessibility()[a].Country.All(false)
+				}
+			}
+		})
+	}
+</script>

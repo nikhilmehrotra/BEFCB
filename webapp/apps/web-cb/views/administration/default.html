@@ -1,0 +1,92 @@
+<script type="text/javascript">
+  model.PageId("Administration");
+  model.BreadCrumbs.push(new BreadCrumb("Administration", "Administration", "#", "active", ""));
+</script>
+<script src="/web-cb/static/core/administration.js"></script>
+<style type="text/css">
+  .parent-tab{
+    /*margin-top: 0px;*/
+    padding-left: 0px;
+    padding-top: 0px !important;
+    /*border-bottom: 0px !important;*/
+  }
+  .nav-tabs {
+    border-bottom :none !important;
+  }
+
+  li.parent-tab > a {
+    /*background: #93B4D3;*/
+    border-radius: 0px 0px 4px 4px !important;
+    width:70px;
+    height: 30px;
+  }
+
+  .nav-tabs > li.parent-tab > a{
+    font-weight: 400;
+    margin-right: 2px;
+    
+    text-align: center;
+    color: #ffffff;
+    background: #93B4D3;
+    border-radius:2px;
+    padding: 5px 10px; 
+  }
+
+  .nav-tabs > li.parent-tab.active>a {
+    border :1px solid #026BA2 !important;
+    background : #0b81bc;
+    
+    color: #ffffff;
+  }
+  .active {
+    background: #FFFFFF;
+  }
+
+  .panel {
+    border: 1px solid #ddd !important;
+  }
+
+  /*label {
+    font-size: 14px;  
+  }*/
+
+  .input-sm {
+    height: 30px !important;
+  }
+
+  .panel h1 {
+    color: #5F5F5F;
+    font-weight: 600;
+    padding-bottom: 4px;
+    border-bottom: 1px solid whitesmoke;
+    font-size: 16px !important;
+  }
+
+  .blue-color{
+    color: rgb(2, 107, 162) !important;
+  }
+
+</style>
+
+<div class="col-md-12" data-bind="with:adm">
+  <ul class="nav nav-tabs parent-tab" id="Tab">
+      <li class="parent-tab active"><a href="#tab-01" data-toggle="tab" id="tb1">User</a></li>
+      <li class="parent-tab"><a href="#tab-02" data-toggle="tab" id="tb2">Session</a></li>
+      <li class="parent-tab"><a href="#tab-03" data-toggle="tab" id="tb3">Access</a></li>
+      <li class="parent-tab"><a href="#tab-04" data-toggle="tab" id="tb4">Group</a></li>
+    </ul>
+   <div class="tab-content">
+    <div class="tab-pane active" id="tab-01">
+      {{template "user.html" .}}
+    </div>
+    <div class="tab-pane" id="tab-02">
+      {{template "session.html" .}}
+    </div>
+    <div class="tab-pane" id="tab-03">
+      {{template "access.html" .}}
+    </div>
+    <div class="tab-pane" id="tab-04">
+      {{template "group.html" .}}
+    </div>
+  </div>
+</div>

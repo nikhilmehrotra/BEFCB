@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>EACIIT App | BEF v2.5b</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="/web-cb/static/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/web-cb/static/favicon.ico" type="image/x-icon" />
+        <!--     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Helvetica+Neue" />  -->
+        <!-- <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />  -->
+
+        <script src="/web-cb/static/js/jquery-2.1.0.min.js"></script>
+        <script src="/web-cb/static/js/jquery-ui.min.js"></script>
+
+        <!-- <script src="/web-cb/static/js/knockout-3.1.0.js"></script> -->
+        <script src="/web-cb/static/js/knockout-3.3.0.js"></script>
+        <script src="/web-cb/static/js/knockout.mapping-latest.js"></script>
+        <script src="/web-cb/static/js/knockout.validation.js"></script>
+
+        <script src="/web-cb/static/toolkit/toolkit.min.js"></script>
+
+        <script src="/web-cb/static/html2canvas/html2canvas.js"></script>
+
+        <script src="/web-cb/static/js/jszip.min.js"></script>
+        <script src="/web-cb/static/kendoui/js/kendo.all.min.js"></script>
+
+        <script src="/web-cb/static/js/knockout-kendo.min.js"></script>
+
+        <!-- Tooltipster -->
+        <link rel="stylesheet" href="/web-cb/static/tooltipster/css/tooltipster.css?cache_counter=1" />
+        <!-- <link rel="stylesheet" href="/web-cb/static/tooltipster/css/tooltipster-val.css" /> -->
+        <script src="/web-cb/static/tooltipster/js/jquery.tooltipster.min.js"></script>
+        <!-- Tooltipster -->
+
+        <!-- Sweetalert -->
+        <script src="/web-cb/static/sweetalert/sweetalert.min.js"></script>
+        <link href="/web-cb/static/sweetalert/sweetalert.css" type="text/css" rel="stylesheet" />
+        <!-- Sweetalert -->
+
+        <!-- Js switch -->
+        <script src="/web-cb/static/switch-js/bootstrap-switch.js"></script>
+        <script src="/web-cb/static/switch-js/highlight.js"></script>
+        <script src="/web-cb/static/switch-js/main.js"></script>
+        <!-- Js switch -->
+
+        <script src="/web-cb/static/js/bootstrap.min.js"></script>
+        <script src="/web-cb/static/js/underscore.min.js"></script>
+        <script src="/web-cb/static/js/moment.min.js"></script>
+        <script src="/web-cb/static/js/color.js"></script>
+        <script src="/web-cb/static/js/tools.js"></script>
+        <!-- <script src="/web-cb/static/js/linq.js"></script> -->
+        <script src="/web-cb/static/js/custom.js"></script>
+
+        <!-- switch Bootstrap CSS -->
+        <link href="/web-cb/static/switch-css/bootstrap-switch.min.css" rel="stylesheet">
+        <!-- switch Bootstrap CSS -->
+
+        <link href="/web-cb/static/css/bootstrap.css" type="text/css" rel="stylesheet" />
+        <link href="/web-cb/static/css/bootstrap-theme.css" type="text/css" rel="stylesheet" />
+
+        <link rel="stylesheet" href="/web-cb/static/kendoui/styles/kendo.material.min.css" />
+        <link rel="stylesheet" href="/web-cb/static/kendoui/styles/kendo.common-bootstrap.min.css" />
+        <link rel="stylesheet" href="/web-cb/static/kendoui/styles/kendo.dataviz.min.css" />
+        <link rel="stylesheet" href="/web-cb/static/kendoui/styles/kendo.dataviz.bootstrap.min.css" />
+
+        <script src="/web-cb/static/js/lodash.js"></script>
+        <script src="/web-cb/static/js/linq.js"></script>
+        <script src="/web-cb/static/js/ecis_config.js"></script>
+        <script src="/web-cb/static/js/main.js"></script>
+        <script src="/web-cb/static/js/ecis_start.js"></script>
+        <script src="/web-cb/static/js/jquery.fullscreen.min.js"></script>
+        <!-- <script src="/web-cb/static/core/authentication.js"></script> -->
+
+        <link rel="stylesheet" href="/web-cb/static/css/font-awesome.css" />
+        <link rel="stylesheet" href="/web-cb/static/css/site.css" />
+
+
+        <script src="/web-cb/static/redips/redips-drag-min.js"></script>
+
+        <script>
+            var Now = new Date();
+            var CurrentMonth = new Date(Now.getFullYear(),Now.getMonth(),1)
+            var model = {
+            PageTabID:ko.observable(""),
+                    Processing: ko.observable(true),
+                    SelectedMenu: ko.observable('Dashboard'),
+                    date: ko.observable("abcdefg"),
+                    bootstrapSwitchSelector: ko.observable('body')
+            };
+            Notification = ko.observableArray([]);
+            var chartFont = "10px Helvetica Neue";
+            var chartLabelColor = "#58666e";
+            chartLabelColor = "#000";
+            var chartLabelDisplay = true;
+            var chartColors = ["#2890C0","#6AC17B","#6D6E71",
+            "#6BA8D0","#9FD18B",
+            "#A1C5E0","#C3E2C1","#BCBEC0",
+            "#DBE8F3","#E9F4E7","#E6E7E8"];
+        </script>
+
+        <style type="text/css">
+
+            /* Let's get this party started */
+            ::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+            }
+             
+            /* Track */
+            ::-webkit-scrollbar-track {
+                -webkit-box-shadow: inset 0 0 2px rgba(0,0,0,0.3);
+                -webkit-border-radius: 10px;
+                border-radius: 10px;
+            }
+             
+            /* Handle */
+            ::-webkit-scrollbar-thumb {
+                /*-webkit-border-radius: 10px;
+                border-radius: 10px;*/
+                background: #848484; 
+            }
+            ::-webkit-scrollbar-thumb:window-inactive {
+                background: #DDD; 
+            }
+            /* .trs {
+                 width: 160px;
+                 height: 40px;
+             }*/
+            .mng{
+                text-align: center;
+            }
+            /*.active {
+                background: red;
+            }*/
+            .tooltipster-default .tooltipster-content{
+                font-family: 'Helvetica Neue' !important;
+                font-size: 13px;
+                line-height: 16px;
+                padding: 8px 10px;
+                overflow: hidden;
+            }
+            .tooltipster-arrow-border{
+                margin-top: -2px !important;
+            }
+
+            .k-dropdown {
+                width: 100%;
+                border: solid 1px rgb(2, 107, 162);
+            }
+            .k-multiselect-wrap{
+                background-color: #fff;
+                border: 1px solid rgb(2, 107, 162);
+                min-height: 2.25em;
+            }
+            .k-dropdown > .k-dropdown-wrap > .k-input, .k-dropdown > .k-dropdown-wrap > .k-select{
+                background-color: #fff;
+            }
+            .k-numerictextbox {
+                width: 100%;
+            }
+            .k-datepicker{
+                width: 100%;
+                border: solid 1px #ededed;
+            }
+            .headerColorGrid{
+                background-color: #0081C5;
+            }
+            .btn-pdf {
+                background: url(static/img/pdf.png) no-repeat left top;
+                width: 32px;
+                height: 32px;
+                border: none;
+            }
+
+            .k-multiselect{
+                background:#ffffff;
+            }
+
+            .k-multiselect:after {
+                content: "\25BC";
+                position: absolute;
+                top: 9px;
+                right: 25px;
+                font-size: 9px;
+                color: #666;
+            }
+            html, body {
+                max-width: 100%;
+                /*overflow-x: hidden;*/
+            }
+            .menu-header {
+                height: 30px;
+                background-color: #333;
+            }
+
+            .nav-bar-header li {
+                float: left;
+            }
+
+            .nav-bar-header li a {
+                font-size: 12px;
+                margin: 0px;
+                padding: 5px;
+                background-color: #000;
+            }
+
+            .nav-bar-header li.selected a {
+                background-color: #ecb833;
+            }
+
+            .nav-bar-header li a:hover {
+                font-size: 12px;
+                margin: 0px;
+                padding: 5px;
+                background-color: #ecb833;
+            }
+            .form-group input[type='number'] {
+                text-align: right;
+            }
+            #logo{
+                margin-top:  0px;
+                width: 215px !important;
+                margin-left:  0px !important;
+            }
+            #logo-text{
+                position: absolute;
+                color: #FFF;
+                margin-left: 102px;
+                font-size: 18px;
+                border-left: 1px solid #FFF;
+                padding-left: 10px;
+                height: 35px;
+                padding-top: 5px;
+                margin-top: 1px;
+            }
+            #logosmall img.scblogo{
+                width: 40%;
+                border-right: 1px solid white;
+                padding: 0 10px 0 0;
+                margin: 11px 0 0 0;
+                float: left
+            }
+            #logosmall img.cbgrowth{
+                width: 35%;
+                padding: 0  0 0 10px;
+                margin: 11px 0 0 0;
+                float: left;
+            }
+            #logosmall-text{
+                color: #fff;
+                position: relative;
+                top: 18px;
+                left: 7px;
+                /*font-size: 13px;*/
+            }
+            .navbar-white-custom{
+                background:#ffffff;
+                border-bottom: 1px solid #ddd;
+                position: fixed;
+                width: 100%;
+                z-index: 30;
+            }
+            .nav-list-menu{
+                font-size: 12px;
+                position: absolute;
+                width:180px;
+                z-index: 1001;
+                right: 0px;
+                background: #ffffff;
+                margin-top: -21px;
+                border-left: 1px solid #ddd;
+                border-right: 1px solid #ddd;
+                border-bottom: 1px solid #ddd;
+                padding: 0px;
+                margin-top: 0px;
+
+            }
+            .nav-list-menu li{
+                width:178px;
+            }
+
+            .nav-list-menu li a{
+                text-align: left;
+            }
+            .nav-list-menu li a:hover,
+            .nav-list-menu li a:focus,
+            .nav-list-menu li a:active{
+                background: #0B81BC;
+                color: #fff;
+                border: #0B81BC;
+            }
+            .nav .open > a, .nav .open > a:hover, .nav .open > a:focus{
+                background: #0B81BC;
+                color: #fff;
+            }
+            .dropdown-menu > li > a{
+                color: #428bca
+            }
+            .text-logo{
+                margin-top: 20px;
+                margin-left:20px;
+                font-size: 20px;
+                color: #0878af;
+                position: absolute;
+            }
+            .align-left > .k-link{
+                text-align: left;
+            }
+            .align-right > .k-link{
+                text-align: right;
+            }
+            .blue-color{
+                color: rgb(2, 107, 162);
+            }
+            .mgLeft-10{
+                margin-left: -10px;
+            }
+            .mgLeft-15{
+                margin-left: -15px;
+            }
+            .mgRight-5{
+                margin-right: 5px;
+            }
+            .pdLeft0{
+                padding-left: 0px;
+            }
+            .pdRight0{
+                padding-right: 0px;
+            }
+            .pdLeft10{
+                padding-left: 10px;
+            }
+            .pdRight15{
+                padding-right: 15px;
+            }
+            .pdTop10{
+                padding-top: 10px;
+            }
+            .content-main{
+                margin-top: 40px;
+            }
+
+            p.first{
+                text-align: center;
+                font-weight: bold;
+                font-size: 14px;
+                line-height: 1.3;
+            }
+            p.second{
+                text-align: center;
+                font-size: 10px;
+                line-height: 1;
+            }
+            p.third{
+                text-align: center;
+                font-size: 8px;
+                line-height: 1
+            }
+            p.progressmen{
+                font-size: 10px;
+                line-height: 1;
+                margin-left: 10px;
+            }
+            #app-header .navbar-default .navbar-toggle:hover{
+                background-color: #6d6d6d;
+            }
+            #app-header .navbar-default .navbar-toggle:focus{
+                background-color: #6d6d6d;
+            }
+
+            #header-detail{
+                padding: 5px 0;
+            }
+
+            #header-detail .space-padding{
+                padding: 0 10px; border-right: 2px solid white;
+            }
+
+            #header-detail .space-padding .box-detail{
+                height: 40px;width: 100%;border: 1px solid white;border-radius: 6px;
+            }
+
+            #header-detail .padding-zero-ten{
+                padding: 0 10px;
+            }
+
+            #header-detail .padding-zero-ten div{
+                width: 60px; height: 30px
+            }
+            .lineheight40 {
+                line-height: 40px;
+            }
+            .width-percent100{
+                width: 100%;
+            }
+            .width-percent30{
+                width: 30%;
+                float: left;
+                margin: 0 3px 0 0;
+            }
+            .width-percent99{
+                width: 99%;
+            }
+            .width-percent95{
+                width: 95%;
+            }
+            .height0{
+                height: 0;
+            }
+        </style>
+
+        <style type="text/css">
+            .no-border{
+               border: 0 !important;
+            }
+            .no-padding{
+                padding: 0 !important;
+            }
+            .no-margin{
+                margin: 0 !important;
+            }
+            .cursor-pointer{
+                cursor:pointer;
+            }
+            .display-none{
+                display: none;
+            }
+            .display-inline{
+                display: inline;
+            }
+            .bewhite{
+                color:#fff !important;
+            }
+            .begrey{
+                color: grey !important;
+            }
+            .beblack{
+                color:#000 !important;
+            }
+            .begreen-custom{
+                color: #32f39b !important;
+            }
+            .btn-green-modified{
+                background-color:#00CC99; background-image:none; border-color:#fff; font-size:11px;
+            }
+            .smallerRoundedCheckbox label {
+              cursor: pointer;
+              position: absolute;
+              width: 15px;
+              height: 15px;
+              -webkit-border-radius: 50px;
+              -moz-border-radius: 50px;
+              border-radius: 50px;
+              right: 4px;
+              top: 1px;
+              -webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+              -moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+              box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+              background: #7FBA00;
+            }
+            .smallerRoundedCheckbox label:after {
+              -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+              filter: alpha(opacity=0);
+              opacity: 0;
+              content: '';
+              position: absolute;
+              width: 8px;
+              height: 5px;
+              background: transparent;
+              top: 5px;
+              left: 4px;
+              border: 2px solid #fcfff4;
+              border-top: none;
+              border-right: none;
+              -webkit-transform: rotate(-45deg);
+              -moz-transform: rotate(-45deg);
+              -o-transform: rotate(-45deg);
+              -ms-transform: rotate(-45deg);
+              transform: rotate(-45deg);
+            }
+
+            .smallerRoundedCheckbox label:hover::after {
+              -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+              filter: alpha(opacity=30);
+              opacity: 0.3;
+            }
+
+            .smallerRoundedCheckbox input[type=checkbox]:checked + label:after {
+              -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+              filter: alpha(opacity=100);
+              opacity: 1;
+            }
+        </style>
+
+
+        <script id="navbarTemplate" type="text/html">
+            <!-- ko if: Submenus().length==0 -->
+        <li data-bind="css:{selected:$root.PageId()==Title() ">
+            <a data-bind="text: Title, attr:{href:Url}" class="blue-color trs mng"></a>
+            <span data-bind="text:Submenus()"></span>
+        </li>
+
+        <!--    <li data-bind="if: Title() == 'Log Out'">
+                   <a data-bind="text: Title, attr:{href:Url}" class="grenn-color"></a>
+           </li> -->
+
+
+
+        <!-- /ko -->
+        <!-- ko if: Submenus().length>0 -->
+        <li data-bind="css:{selected:$root.PageId()==Title()||Submenus.length > 0}" class="dropdown">
+
+            <a class="cursor-pointer" data-toggle="dropdown">
+                <!-- <i class="glyphicon glyphicon-chevron-left glyph-custom"></i> -->
+                <span data-bind="text: Title"></span></a>
+            <ul class="dropdown-menu" role="menu" data-bind="template:{name:'navbarSubTemplate', foreach:Submenus}"></ul>
+        </li>
+        <!-- /ko -->
+
+        <!-- <li data-bind="if: $index() == 3">
+            <a onClick="Logout()" data-bind="text:'Logout'" style="cursor: pointer;"  ></a>
+        </li> -->
+    </script>
+
+    <script id="navbarSubTemplate" type="text/html">
+        <!-- ko if: Submenus().length==0 -->
+        <li data-bind="css:{selected:$root.PageId()==Title()||$root.ParentId().indexOf(Title())>=0}">
+            <a data-bind="text: Title, attr:{href:Url}" class="grenn-color child"></a>
+        </li>
+        <!-- /ko -->
+        <!-- ko if: Submenus().length>0 -->
+        <li data-bind="css:{selected:$root.PageId()==Title()||$root.ParentId().indexOf(Title())>=0}" class="dropdown-submenu">
+            <a data-bind="text: Title" class="dropdown-toggle cursor-pointer trs mng" data-toggle="dropdown"></a>
+            <ul class="dropdown-menu" role="menu" data-bind="template:{name:'navbarSubTemplate', foreach:Submenus}"></ul>
+        </li>
+        <!-- /ko -->
+    </script>
+
+    <script id="breadcrumbTemplate" type="text/html">
+        <li data-bind="attr:{class:CssClass}"><a data-bind="text: Title, attr:{href:Url, class:CssClass, onclick: (Action!=undefined?Action:'')}"></a></li>
+    </script>
+</head>
+<body style="overflow-x: hidden !important">
+
+    <table width="100%" height="100%">
+        <tr>
+            <td id="sidebar-wrapper"  data-bind="attr:{'class':Sidebar.IsExpand()?'sidebar-expand':'sidebar-collapse'}">
+                {{template "sidebar.html" .}}
+            </td>
+            <td id="app-content-wrapper">
+                <!-- wrapper starts here -->
+                <!-- wrapper starts here -->
+                <div class="container-fluid" style="display:none" data-bind="visible:!Processing()">
+
+                    <div id="app-header">
+                        <div class='navbar navbar-default'>
+                            <!--  <div class='container'> -->
+                            <div class="col-sm-3">
+                                <div  id="logo">
+                                    <div id="logo-text">
+                                        <img src="/web-cb/static/img/sc_enabling_cbgrowth.png">
+                                        BEF<span> v2.5b</span>
+                                    </div>
+                                    <img src="/web-cb/static/img/site-logo.png">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-5 col-sm-6" id="header-detail" data-bind="visible: c.hd.see(), visible: c.hd.hideHeader">
+                                <div class="col-sm-4 space-padding" >
+                                    <div class="box-detail no-margin">
+                                        <div class="col-sm-6 no-padding cursor-pointer" onclick="c.Filter.CBLead(!c.Filter.CBLead())">
+                                            <div class="smallerRoundedCheckbox">
+                                                <input type="checkbox" class="checkboxLegend" data-bind="checked:c.Filter.CBLead" style="visibility:hidden;">
+                                                <label for="smallerRoundedCheckbox" ></label>
+                                            </div>
+                                            <p data-bind="attr:{class:c.Filter.CBLead()? 'no-margin first bewhite' : 'no-margin first begrey'},text: c.hd.cblead"> </p>
+                                            <p data-bind="attr:{class:c.Filter.CBLead()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                                            <p data-bind="attr:{class:c.Filter.CBLead()? 'no-margin third bewhite' : 'no-margin third begrey'}">(CB Led)</p>
+                                            <!-- <i data-bind="attr:{class:c.Filter.CBLead()? 'fa fa-check-square-o fa-lg checkboxLegend' : 'fa fa-square-o fa-lg checkboxLegend'}" style="color: white;margin: 4px 4px;"></i> -->
+                                        </div>
+                                        <div class="col-sm-6 no-padding cursor-pointer" onclick="c.Filter.BankWide(!c.Filter.BankWide())" >
+                                            <div class="smallerRoundedCheckbox">
+                                                <input type="checkbox" class="checkboxLegend" data-bind="checked:c.Filter.BankWide" style="visibility:hidden;">
+                                                <label for="smallerRoundedCheckbox" ></label>
+                                            </div>                            
+                                            <p data-bind="attr:{class:c.Filter.BankWide()? 'no-margin first bewhite' : 'no-margin first begrey'}, text: c.hd.bwide"></p>
+                                            <p data-bind="attr:{class:c.Filter.BankWide()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                                            <p data-bind="attr:{class:c.Filter.BankWide()? 'no-margin third bewhite' : 'no-margin third begrey'}">(Bank Wide)</p>
+                                            <!-- <i data-bind="attr:{class:c.Filter.BankWide()? 'fa fa-check-square-o fa-lg checkboxLegend' : 'fa fa-square-o fa-lg checkboxLegend'}" style="color: white;margin: 4px 4px;"></i> -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 space-padding">
+                                    <div class="box-detail no-margin">
+                                        <div class="col-sm-6 no-padding cursor-pointer" onclick="c.Filter.YtdComplete(!c.Filter.YtdComplete())">
+                                            <div class="smallerRoundedCheckbox">
+                                                <input type="checkbox" class="checkboxLegend" data-bind="checked:c.Filter.YtdComplete" style="visibility:hidden;">
+                                                <label for="smallerRoundedCheckbox" ></label>
+                                            </div>
+                                            <p data-bind="attr:{class:c.Filter.YtdComplete()? 'no-margin first bewhite' : 'no-margin first begrey'}, text: c.hd.ytd"></p>
+                                            <p data-bind="attr:{class:c.Filter.YtdComplete()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                                            <p data-bind="attr:{class:c.Filter.YtdComplete()? 'no-margin third bewhite' : 'no-margin third begrey'}">(YTD Completed)</p>
+                                            <!-- <i data-bind="attr:{class:c.Filter.YtdComplete()? 'fa fa-check-square-o fa-lg checkboxLegend' : 'fa fa-square-o fa-lg checkboxLegend'}" style="color: white;margin: 4px 4px;"></i> -->
+                                        </div>
+                                        <div class="col-sm-6 no-padding cursor-pointer" onclick="c.Filter.Remaining(!c.Filter.Remaining())">
+                                            <div class="smallerRoundedCheckbox">
+                                                <input type="checkbox" class="checkboxLegend" data-bind="checked:c.Filter.Remaining" style="visibility:hidden;">
+                                                <label for="smallerRoundedCheckbox" ></label>
+                                            </div>
+                                            <p class="no-margin bewhite first" data-bind="attr:{class:c.Filter.Remaining()? 'no-margin first bewhite' : 'no-margin first begrey'},text: c.hd.remain"></p>
+                                            <p data-bind="attr:{class:c.Filter.Remaining()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                                            <p data-bind="attr:{class:c.Filter.Remaining()? 'no-margin third bewhite' : 'no-margin third begrey'}">(Remaining)</p>
+                                            <!-- <i data-bind="attr:{class:c.Filter.Remaining()? 'fa fa-check-square-o fa-lg checkboxLegend' : 'fa fa-square-o fa-lg checkboxLegend'}" style="color: white;margin: 4px 4px;"></i> -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 space-padding" style="border-right-color:#3b3838;">
+                                    <div class="box-detail no-margin" style="width: 125%;">
+                                        <div class="col-sm-6 no-padding cursor-pointer" onclick="c.Filter.High(!c.Filter.High())" style="width: 33.3%">
+                                            <div class="smallerRoundedCheckbox">
+                                                <input type="checkbox" class="checkboxLegend" data-bind="checked:c.Filter.High" style="visibility:hidden;">
+                                                <label for="smallerRoundedCheckbox" ></label>
+                                            </div>
+                                            <p data-bind="attr:{class:c.Filter.High()? 'no-margin first bewhite' : 'no-margin first begrey'},text: c.hd.iHigh"></p>
+                                            <p data-bind="attr:{class:c.Filter.High()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                                            <p data-bind="attr:{class:c.Filter.High()? 'no-margin third bewhite' : 'no-margin third begrey'}">(# of High)</p>
+                                            <!-- <i data-bind="attr:{class:c.Filter.High()? 'fa fa-check-square-o fa-lg checkboxLegend' : 'fa fa-square-o fa-lg checkboxLegend'}" style="color: white;margin: 4px 4px;"></i> -->
+                                        </div>
+                                        <div class="col-sm-6 no-padding cursor-pointer" onclick="c.Filter.Medium(!c.Filter.Medium())" 
+                                        style="width: 33.3%">
+                                            <div class="smallerRoundedCheckbox">
+                                                <input type="checkbox" class="checkboxLegend" data-bind="checked:c.Filter.Medium" style="visibility:hidden;">
+                                                <label for="smallerRoundedCheckbox" ></label>
+                                            </div>
+                                            <p data-bind="attr:{class:c.Filter.Medium()? 'no-margin first bewhite' : 'no-margin first begrey'},text: c.hd.iMedium"></p>
+                                            <p data-bind="attr:{class:c.Filter.Medium()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                                            <p data-bind="attr:{class:c.Filter.Medium()? 'no-margin third bewhite' : 'no-margin third begrey'}">(# of Medium)</p>
+                                            <!-- <i data-bind="attr:{class:c.Filter.Medium()? 'fa fa-check-square-o fa-lg checkboxLegend' : 'fa fa-square-o fa-lg checkboxLegend'}" style="color: white;margin: 4px 4px;"></i> -->
+                                        </div>
+                                        <div class="col-sm-6 no-padding cursor-pointer" onclick="c.Filter.Low(!c.Filter.Low())" 
+                                        style="width: 33.3%">
+                                            <div class="smallerRoundedCheckbox">
+                                                <input type="checkbox" class="checkboxLegend" data-bind="checked:c.Filter.Low" style="visibility:hidden;">
+                                                <label for="smallerRoundedCheckbox" ></label>
+                                            </div>
+                                            <p data-bind="attr:{class:c.Filter.Low()? 'no-margin first bewhite' : 'no-margin first begrey'},text: c.hd.iLow"></p>
+                                            <p data-bind="attr:{class:c.Filter.Low()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                                            <p data-bind="attr:{class:c.Filter.Low()? 'no-margin third bewhite' : 'no-margin third begrey'}">(# of Low)</p>
+                                            <!-- <i data-bind="attr:{class:c.Filter.Low()? 'fa fa-check-circle-o fa-lg checkboxLegend' : 'fa fa-square-o fa-lg checkboxLegend'}" style="color: green;margin: 4px 4px;"></i> -->
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+
+                            <div class="col-sm-7" data-bind="visible: !c.hd.see(), visible: !c.hd.hideHeader()"></div>
+
+                            <div class="no-padding" data-bind="visible: c.hd.see()">
+                                <!-- <button class='navbar-toggle no-border mgRight-5' onclick="Sidebar.Toggle()" style="position: absolute;left: 0px;">
+                                    <i class="fa fa-bars fa-lg bewhite" aria-hidden="true"></i>
+                                </button> -->
+                                <!-- <button class='navbar-toggle no-border mgRight-5' data-toggle='collapse'
+                                    data-target='.navbar-collapse'>
+
+                                 <i class="fa fa-bars fa-lg bewhite" aria-hidden="true"></i>
+                                </button> -->
+                                <button class='editing-button navbar-toggle no-border mgRight-5' data-bind="visible:!Scorecard.IsEditing()" onclick="Scorecard.IsEditing(!Scorecard.IsEditing());SharedAgenda.IsEditingFunction(!SharedAgenda.IsEditingFunction());">
+                                 <i class="fa fa-pencil-square fa-lg bewhite " aria-hidden="true"></i>
+                                </button>
+                                <button class='editing-button navbar-toggle no-border mgRight-5' data-bind="visible:Scorecard.IsEditing()"  onclick="Scorecard.IsEditing(!Scorecard.IsEditing());SharedAgenda.IsEditingFunction(!SharedAgenda.IsEditingFunction());">
+                                 <i class="fa fa-check-circle fa-lg begreen-custom" aria-hidden="true"></i>
+                                </button>
+                                <button class='chart-button navbar-toggle no-border mgRight-5' data-bind="click:scchart.get;"  style="display: none;">
+                                 <i class="fa fa-bar-chart-o fa-lg bewhite " aria-hidden="true"></i>
+                                </button>
+                                <button class='uploadbm-button navbar-toggle no-border mgRight-5' data-bind="click:Scorecard.UploadDownload" style="display: none;">
+                                    <img style="width: 13px; margin-top: -1px;" src="/web-cb/static/img/icon-upload.png">
+                                </button>
+                                <button class='align-button navbar-toggle no-border mgRight-5' data-bind="visible:!SortInitiative.Active()" onclick="SortInitiative.Click()">
+                                 <i class="fa fa-align-center fa-lg bewhite" aria-hidden="true"></i>
+                                </button>
+                                <button class='align-button navbar-toggle no-border mgRight-5' data-bind="visible:SortInitiative.Active()" onclick="SortInitiative.Click()">
+                                 <i class="fa fa-align-center fa-lg begreen-custom" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="col-sm-2" data-bind="visible: !c.hd.see()">
+                                <button class='navbar-toggle no-border mgRight-5' data-toggle='collapse'
+                                    data-target='.navbar-collapse'>
+
+                                 <i class="fa fa-bars fa-lg bewhite" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- <ul  class='nav navbar-nav collapse navbar-collapse nav-list-menu' data-bind="template:{name:'navbarTemplate', foreach:MainMenus}"></ul> -->
+
+                    </div>
+
+                    <script>
+
+                        var SortInitiative = {
+                            Active : ko.observable(false),
+                            BackupHeight : ko.observableArray([])
+                        }
+                        SortInitiative.Click = function(){
+                            c.Processing(true);
+
+
+                            if (!SortInitiative.Active()){
+                                c.DataSource().Data.TableSourcesVer3(c.DataSource().Data.TableSourcesVer3AlignVer)
+                                SortInitiative.Active(!SortInitiative.Active());
+                                search.FilterInitiative($("#search-input").val())
+                                // setTimeout(Initiative.fixedHeader(),300)
+                            } else{
+                                SortInitiative.Active(!SortInitiative.Active());
+                                c.DataSource().Data.TableSourcesVer3(c.DataSource().Data.TableSourcesVer3BackupAll)
+                                search.FilterInitiative($("#search-input").val())
+                            }
+                            // if($("#search-input").val()!==""){
+                                
+                            // }
+
+                            setTimeout(function() {
+                                
+                                // SortInitiative.sycHeight();
+                                if(SortInitiative.Active() && c.SelectedTab() == "Initiative"){
+                                    Initiative.FixedHeader();
+                                }else if(!SortInitiative.Active() && c.SelectedTab() == "Initiative"){
+                                    Initiative.RemoveFixedHeader();
+                                }
+                                c.Processing(false);
+                                redipsInit();
+                                // SortInitiative.sycHeight()
+                            }, 500);
+
+                        }
+
+                        SortInitiative.sycHeight = function(){
+                            data = c.DataSource().Data.BusinessDriverL1
+                            var z = false
+                            if (c.SyncHeightForSortInitiative().length != c.DataSource().Data.BusinessDriverL1.length){
+                                c.SyncHeightForSortInitiative([])
+                                z = true
+                            }
+                            _.each(data, function(v,i){
+                                if(v.Idx != c.SelectedSC() ){
+                                    var height = c.SyncHeightForSortInitiative()[i] 
+                                    $('.'+v.Idx).animate({height: height}, "slow");
+                                    if (SortInitiative.Active()){
+                                        $("[sccategory='"+v.Idx+"']").animate({height: height}, "slow");
+
+                                    }
+                                } else{
+                                    obj = _.find(c.DataSource().Data.BusinessDriverL1, function(v){ return v.Idx== c.SelectedSC() })
+                                    if(obj != undefined){
+                                        objx = Scorecard.Data()[obj.Seq-1];
+
+                                        var BMTotal =  Scorecard.BMTotal();
+                                        var BDTotal = Scorecard.BDTotal()+2;
+                                        var HeightTotal = BMTotal*23;
+                                        var d = ko.mapping.toJS(objx);
+                                        var ii = d.BusinessDriverList.length
+
+                                        if(d.Idx === c.SelectedSC()){
+                                            ii+=2;
+                                        }
+                                        var height = (ii/BDTotal*HeightTotal);
+                                        // $('.'+v.Idx).height(height)
+                                        $('.'+v.Idx).animate({height: height}, "slow");
+                                    }
+                                }
+                                // console.log(v.Idx, c.SelectedSC())
+                                h1 = $('.'+v.Idx).height() == null ? 0 : $('.'+v.Idx).height();
+                                h2 = $("[sccategory='"+v.Idx+"']").height() == null ? 0 : $("[sccategory='"+v.Idx+"']").height();
+                                if (z){
+                                    c.SyncHeightForSortInitiative.push(h1)
+                                }
+
+                                // console.log(h1,h2, SortInitiative.Active())
+                                if (SortInitiative.Active()){
+                                    if(h1 > h2){
+                                        $("[sccategory='"+v.Idx+"']").height(h1);
+                                    } else if(h1 < h2){
+                                        // $('.'+v.Idx).height(h2);
+                                        $('.'+v.Idx).animate({height: h2}, "slow");
+                                    }
+                                    $('#tabelChart').height('auto');
+                                    // $('#tabelChart').css({
+                                    //     // "height":height,
+                                    //     "top": "155px",
+                                    //     "left": "229px",
+                                    // })
+                                    Initiative.FixedHeader();
+                                    // setTimeout(,300)
+                                } else{
+                                    // if(c.SelectedSC() != ""){
+                                    //     obj = _.find(c.DataSource().Data.BusinessDriverL1, function(v){ return v.Idx== c.SelectedSC() })
+                                    //     if(obj != undefined){
+                                    //         $('.'+c.SelectedSC()).height(c.SyncHeightForSortInitiativeSelectedSC()[obj.Seq])
+                                    //     }
+                                    // } else{
+                                    //     $('.'+v.Idx).height(c.SyncHeightForSortInitiative()[i])
+                                    // }
+                                    
+                                    // $('#tabelChart').height(Scorecard.BMTotal()*23.92)
+                                    // setTimeout(Initiative.RemoveFixedHeader(),300)
+                                    Initiative.RemoveFixedHeader();
+                                    $('#tabelChart').animate({height: Scorecard.BMTotal()*23.92}, "slow");
+                                }
+                            })
+                        }
+
+                        function GridColumn (id, userId, gridId) {
+                        this.Name = id + "_" + userId + "_" + gridId;
+                        this.GridId = gridId;
+                        this.Init = function() {
+                        var grid = $('#' + this.GridId).data('kendoGrid');
+                        var gridCols = grid.columns;
+                        var datas = readCookie(this.Name);
+                        if (datas == null) {
+                        var visibleCols = [];
+                        jQuery.each(gridCols, function (index) {
+                        if (!this.hidden) {
+                        visibleCols.push(this.field);
+                        }
+                        });
+                        createCookie(this.Name, visibleCols.join('|'));
+                        } else {
+                        var showColumns = datas.split('|');
+                        jQuery.each(gridCols, function (index) {
+                        if (showColumns.indexOf(this.field) < 0) {
+                        grid.hideColumn(this.field);
+                        }
+                        });
+                        }
+                        };
+                        this.GetColumns = function() {
+                        return readCookie(this.Name);
+                        };
+                        this.AddColumn = function(columnName) {
+                        var datas = this.GetColumns();
+                        var cols = [];
+                        if (datas != null) {
+                        cols = datas.split('|');
+                        if (cols.indexOf(columnName) < 0) {
+                        cols.push(columnName);
+                        }
+                        }
+
+                        eraseCookie(this.Name);
+                        createCookie(this.Name, cols.join('|'));
+                        };
+                        this.RemoveColumn = function(columnName) {
+                        var datas = this.GetColumns();
+                        var cols = [];
+                        if (datas != null) {
+                        cols = datas.split('|');
+                        if (cols.indexOf(columnName) > - 1) {
+                        jQuery.each(cols, function(index) {
+                        if (cols[index] == columnName) {
+                        cols.splice(index, 1);
+                        }
+                        });
+                        }
+                        }
+
+                        eraseCookie(this.Name);
+                        createCookie(this.Name, cols.join('|'));
+                        };
+                        }
+                        function removeSpace(value) {
+                        return value.replace(" ", "");
+                        }
+                        function createCookie(name, value, days) {
+                        days = days || 365;
+                        if (days) {
+                        var date = new Date();
+                        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                        var expires = "; expires=" + date.toGMTString();
+                        }
+                        else var expires = "";
+                        document.cookie = name + "=" + value + expires + "; path=/";
+                        }
+
+                        function readCookie(name) {
+                        var nameEQ = name + "=";
+                        var ca = document.cookie.split(';');
+                        for (var i = 0; i < ca.length; i++) {
+                        var c = ca[i];
+                        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+                        }
+                        return null;
+                        }
+
+                        function eraseCookie(name) {
+                        createCookie(name, "", - 1);
+                        }
+
+                        function getUTCDate(strdate){
+                        var d = moment.utc(strdate);
+                        return new Date(d.year(), d.month(), d.date(), 0, 0, 0)
+                        }
+                        function getUTCDateFull(strdate){
+                        var d = moment.utc(strdate);
+                        return new Date(d.year(), d.month(), d.date(), d.hours(), d.minutes(), d.seconds())
+                        }
+
+                        function toUTC(d){
+                        var year = d.getFullYear();
+                        var month = d.getMonth();
+                        var date = d.getDate();
+                        var hours = d.getHours();
+                        var minutes = d.getMinutes();
+                        var seconds = d.getSeconds();
+                        return moment(Date.UTC(year, month, date, hours, minutes, seconds)).toISOString();
+                        }
+                        function getStringQuery(name) {
+                        var url = window.location.href;
+                        name = name.replace(/[\[\]]/g, "\\$&");
+                        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                                results = regex.exec(url);
+                        if (!results) return null;
+                        if (!results[2]) return '';
+                        return decodeURIComponent(results[2].replace(/\+/g, " "));
+                        }
+                        function Logout(){
+                        localStorage.clear();
+                        var cookies = document.cookie.split(";");
+                        for (var i in cookies) {
+                        eraseCookie(cookies[i].split("=")[0]);
+                        }
+                        console.log(window.location)
+                                // window.location.href = "/logout/do";
+                                window.location.href = "/web-cb/acluser/default";
+                        }
+
+
+                        function MenuItem(id, url, title, submenus, baseURL) {
+                            var obj = {
+                                _id: ko.observable(id),
+                                Title: ko.observable(title == undefined ? id : title),
+                                Url: ko.observable("/web-cb"+url.replace("~/",baseURL)),
+                                Submenus: ko.observableArray([]),
+                                IsShowingSubmenus:ko.observable(false)
+                            };
+
+                            var arr = submenus;
+                            for(var i in arr){
+                                obj.Submenus.push(
+                                    new MenuItem(
+                                        arr[i]._id,
+                                        arr[i].Url,
+                                        arr[i].Title,
+                                        arr[i].Submenus,
+                                        baseURL
+                                    )
+                                );
+                            }
+                            return obj;
+                        };
+
+                        function BreadCrumb(id, title, url, cssClass, action) {
+                        var obj = {
+                        _id: ko.observable(id),
+                                Title: ko.observable(title == undefined ? id : title),
+                                Url: url,
+                                Action: action,
+                                CssClass: cssClass
+                        };
+                        return obj;
+                        }
+
+
+                        model.ParentId = ko.observableArray([]);
+                        model.PageId = ko.observable("");
+                        model.MainMenus = ko.observableArray([]);
+                        model.RoleGroup = ko.observable("");
+                        model.BreadCrumbs = ko.observableArray([]);
+                        model.VisibleDropdown = ko.observableArray([]);
+                        model.menu = ko.observable('');
+                        function convert(array){
+                        var map = {};
+                        for (var i = 0; i < array.length; i++){
+                        var obj = array[i];
+                        obj.Submenus = [];
+                        map[obj.Id] = obj;
+                        var parent = obj.Parent || '-';
+                        if (!map[parent]){
+                        map[parent] = {
+                        Submenus: []
+                        };
+                        }
+                        map[parent].Submenus.push(obj);
+                        }
+                        return map['-'].Submenus;
+                        }
+
+                        function MenuItem(Id, Url, Title, Submenus, baseURL) {
+                        var obj = {
+                        Id: ko.observable(Id),
+                                Title: ko.observable(Title == undefined ? Id : Title),
+                                Url: ko.observable(baseURL + Url),
+                                Submenus: ko.observableArray([]),
+                                IsShowingSubmenus:ko.observable(false)
+                        };
+                        var arr = Submenus;
+                        for (var i in arr){
+                        obj.Submenus.push(
+                                new MenuItem(
+                                        arr[i]._id,
+                                        "/web-cb"+arr[i].url,
+                                        arr[i].title,
+                                        arr[i].submenu,
+                                        baseURL
+                                        )
+                                );
+                        }
+                        return obj;
+                        };
+                        model.getDataMenu = function (){
+                        // var url = "/menusetting/getmenutop";
+                        var url = "/web-cb/acluser/getlisttopmenu";
+                        var param = {
+                        };
+                        ajaxPost(url, param, function (data) {
+                         // data.push({_id:"LOGOUT",icon:"",index:99,submenu:[],title:"Logout",url:"/acluser/logout"})
+                        var arrData = [];
+                        var baseURL = "";
+                        // var dataMenu = data.Data.Records;
+                        var dataMenu = data;
+                        // dataMenu.push({
+                        //     "Id" : '',
+                        //     "Parent" : '',
+                        //     "_id" : 'logout',
+                        //     "Url" :'#',
+                        //     "Title" : 'Log Out',
+                        //     "IndexMenu" : 100,
+                        // });
+                        for (var i in dataMenu){
+                        arrData.push({
+                        "Id" : dataMenu[i]._id,
+                                "_id" : dataMenu[i]._id,
+                                "Url" :"/web-cb"+dataMenu[i].url,
+                                "Title" : dataMenu[i].title,
+                                "IndexMenu" : dataMenu[i].index,
+                                "submenu" : dataMenu[i].submenu,
+                        });
+                        }
+                        // for (var i in dataMenu){
+                        //     arrData.push({
+                        //        "Id" : dataMenu[i].Id,
+                        //        "Parent" : dataMenu[i].Parent,
+                        //        "_id" : dataMenu[i].PageId,
+                        //        "Url" :dataMenu[i].url,
+                        //        "Title" : dataMenu[i].title,
+                        //        "IndexMenu" : dataMenu[i].IndexMenu,
+                        //     });
+                        // }
+                        var sortMenu = Enumerable.From(arrData).OrderBy("$.Parent").ThenBy("$.IndexMenu").ToArray();
+                        var dataTree = convert(sortMenu);
+                        var arr = dataTree;
+                        for (var i in arr){
+                        model.MainMenus.push(
+                                new MenuItem(
+                                        arr[i]._id,
+                                        arr[i].Url,
+                                        arr[i].Title,
+                                        arr[i].submenu,
+                                        baseURL
+                                        )
+                                );
+                        }
+
+                        });
+                        }
+
+                        model.GetPageTitle = function(PageId, MenuList, ParentId){
+                        var Title = "";
+                        for (var i in MenuList){
+                        if (MenuList[i].Id == PageId){
+                        Title = MenuList[i].Title
+                                ParentId.push(MenuList[i]._id);
+                        break;
+                        }
+                        if (Title == "" && MenuList[i].Submenus.length > 0){
+                        Title = model.GetPageTitle(PageId, MenuList[i].Submenus, ParentId)
+
+                                if (Title !== ""){
+                        ParentId.push(MenuList[i]._id);
+                        }
+                        }
+                        }
+                        return Title;
+                        };
+                        model.PageTitle = ko.computed(function(){
+                        var PageId = model.PageId();
+                        var MenuList = model.MainMenus();
+                        var Title = "";
+                        var ParentId = [];
+                        Title = model.GetPageTitle(PageId, MenuList, ParentId);
+                        model.ParentId(ParentId);
+                        return Title;
+                        }, model);
+                        model.AppHomeButtonLoad = function(obj){
+                        var id = obj._id;
+                        var url = obj.Url;
+                        var title = obj.Title;
+                        window.location.href = url;
+                        }
+                        model.getDate = function(){
+                        var d = new Date();
+                        var Months = ["January", "February", "March", "April", "May", "May", "July", "August", "September", "October", "November", "December"];
+                        var Days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                        var year = d.getFullYear();
+                        var month = Months[parseInt(d.getMonth())];
+                        var date = d.getDate();
+                        var day = Days[parseInt(d.getDay())];
+                        var formatDate = day + ", " + month + " " + date + " " + year
+                                model.date(formatDate)
+                        }
+
+                        function sortStringNumberTemp(maxnumber, data, varx){
+                          tmpdata = [];
+
+                          tmpdata1 = [];
+
+                          maxnumber = maxnumber === undefined ? 0 : maxnumber;
+                          tmpvar = 'x.'+varx
+
+                          _.each(data, function(x,i){
+                            // console.log()
+                            if( isNaN(parseInt( eval(tmpvar)[0])) ) {
+                              tmpdata1.push(x);
+                            }
+                          })
+                          tmpdata1 = _.sortBy(tmpdata1, varx)
+                          // console.log(tmpdata1)
+
+                          for (i = 1; i < maxnumber; i++) {
+                            // console.log(i)
+                            tmp = _.find(data, function(x){return eval(tmpvar).split('.')[0] == i})
+                            // console.log(tmp)
+                            breakbos1 = false;
+                            if(tmp === undefined){
+                              breakbos1 = true;
+                              // break;
+                            } else{
+                              tmpdata.push(tmp)
+                            }
+
+                            for (var ii = 65; ii <= 90; ii++) {
+                              k2 = i + ' ' + String.fromCharCode(ii).toLowerCase();
+                              // console.log(k2)
+                              tmp2 = _.find(data, function(x){return eval(tmpvar).split('.')[0] == k2})
+                              // console.log(tmp2)
+                              breakbos2 = false;
+                              if(tmp2 === undefined){
+                                breakbos2 = true;
+                                break;
+                              } else{
+                                tmpdata.push(tmp2)
+                              }
+                            }
+
+                          }
+
+                          tmpdata = tmpdata.concat(tmpdata1);
+
+                          if(tmpdata.length == 0){
+                            tmpdata = data;
+                          }
+
+                          return tmpdata;
+                        }
+
+                        function sortStringNumber(maxnumber, data, varx){
+                            tmpvar = 'v.'+varx
+                            _.each(data, function(v,i){
+                                var string = eval(tmpvar);
+                                var sortNumber = "";
+                                var stringOnIndex = 0;
+                                for(var ii in string){
+                                  if(!isNaN(string[ii])){
+                                    sortNumber+=string[ii];
+                                  }else{
+                                    stringOnIndex = ii;
+                                    break
+                                  }
+                                }
+                                data[i].sortNumber = parseInt(sortNumber)
+                                data[i].sortString = string.substr(stringOnIndex,string.length).trim()
+                            })
+                            data = _.sortBy(data, ['sortNumber', 'sortString'])
+                            return data;
+                        }
+                    </script>
+                    <script>
+                        model.BreadCrumbs.push(new BreadCrumb("youare", "You are here : ", "#", "youare"));
+                    </script>
+
+                </div>
+                <!-- header ends here -->
+                <!-- header ends here -->
+                <!-- section starts here -->
+                <div id="app-content" data-bind="visible:!Processing()">
+                    <div id="scchart-locker">&nbsp;</div>
+                    <section class="content">
+                        {{.Content}}
+                    </section>
+                </div>
+
+                <!-- section ends here -->
+                <!-- wrapper ends here -->
+            </td>
+        </tr>
+    </table>
+    <div class="footer">
+        <img src="/web-cb/static/img/logoeaciittrans.png" style="margin-left:7px; ">&nbsp;EACIIT
+        <img src="/web-cb/static/img/footer.png" style=" float: right;margin-top: 7px;margin-right: 7px; ">
+    </div>
+    <script>
+        ko.applyBindings(model);
+        $(document).ready(function () {
+            model.getDate();
+            model.Processing(false);
+            model.getDataMenu();
+            model.menu(model.PageId());
+        });
+
+
+        $('body').click(function(){
+            $('.nav.navbar-nav.navbar-collapse.nav-list-menu.collapse').removeClass('in')
+        })
+
+    </script>
+</body>
+
+</html>

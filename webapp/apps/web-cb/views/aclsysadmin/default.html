@@ -1,0 +1,75 @@
+
+<script type="text/javascript">
+  model.PageId("USER");
+  // model.TitlePage("User Management");
+  model.BreadCrumbs.push(new BreadCrumb("aclsysadmin", "aclsysadmin", "#", "active", ""));
+</script>
+<style type="text/css">
+  .padding-bottom{
+    padding-bottom: 10px;
+  }
+  .dashboard-filter{
+    margin: 15px 0px 8px 15px;
+
+  }
+  .dashboard-filter li{
+    margin: 0px !important;
+    text-align: center;
+  }
+  #secondmenu >li>a{
+    padding: 7px;
+  }
+  #secondmenu > li > a:hover{
+    background-color: inherit;
+  }
+  #secondmenu > li.active > a:hover{
+    background-color: #428bca;
+  }
+  #secondmenu{
+    border: 1px solid #CCC;
+    border-radius: 5px;
+  }
+</style>
+<!-- <link href="/web-cb/static/css/core/dashboard.css" type="text/css" rel="stylesheet" /> -->
+<script src="/web-cb/static/core/aclsysadmin.js"></script>
+
+<div class="row" data-bind="with:adm">
+    <div class="col-sm-4 form-input dashboard-filter switcher">
+        <ul id="secondmenu" class="nav nav-pills">
+            <li class="col-sm-3 no-padding active">
+              <a href="#tab-01" data-toggle="tab" id="tb1" data-bind="click: function(){ adm.addUser(false), adm.saveUser(false), adm.updateUser(false) }"> User</a>
+            </li>
+            <li class="col-sm-3 no-padding">
+              <a href="#tab-04" data-toggle="tab" id="tb4" data-bind="click: function(){ adm.addGroup(false),adm.btnSaveGroup(false),adm.updateGroup(false),grp.getTopMenu() }"> Group</a>
+            </li>        
+            <li class="col-sm-3 no-padding">
+              <a href="#tab-03" data-toggle="tab" id="tb3" data-bind="click:adm.showMenu"> Menu Setting</a>
+            </li>
+            <li class="col-sm-3 no-padding">
+              <a href="#tab-02" data-toggle="tab" id="tb2"> Log Session</a>
+            </li>
+        </ul>
+    </div>
+    <div class="col-sm-7">&nbsp;</div>
+    <div class="col-sm-12">
+      <div class="tab-content">
+        <div class="tab-pane active" id="tab-01">
+          {{template "user.html" .}}
+        </div>
+        <div class="tab-pane" id="tab-02">
+          {{template "session.html" .}}
+        </div>
+        <div class="tab-pane" id="tab-03">
+          {{template "access.html" .}}
+        </div>
+        <div class="tab-pane" id="tab-04">
+          {{template "group.html" .}}
+        </div>
+        <div class="tab-pane" id="tab-05">
+          {{template "changePassword.html" .}}
+        </div>
+       </div>
+    </div>
+
+   </div>
+</div>

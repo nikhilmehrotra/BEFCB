@@ -1,0 +1,177 @@
+<link href="/web-cb/static/css/core/scorecard_initiative.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/scorecard_initiative.js"></script>
+<style type="text/css">
+  .noclick:hover{
+    text-decoration: none !important;
+    cursor: text !important;
+  }
+</style>
+<div id="ScorecardInitiative" data-bind="with:ScorecardInitiative">
+	<div class="row" data-bind="visible:Processing()">
+		<div class="col-sm-12 text-center">
+			<img width="180px" src="/web-cb/static/img/hex-loader2.gif">
+		</div>
+	</div>
+	<div class="row" data-bind="visible:!Processing()">
+		<div class="col-md-12 col-sm-12 col-xs-12">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<table width="100%" class="header">
+					<thead>
+						<tr>
+							<th width="230px">Scorecard Categories</th>
+							<th width="402px">Key Metrics</th>
+              <!-- <th width="150px">Prev 3 RAG</th> -->
+              <th width="50px">Q1</th>
+              <th width="50px">Q2</th>
+              <th width="50px">Q3</th>
+              <th width="50px">Q4</th>
+							<th>Number Of Initiatives</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td colspan="6">&nbsp;</td>
+							<th style="background: transparent;border-bottom: 1px solid #A4A4A4;padding: 0;" class="row" data-bind="with: DataGraphic">
+                <!-- <div data-bind="attr:{'style':ScorecardInitiative.GetBarStyle(a)+'padding: 0'}"> -->
+                  <div style="padding: 0;" class="col-sm-12" data-bind="foreach:c">
+                    <div data-bind="attr:{'style':ScorecardInitiative.GetBarStyle(RangePercentage)+'color: #A4A4A4;padding: 0;text-align: center;float: left;margin-left:'+MarginLeft+'%;'}, text: Number" class="col-sm-1"></div>
+                  </div>
+                  <div style="padding: 0;" class="col-sm-12" data-bind="foreach:c">
+                    <div data-bind="attr:{'style':ScorecardInitiative.GetBarStyle(RangePercentage)+'border-right: 1px solid #A4A4A4; height: 5px; padding: 0;float: left;'}" class="col-sm-1"></div>
+                  </div>
+                <!-- </div> -->
+                <!-- <div data-bind="attr:{'style':ScorecardInitiative.GetBarStyle(b)+'padding: 0'}"> -->
+                  
+                <!-- </div> -->
+              </th>
+						</tr>
+					</tbody>
+				</table>
+				<table width="100%" data-bind="foreach:Data">
+					<tbody data-bind="foreach:Businessmetrics">
+						<tr>
+              <th width="230px" data-bind="visible:$index()===0,text:$parent.Name,attr:{class:(model.IsProdADMIN()&&$parent.Idx=='TBD4') ? 'hovertitle' : '','rowspan':$parent.Businessmetrics.length,'onclick':(model.IsProdADMIN()&&$parent.Idx=='TBD4') ? 'SCDetail.Get(`'+$parent.Idx+'`,`'+$parent.Name+'`)' : ''}"></th>
+              {{if (or .METRICCOUNTRYANALYSIS.Global.Read .METRICCOUNTRYANALYSIS.Region.Read .METRICCOUNTRYANALYSIS.Country.Read)}}
+                <td width="400px" data-bind="text:Description,click:ScorecardAnalysis.Get"></td>
+              {{else}}
+                <td width="400px" data-bind="text:Description" class="noclick"></td>
+              {{end}}
+              <!-- <td width="400px" data-bind="text:Description,click:ScorecardInitiative.GetKeyDetail"></td> -->
+              <!-- <td width="400px" data-bind="text:Description,click:ScorecardInitiative.GetKeyDetail,attr:{'style':'background-color:'+ScorecardInitiative.GetRAGColor(Display)}"></td> -->
+              <!-- <td width="150px" class="prev3rag" data-bind="foreach:RAG">
+                <div data-bind="attr:{'style':'background:'+ScorecardInitiative.GetRAGColor(Rag)}">&nbsp;</div>
+              </td> -->
+              <td width="50px" data-bind="foreach:Quarters[0].Quarters">
+                <div class="col-xs-4 nopadding"><div data-bind="attr:{'style':'background:'+ScorecardInitiative.GetRAGColor(Rag)}">&nbsp;</div></div>
+              </td>
+              <td width="50px" data-bind="foreach:Quarters[1].Quarters">
+                <div class="col-xs-4 nopadding">
+                  <div data-bind="attr:{'style':'background:'+ScorecardInitiative.GetRAGColor(Rag)}">&nbsp;</div>
+                </div>
+              </td>
+              <td width="50px" data-bind="foreach:Quarters[2].Quarters">
+                <div class="col-xs-4 nopadding">
+                  <div data-bind="attr:{'style':'background:'+ScorecardInitiative.GetRAGColor(Rag)}">&nbsp;</div>
+                </div>
+              </td>
+              <td width="50px" data-bind="foreach:Quarters[3].Quarters">
+                <div class="col-xs-4 nopadding">
+                  <div data-bind="attr:{'style':'background:'+ScorecardInitiative.GetRAGColor(Rag)}">&nbsp;</div>
+                </div>
+              </td>
+							<td class="paddingbox">&nbsp;</td>
+							<td class="count-initiative">
+								<a href="#" data-bind="text:Direct,click:ScorecardInitiative.GetDirectDetail,attr:{'style':ScorecardInitiative.GetBarStyle(DirectPercentage)}, visible: $parents[1].seeDirect()"  class="direct"></a>
+								<a href="#" data-bind="text:Indirect,click:ScorecardInitiative.GetIndirectDetail,attr:{'style':ScorecardInitiative.GetBarStyle(IndirectPercentage)}, visible: $parents[1].seeIndirect()" class="indirect"></a>
+                <a href="#" data-bind="text:Indirect+Direct,click:ScorecardInitiative.GetKeyDetail, visible: Indirect+Direct > 0" style="width: 13px;color: black;">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<div class="legend">
+					<div class="cursor-pointer" onclick="ScorecardInitiative.seeDirectIndirect(1)" data-bind="style: {color: ScorecardInitiative.seeDirect() ? '#333' : '#A4A4A4'}">
+            <!-- <i class="fa fa-stop direct" data-bind="style: {color: ScorecardInitiative.seeDirect() ? '#60B27D' : '#A4A4A4'}"></i> -->
+            <div class="box-new" data-bind="style: {'background-color': ScorecardInitiative.seeDirect() ? '#60B27D' : '#A4A4A4'}"></div>&nbsp;# of Initiatives with an Direct Metric</div>
+					<div class="cursor-pointer" onclick="ScorecardInitiative.seeDirectIndirect(2)" data-bind="style: {color: ScorecardInitiative.seeIndirect() ? '#333' : '#A4A4A4'}">
+            <!-- <i class="fa fa-stop indirect" data-bind="style: {color: ScorecardInitiative.seeIndirect() ? '#428CA2' : '#A4A4A4'}"></i> -->
+            <div class="box-new" data-bind="style: {'background-color': ScorecardInitiative.seeIndirect() ? '#428CA2' : '#A4A4A4'}"></div>&nbsp;# of Initiatives with an Indirect Metric</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style type="text/css">
+  .box-new{
+    float: left;
+    margin: 0;
+    height: 10px;
+    width: 10px;
+    /*background-color: red;*/
+    border: none;
+    margin-top: 2px;
+  }
+  .cursor-pointer:hover{
+    cursor: pointer;
+  }
+  #tableScorecardInitiativeDetail tr{
+    background-color: #7F7F7F;
+    color: white;
+    border-bottom-width: 2px !important;
+  }
+  #tableScorecardInitiativeDetail tr th{
+    border-color: white !important;
+  }
+  #tableScorecardInitiativeDetail tbody{
+    border-top-color: white !important;
+    border-top-width: 3px;
+  }
+  #tableScorecardInitiativeDetail tbody tr td{
+    color: black;
+    background-color: #F2F2F2;
+    border-color: white !important;
+  }
+</style>
+	
+<div class="modal fade" id="ScorecardInitiative-Detail" tabindex="-1" role="dialog" aria-hidden="true">
+<!-- Gawe Modal Slide 2 - Workspace for Hifi -->
+<!-- Scorecard.DetailData -->
+  <div class="modal-dialog modal-lg" role="document" data-bind="with: ScorecardInitiative" style="width: 1000px;">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h5 class="modal-title" data-bind="text: Name"></h5>
+      </div>
+      <div class="modal-body">
+        <table class="table table-condensed table-bordered" id="tableScorecardInitiativeDetail">
+          <tr>
+            <th>Scorecard Category</th>
+            <th>Metric*</th>
+            <th>Initiative Name</th>
+            <th>Direct / Indirect</th>
+            <th>BEF AE / PM</th>
+          </tr>
+          <tbody data-bind="foreach: DetailData">
+            <tr>
+              <td data-bind="text: SCName, style: {width: '230px','background-color': '#A1AFC2',color:'#FFF','font-weight':'normal'}"></td>
+              <td data-bind="text: MetricName, style: {'background-color': MetricColor}"></td>
+              <td data-bind=" style: {'font-weight': DirectorIndirect == 'Direct' ? 'bold' : ''}">
+              	<a href="#" data-bind="text: name,attr:{'onclick':'Initiative.Get(\''+id+'\')'}"></a>
+              </td>
+              <td data-bind="text: DirectorIndirect, style: {'font-weight': DirectorIndirect == 'Direct' ? 'bold' : ''}"></td>
+              <td data-bind="text: aepm==''?'N/A':aepm, style: {'font-weight': DirectorIndirect == 'Direct' ? 'bold' : ''}"></td>
+            </tr>
+          </tbody>
+          
+        </table>
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div> -->
+    </div>
+  </div>
+</div>

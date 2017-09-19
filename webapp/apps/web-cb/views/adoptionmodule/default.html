@@ -1,0 +1,126 @@
+{{if (or (.AdoptionModule.Global.Upload) (.AdoptionModule.Region.Upload) (.AdoptionModule.Country.Upload))}}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (or (.AdoptionModule.Global.Curtain) (.AdoptionModule.Region.Curtain) (.AdoptionModule.Country.Curtain))}}
+{{template "initiative_chart.html" .}}
+{{end}}
+<link href="/web-cb/static/css/core/adoption_module.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/adoption_module.js"></script>
+<script type="text/javascript">
+	AdoptionModule.ExportPDF = function(){
+		kendo.pdf.defineFont({
+		  "Helvetica Neue": "/web-cb/static/fonts/HelveticaNeue.ttf"
+		});
+		kendo.drawing.drawDOM($('#AdoptionModule-Data')).then(function (group) {
+		  var title = "AdoptionModule.pdf"
+		  kendo.drawing.pdf.saveAs(group, title);
+		//       $('.btn-export-png').show()
+		// $('.btn-export-pdf').show()
+		// $('#ovheader').hide()
+		})
+	}
+	AdoptionModule.ExportExcel = function(){
+		parm = {
+			Geography: AdoptionModule.Geography(),
+			Country: AdoptionModule.Country(),
+		}
+		ajaxPost("/web-cb/adoptionmodule/saveexcel",parm,function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			location.href = "/web-cb/static/download/"+encodeURIComponent(res.Data);
+		})
+	}
+</script>
+<div id="AdoptionModule" data-bind="with:AdoptionModule">
+	<div class="row">
+		<h4 class="col-sm-12">
+			Adoption Module
+		</h4>
+	</div>
+	<div class="row"  data-bind="visible:Processing()">
+		<div class="loader col-sm-12 text-center">
+                <img src="/web-cb/static/img/hex-loader2.gif">
+        </div>
+	</div>
+	<div class="row" data-bind="visible:!Processing()&&Mode()=='MAIN'">
+		<div class="col-sm-12 heading">
+			<div class="row">
+				<div class="col-sm-2">
+					<!-- <div style="width: 150px;"> -->
+						<input data-bind="kendoDropDownList:{value:Geography, data:GeographyList, dataValueField: 'value', dataTextField: 'name',filter:'contains'}" style="width:100%;" />	
+					
+				</div>
+				<div class="col-sm-2 no-padding" data-bind="visible:Geography()==='COUNTRY'">
+					<input data-bind="kendoDropDownList:{value:Country, data:CountryList, dataValueField: 'Country', dataTextField: 'Country',optionLabel:'Country',filter:'contains'}" style="width:100%;" />	
+				</div>
+				<div style="text-align: right;" data-bind="attr:{class:Geography()==='COUNTRY' ? 'col-sm-8' : 'col-sm-10'}">
+					<button class="btn btn-sm btn-danger" id="pdf" onclick="AdoptionModule.ExportPDF()"><span class="fa fa-file-pdf-o"></span> &nbsp;Download PDF</button>
+					<button class="btn btn-sm btn-success" id="excel" onclick="AdoptionModule.ExportExcel()"><span class="fa fa-file-excel-o"></span> &nbsp;Download Excel</button>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-12" id="AdoptionModule-Data">
+			<table style="width: 100%;" class="table table-bordered"  data-bind="visible:Data().length==0">
+				<thead>
+					<tr>
+						<th width="150px">Initiatives</th>
+						<th width="200px">Problem Statement</th>
+						<th width="200px">Project Description</th>
+						<th width="200px">Geography</th>
+						<th width="70px">Go-Live Month</th>
+						<th width="100px;">Metrics</th>
+						<th width="40px;">RAG</th>
+						<th width="200px">Useful Resources</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td colspan="8">No Data to display</td>
+					</tr>
+				</tbody>
+			</table>
+			<table style="width: 100%;" class="table table-bordered"  data-bind="visible:Data().length>0,foreach:Data">
+				<thead data-bind="if:$index()==0">
+					<tr>
+						<th width="150px">Initiatives</th>
+						<th width="200px">Problem Statement</th>
+						<th width="200px">Project Description</th>
+						<th width="200px">Geography</th>
+						<th width="70px">Go-Live Month</th>
+						<th width="100px;">Metrics</th>
+						<th width="40px;">RAG</th>
+						<th width="200px">Useful Resources</th>
+					</tr>
+				</thead>
+				<tbody data-bind="foreach:MetricData">
+					<tr data-bind="if:$index()==0">
+						<td data-bind="attr:{rowspan:$parent.MetricData.length*2,class:$parent.IsHavingMetricData ? 'initativesTrue' : 'initativesFalse'}"><a href="#" data-bind="text:$parent.Initiatives,click:AdoptionModule.GetAnalysis"></a></td>
+						<td data-bind="html:LimitText(Linkify($parent.Description),65),attr:{rowspan:$parent.MetricData.length*2,title:$parent.Description}"></td>
+						<td data-bind="html:LimitText(Linkify($parent.Benefit),65),attr:{rowspan:$parent.MetricData.length*2,title:$parent.Benefit}"></td>
+						<td data-bind="attr:{rowspan:$parent.MetricData.length*2},text:AdoptionModule.GetGeographyData($parent.IsGlobal,$parent.Region,$parent.Country)"></td>
+						<td data-bind="attr:{rowspan:$parent.MetricData.length*2},text:(getUTCDate($parent.GoLive).getFullYear()<1950?'':kendo.toString(getUTCDate($parent.GoLive),'MMM yyyy'))" class="text-center"></td>
+						<td data-bind="text:MetricName"></td>
+						<td data-bind="attr:{'class':RAG}">&nbsp;</td>
+						<td data-bind="html:Linkify(LimitText($parent.UsefulResources)),attr:{rowspan:$parent.MetricData.length*2,title:$parent.UsefulResources}"></td>
+					</tr>
+					<tr data-bind="if:$index()!=0">
+						<td data-bind="text:MetricName"></td>
+						<td data-bind="attr:{'class':RAG}">&nbsp;</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="row" data-bind="visible:!Processing()&&Mode()=='ANALYSIS'">
+		<div class="col-sm-12">
+			{{template "analysis.html" .}}
+		</div>
+	</div>
+	<div class="row" data-bind="visible:!Processing()&&Mode()=='DETAIL'">
+		<div class="col-sm-12">
+			{{template "detail.html" .}}	
+		</div>
+	</div>
+</div>

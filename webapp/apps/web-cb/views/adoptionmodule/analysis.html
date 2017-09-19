@@ -1,0 +1,133 @@
+<link href="/web-cb/static/css/core/adoption_module_analysis.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/adoption_module_analysis.js"></script>
+<div id="AdoptionModuleAnalysis" data-bind="with:AdoptionModuleAnalysis">
+	<div class="row">
+		<div class="col-sm-12 heading">
+			<div class="row">
+				<div class="col-sm-5">
+					<input data-bind="kendoDropDownList:{value:InitiativeId, data:AdoptionModuleAnalysis.InitiativeList, dataValueField: 'InitiativeID', dataTextField: 'Initiatives', filter:'contains'}" style="width:100%;" />	
+				</div>
+				<div class="col-sm-3">
+					<input data-bind="kendoDropDownList:{value:Year, data:YearList,filter:'contains',filter:'contains'}" style="width:80px;" />	
+				</div>
+				<div class="col-sm-4 text-right">
+					<button class="btn btn-sm btn-default" data-bind="click:Back"><i class="fa fa-arrow-left"></i>&nbsp; Back</button>
+					&nbsp;
+					<button class="btn btn-sm btn-warning" data-bind="click:GetDetail,visible:CheckOwnedAccess()"><i class="fa fa-pencil-square-o"></i>&nbsp; Edit</button>
+				</div>
+			</div>
+			<button data-bind="visible:MetricData().length>0" class="btn btn-sm btn-danger" id="pdf" onclick="AdoptionModuleAnalysis.ExportPDF()" style="position: absolute;right: 14px;top: 40px;z-index: 2;"><span class="fa fa-file-pdf-o"></span> &nbsp;Download PDF</button>
+		</div>
+		<div class="col-sm-12 heading" data-bind="visible:MetricData().length>0">
+			<ul class="nav nav-tabs" data-bind="foreach:MetricData">
+			  <li data-bind="click:AdoptionModuleAnalysis.ChangeMetric,attr:{'class':(AdoptionModuleAnalysis.ActiveMetric()==MetricId?'active':'')}"><a href="#" data-bind='text:MetricName'>Home</a></li>
+			</ul>
+		</div>
+		<div class="col-sm-12"  data-bind="visible:Processing()">
+			<div class="row">
+				<div class="loader col-sm-12 text-center">
+		                <img src="/web-cb/static/img/hex-loader2.gif">
+		        </div>
+			</div>
+		</div>
+		<div class="col-sm-12" data-bind="visible:!IsResultAvailable()&&!Processing()">
+			<div class="no-data-display">No data to display.</div>
+		</div>
+		<div class="col-sm-12" id="pdf-man" data-bind="visible:IsResultAvailable()&&!Processing()">
+			<div class="row">
+				<div class="col-sm-12">
+					<div id="analysis-chart"></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<table style="width: 1090px;" id="analysis-table" class="table table-bordered" data-bind="with:Data">
+						<tbody data-bind="foreach:DetailData">
+							<tr data-bind="attr:{country:Country}">
+								<td>
+									<span style="display: inline-block;width: 133px;"><a href="#" data-bind="text:Country,click:AdoptionModuleAnalysis.FilterCountry"></a></span>
+								</td>
+								<td month="Jan" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGJan)+(NAJan?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAJan,Jan)"></span></td>
+								<td month="Feb" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGFeb)+(NAFeb?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAFeb,Feb)"></span></td>
+								<td month="Mar" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGMar)+(NAMar?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAMar,Mar)"></span></td>
+								<td month="Apr" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGApr)+(NAApr?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAApr,Apr)"></span></td>
+								<td month="May" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGMay)+(NAMay?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAMay,May)"></span></td>
+								<td month="Jun" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGJun)+(NAJun?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAJun,Jun)"></span></td>
+								<td month="Jul" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGJul)+(NAJul?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAJul,Jul)"></span></td>
+								<td month="Aug" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGAug)+(NAAug?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAAug,Aug)"></span></td>
+								<td month="Sep" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGSep)+(NASep?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NASep,Sep)"></span></td>
+								<td month="Oct" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGOct)+(NAOct?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NAOct,Oct)"></span></td>
+								<td month="Nov" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGNov)+(NANov?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NANov,Nov)"></span></td>
+								<td month="Dec" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGDec)+(NADec?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NADec,Dec)"></span></td>
+							</tr>
+							<tr data-bind="attr:{country:Country},visible:TotalValue">
+								<td>
+									<span style="display: inline-block;width: 133px;"><a href="#" data-bind="text:'TOTAL '+Country,click:AdoptionModuleAnalysis.FilterCountry"></a></span>
+								</td>
+								<td totalmonth="Jan" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGJan)+(NATotalJan?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalJan,TotalJan)"></span></td>
+								<td totalmonth="Feb" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGFeb)+(NATotalFeb?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalFeb,TotalFeb)"></span></td>
+								<td totalmonth="Mar" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGMar)+(NATotalMar?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalMar,TotalMar)"></span></td>
+								<td totalmonth="Apr" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGApr)+(NATotalApr?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalApr,TotalApr)"></span></td>
+								<td totalmonth="May" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGMay)+(NATotalMay?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalMay,TotalMay)"></span></td>
+								<td totalmonth="Jun" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGJun)+(NATotalJun?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalJun,TotalJun)"></span></td>
+								<td totalmonth="Jul" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGJul)+(NATotalJul?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalJul,TotalJul)"></span></td>
+								<td totalmonth="Aug" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGAug)+(NATotalAug?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalAug,TotalAug)"></span></td>
+								<td totalmonth="Sep" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGSep)+(NATotalSep?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalSep,TotalSep)"></span></td>
+								<td totalmonth="Oct" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGOct)+(NATotalOct?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalOct,TotalOct)"></span></td>
+								<td totalmonth="Nov" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGNov)+(NATotalNov?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalNov,TotalNov)"></span></td>
+								<td totalmonth="Dec" data-bind="attr:{'class':AdoptionModuleAnalysis.GetRAGValue(RAGDec)+(NATotalDec?' text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue(NATotalDec,TotalDec)"></span></td>
+							</tr>
+							<tr data-bind="visible:TotalValue">
+							    <td colspan="13" style="padding: 0px;border: 0px;background: #dddddd;">
+							    	<div style="height: 2px;border: 0px;">&nbsp;</div>
+								</td>
+							</tr>
+						</tbody>
+						<tfoot data-bind="with:AnalyticData">
+							<tr>
+								<td>
+									<span style="display: inline-block;width: 133px;"><a style="color: #FFF;" href="#" data-bind="click:AdoptionModuleAnalysis.ResetFilterCountry">TOTAL</a></span>
+								</td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGJan))+($parent.NASumData.NASumJan?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumJan,SumJan)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGFeb))+($parent.NASumData.NASumFeb?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumFeb,SumFeb)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGMar))+($parent.NASumData.NASumMar?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumMar,SumMar)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGApr))+($parent.NASumData.NASumApr?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumApr,SumApr)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGMay))+($parent.NASumData.NASumMay?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumMay,SumMay)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGJun))+($parent.NASumData.NASumJun?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumJun,SumJun)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGJul))+($parent.NASumData.NASumJul?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumJul,SumJul)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGAug))+($parent.NASumData.NASumAug?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumAug,SumAug)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGSep))+($parent.NASumData.NASumSep?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumSep,SumSep)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGOct))+($parent.NASumData.NASumOct?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumOct,SumOct)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGNov))+($parent.NASumData.NASumNov?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumNov,SumNov)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGDec))+($parent.NASumData.NASumDec?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumDec,SumDec)"></span></td>
+							</tr>
+
+							<tr data-bind="visible:$parent.TotalValue">
+								<td>
+									<span style="display: inline-block;width: 133px;"><a style="color: #FFF;" href="#" data-bind="click:AdoptionModuleAnalysis.ResetFilterCountry">TOTAL ALL</a></span>
+								</td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGJan))+($parent.NASumData.NASumTotalJan?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalJan,SumTotalJan)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGFeb))+($parent.NASumData.NASumTotalFeb?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalFeb,SumTotalFeb)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGMar))+($parent.NASumData.NASumTotalMar?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalMar,SumTotalMar)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGApr))+($parent.NASumData.NASumTotalApr?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalApr,SumTotalApr)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGMay))+($parent.NASumData.NASumTotalMay?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalMay,SumTotalMay)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGJun))+($parent.NASumData.NASumTotalJun?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalJun,SumTotalJun)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGJul))+($parent.NASumData.NASumTotalJul?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalJul,SumTotalJul)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGAug))+($parent.NASumData.NASumTotalAug?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalAug,SumTotalAug)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGSep))+($parent.NASumData.NASumTotalSep?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalSep,SumTotalSep)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGOct))+($parent.NASumData.NASumTotalOct?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalOct,SumTotalOct)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGNov))+($parent.NASumData.NASumTotalNov?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalNov,SumTotalNov)"></span></td>
+								<td data-bind="attr:{class:(AdoptionModuleAnalysis.GetRAGValueFromNumber(RAGDec))+($parent.NASumData.NASumTotalDec?'text-center':'')}"><span data-bind="text:AdoptionModuleAnalysis.GetValue($parent.NASumData.NASumTotalDec,SumTotalDec)"></span></td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row height1px">
+		<div class="col-sm-12">
+			<div id="analysis-chart-width"></div>
+		</div>
+	</div>
+</div>

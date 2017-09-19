@@ -1,0 +1,98 @@
+#scorecard-actionfilter .action-button{
+    padding: 2px 2px;
+}
+#scorecard-actionfilter .action-button > button{
+    width: 100%;
+    height: 100%;
+}
+#scorecard-actionfilter .action-button > button.btn-success{
+    background-color: #FFF;
+    background-image: none;
+    color: #00CC99;
+    border:1px solid #00CC99;
+}
+#scorecard-actionfilter .action-button > button.active{
+    background-color: #00CC99;
+    background-image: none;
+    border:1px solid #00CC99;
+    color: #FFF;
+}
+
+#treeview2 {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: #333 solid 1px;
+    z-index: 3;
+    width: 100%;
+    background-color: #fff;
+    border: #333 solid 1px;
+    max-height: 210px;
+    /*overflow-y: scroll;*/
+}
+
+#treeview2 .k-plus{
+    background-position: 0 -208px;
+}
+#multiselectTreeOneSelectedValue .k-delete {
+    display: none;
+    /*by default kendo tree view is hidden*/
+}
+.rc-filter{
+    margin-top: 2px;
+}
+.rc-filter .icon{
+    padding: 0px;
+    padding-top: 3px;
+    color: #6f6f6f;
+    text-align: center;
+}
+.rc-filter .k-header{
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+.rc-filter .k-header span{
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+#sci .header{
+    display: table;
+    width: 100%;
+    margin: 0px;
+}
+#sci .header > div{
+    background: #333F4F;
+    color: #FFF;
+    display: table-cell;
+    float: none;
+    vertical-align: middle;
+    padding: 7px 9px;
+    border-right: 2px solid #FFF;
+}
+#sci .header > div.multiple{
+    padding: 0px;
+    border: 0px;
+    background: none;
+}
+#sci .header > div > .wrapper{
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+}
+#sci .header > div > .wrapper > div{
+    border-right: 2px solid #FFF;
+    height: 100%;
+    padding: 7px 0px;
+    text-align: center;
+    display: table;
+    background: #333F4F;
+}
+#sci .header > div > .wrapper > div > span{
+    display: table-cell;
+    height: 100%;
+    width: 100%;
+    vertical-align: middle;
+}

@@ -1,0 +1,340 @@
+<script>viewModel.title('Master Data')</script>
+
+<!-- content -->
+
+<script src="{{ NoCacheUrl "/main/static/core/js/access-master.js" }}"></script>
+<script src="{{ NoCacheUrl "/main/static/core/js/access-master-user.js" }}"></script>
+<script src="{{ NoCacheUrl "/main/static/core/js/access-master-group.js" }}"></script>
+<script src="{{ NoCacheUrl "/main/static/core/js/access-master-access-menu.js" }}"></script>
+<script src="{{ NoCacheUrl "/main/static/core/js/access-master-application.js" }}"></script>
+<script src="{{ NoCacheUrl "/main/static/core/js/access-master-user-log.js" }}"></script>
+
+<link rel="stylesheet" href="{{ NoCacheUrl "/main/static/core/css/access-master.css" }}" />
+
+
+<div class="margin-bottom-10">
+	<div class="btn-group" class="navigations">
+		<button type="button" class="btn btn-sm btn-primary active" onclick="master.toggleActiveMenu('User', this)">
+			<i class="fa fa-user"></i>&nbsp; Users
+		</button>
+		<button type="button" class="btn btn-sm btn-primary" onclick="master.toggleActiveMenu('Group', this)">
+			<i class="fa fa-group"></i>&nbsp; Groups
+		</button>
+		<button type="button" class="btn btn-sm btn-primary" onclick="master.toggleActiveMenu('Application', this)">
+			<i class="fa fa-history"></i>&nbsp; Applications
+		</button>
+		<button type="button" class="btn btn-sm btn-primary" onclick="master.toggleActiveMenu('AccessMenu', this)">
+			<i class="fa fa-bars"></i>&nbsp; Access Menu
+		</button>
+		<button type="button" class="btn btn-sm btn-primary" onclick="master.toggleActiveMenu('Log', this)">
+			<i class="fa fa-history"></i>&nbsp; User Login Activity
+		</button>
+	</div>
+</div>
+
+<div data-bind="visible: master.activeMenu() == 'User'" style="display: none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			User
+			<button class="btn btn-add btn-xs btn-primary" data-bind="click: master.createUser">
+				<i class="fa fa-plus"></i>&nbsp; Create new
+			</button>
+		</div>
+		<div class="panel-body">
+			<p>All registered users.</p>
+			<div class="grid-user"></div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="modal-user">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title">User</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" role="form" data-bind="with: master.selectedUser">
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Username</label>
+							<div class="col-md-8">
+								<input name="Username" type="text" class="form-control input-sm" placeholder="Username" data-bind="value: LoginID, enable: master.userIsInsertMode" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Password</label>
+							<div class="col-md-8">
+								<input name="Password" type="password" class="form-control input-sm" placeholder="Password" data-bind="value: Password" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Email</label>
+							<div class="col-md-8">
+								<input name="Email" type="text" class="form-control input-sm" placeholder="Email" data-bind="value: Email" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Full Name</label>
+							<div class="col-md-8">
+								<input name="Full Name" type="text" class="form-control input-sm" placeholder="Full Name" data-bind="value: FullName" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Groups</label>
+							<div class="col-md-8">
+								<div><select name="Groups" style="width: 100%;" required data-bind="kendoMultiSelect: { data: master.dataGroupForDropDown, value: Groups, dataValueField: 'value', dataTextField: 'text', placeholder: 'Select one'  }"></select></div>
+								<div><span class="k-invalid-msg" data-for="Groups"></span></div>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+						Cancel
+					</button>
+					<button type="button" class="btn btn-sm btn-danger" data-bind="click: function () { master.deleteUser(master.selectedUser._id()) }">
+						<i class="fa fa-trash"></i>&nbsp; Remove
+					</button>
+					<button type="button" class="btn btn-sm btn-primary" data-bind="click: master.saveUser">
+						<i class="fa fa-save"></i>&nbsp; Save Changes
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div data-bind="visible: master.activeMenu() == 'Group'" style="display: none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Groups
+			<button class="btn btn-add btn-xs btn-primary" data-bind="click: master.createGroup">
+				<i class="fa fa-plus"></i>&nbsp; Create new
+			</button>
+		</div>
+		<div class="panel-body">
+			<p>All available groups.</p>
+			<div class="grid-group"></div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="modal-group">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title">Group</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" role="form" data-bind="with: master.selectedGroup">
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Group ID</label>
+							<div class="col-md-8">
+								<input name="Group ID" type="text" class="form-control input-sm" placeholder="Group ID" data-bind="value: _id, enable: master.groupIsInsertMode" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Group Name</label>
+							<div class="col-md-8">
+								<input name="Group Name" type="text" class="form-control input-sm" placeholder="Title" data-bind="value: Title" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Application</label>
+							<div class="col-md-8">
+								<select style="width: 100%;" data-bind="kendoMultiSelect: { data: master.dataApplicationsForDropDown, value: Applications, dataValueField: 'value', dataTextField: 'text', optionLabel: 'Select one', change: master.modalGroupChangeApplication }"></select>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<!--<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Grants Access Menu</label>
+							<div class="col-md-8">
+								<div><select name="Groups" style="width: 100%;" data-bind="kendoMultiSelect: { data: master.dataAccessAllByGroupDataForDropDown, value: Grants, dataValueField: '_id', dataTextField: 'Title', placeholder: 'Select one'  }"></select></div>
+								<div><span class="k-invalid-msg" data-for="Groups"></span></div>
+							</div>
+							<div class="clearfix"></div>
+						</div>-->
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+						Cancel
+					</button>
+					<button type="button" class="btn btn-sm btn-danger" data-bind="click: function () { master.deleteGroup(master.selectedGroup._id()) }">
+						<i class="fa fa-trash"></i>&nbsp; Remove
+					</button>
+					<button type="button" class="btn btn-sm btn-primary" data-bind="click: master.saveGroup">
+						<i class="fa fa-save"></i>&nbsp; Save Changes
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div data-bind="visible: master.activeMenu() == 'AccessMenu'" style="display: none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<span>Access Menu</span>
+			<button class="btn btn-add btn-xs btn-primary" data-bind="click: master.createAccessMenu, visible: master.selectedAccessMenuApplicationID() !== ''">
+				<i class="fa fa-plus"></i>&nbsp; Create new
+			</button>
+		</div>
+		<div class="panel-body">
+			<p>
+				<span>List of all available menu (click to edit) for application: </span>
+				&nbsp;
+				<select data-bind="kendoDropDownList: { data: master.dataApplicationsForDropDown, value: master.selectedAccessMenuApplicationID, dataValueField: 'value', dataTextField: 'text', optionLabel: 'Select one', change: master.changeAccessMenuApplication }"></select>
+			</p>
+
+			<div class="access-menu-tree col-md-3 no-padding">
+				<script type="text/html" id="template-access-menu">
+					<li>
+						<a data-bind="click: master.editAccessMenu($data)">
+							<i data-bind="attr: { 'class': 'fa fa-' + Icon }"></i>
+							<span data-bind="text: Title"></span>
+						</a>
+
+						<ul data-bind="template: { name: 'template-access-menu', foreach: Submenu }"></ul>
+					</li>
+				</script>
+
+				<ul data-bind="template: { name: 'template-access-menu', foreach: master.dataAccessMenuTree }"></ul>
+			</div>
+			<div class="clearfix"></div>
+
+			<div class="access-menu-message" style="display: none;">
+				<p>No access menu available for selected application, try to create new one.</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="modal-access-menu">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title">Access Menu</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" role="form" data-bind="with: master.selectedAccessMenu">
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">ID</label>
+							<div class="col-md-8">
+								<input name="ID" type="text" class="form-control input-sm" placeholder="Menu ID" data-bind="value: _id, enable: master.accessMenuIsInsertMode" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Menu Name</label>
+							<div class="col-md-8">
+								<input name="Menu Name" type="text" class="form-control input-sm" placeholder="Menu Name" data-bind="value: Title" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">URL</label>
+							<div class="col-md-8">
+								<input name="URL" type="text" class="form-control input-sm" placeholder="Menu ID" data-bind="value: Url" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Icon</label>
+							<div class="col-md-8">
+								<input name="Icon" type="text" class="form-control input-sm" placeholder="Menu ID" data-bind="value: Icon" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Order Index</label>
+							<div class="col-md-8">
+								<input name="Order Index" type="text" class="form-control input-sm" placeholder="Menu ID" data-bind="value: Index" required>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						
+						<div style="border-bottom: 1px solid #e5e5e5; margin-bottom: 15px;"></div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Parent Menu ID</label>
+							<div class="col-md-8">
+								<select style="width: 100%;" data-bind="kendoDropDownList: { data: master.dataAccessMenuTree, value: ParentId, dataValueField: '_id', dataTextField: 'Title', optionLabel: 'Top Level', enabled: false }"></select>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-3 control-label input-sm">Application ID</label>
+							<div class="col-md-8">
+								<select style="width: 100%;" data-bind="kendoDropDownList: { data: master.dataApplicationsForDropDown, value: ApplicationID, dataValueField: 'value', dataTextField: 'text', optionLabel: 'Select one', enabled: ko.computed(function () { return !master.accessMenuIsInsertMode() }, master.accessMenuIsInsertMode) }"></select>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+						Cancel
+					</button>
+					<button type="button" class="btn btn-sm btn-danger" data-bind="click: function () { master.deleteAccessMenu(master.selectedAccessMenu._id()) }">
+						<i class="fa fa-trash"></i>&nbsp; Remove
+					</button>
+					<button type="button" class="btn btn-sm btn-primary" data-bind="click: master.saveAccessMenu">
+						<i class="fa fa-save"></i>&nbsp; Save Changes
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div data-bind="visible: master.activeMenu() == 'Application'" style="display: none;">
+
+	<div class="col-md-6 no-padding">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Applications
+				<button class="btn btn-add btn-xs btn-primary" data-bind="click: master.saveApplication">
+					<i class="fa fa-save"></i>&nbsp; Save
+				</button>
+			</div>
+			<div class="panel-body">
+				<p>Click on application name cell to edit.</p>
+				<div class="grid-application"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-6 no-padding-right">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Applications by Group
+				<button class="btn btn-add btn-xs btn-primary" data-bind="click: master.saveGroupApplication">
+					<i class="fa fa-save"></i>&nbsp; Save
+				</button>
+			</div>
+			<div class="panel-body">
+				<p>Assign applications to specific user by puting check mark on application.</p>
+				<div class="grid-group-application"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div data-bind="visible: master.activeMenu() == 'Log'" style="display: none;">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			User Logs
+		</div>
+		<div class="panel-body">
+			<p>Last 100 user activity logs.</p>
+			<div class="grid-log"></div>
+		</div>
+	</div>
+</div>

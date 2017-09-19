@@ -1,0 +1,164 @@
+<style type="text/css">
+    .green-outside {
+        background-color: #6AC17B;
+        height: 50px;
+        border-radius: 8px;
+        width: 100%;
+    }   
+    .green-inside {
+        background-color: #2F7528;
+        height: 50px;
+        border-radius: 8px;
+        margin-top: -50px;
+        width: 80%;
+    }
+    .title-number {
+        font-size: 19px;
+        margin: -50px 8px 3px 8px;
+        color: #fff;
+        font-weight: bold;
+    }
+    .title-desc {
+        font-size: 9px;
+        margin-left: 8px;
+        color: #fff;
+        line-height: 9px;
+        margin-right: 8px;
+    }
+    .mm {
+        background-color: #6AC17B;
+        height: 50px;
+        border-radius: 8px;
+        width: 30%;
+        /*border: 1px solid red;*/
+        position: absolute;
+        z-index: 1;
+        right: 0px;
+        color: white;
+    }  
+    .ww {
+        background-color: #2F7528;
+        height: 50px;
+        border-radius: 8px;
+        width: 80%;
+        /*border: 1px solid blue;*/
+        position: absolute;
+        z-index: 2;
+        left: 0px;
+        color: white;
+    }
+    
+    span.k-widget.k-tooltip-validation {
+        display;
+        inline-block;
+        /*width: 160px;*/
+        text-align: left;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        background: none;
+        box-shadow: none;
+        color: red;
+    }
+</style>
+<script type="text/javascript">
+    model.mm = ko.observable('');
+    model.ww = ko.observable('100');
+</script>
+
+<!-- LOAD GRID USER -->
+<div class="row">
+    <div class="col-md-12">
+        <div >
+            <div class="box-title">
+                <div class="actions padding-bottom">
+                    <button class="btn btn-sm btn-success" data-bind="visible: !adm.addUser(), click: adm.createGridUserAdministration">
+                        <i class="fa fa-refresh"></i> Refresh
+                    </button>
+                    <button onclick="adm.addusernew()" class="btn btn-sm btn-success" data-bind="visible: !adm.addUser()">
+                        <i class="fa fa-plus"></i> Add
+                    </button>
+                    <button class="btn btn-sm btn-success" data-bind="visible: adm.addUser(), click: function(){ adm.addUser(false), adm.saveUser(false), adm.updateUser(false), adm.reset() }">
+                        <i class="fa fa-angle-left"></i> Back
+                    </button>
+                    <button class="btn btn-sm btn-success" data-bind="visible: adm.saveUser(), click:adm.AddNewUserLogin">
+                        <i class="fa fa-save"></i> Save
+                    </button>
+                    <button data-bind="visible:adm.updateUser(), click: adm.AddNewUserLogin" class="btn btn-sm btn-success">
+                        <i class="fa fa-save"></i> Update
+                    </button>
+                </div>
+            </div>
+            <div class="box-content">
+                <div data-bind="visible:!adm.addUser()">
+                    <div>
+                          <div class="grid" id="gridUserAdministrator"></div>
+                    </div>
+                </div>
+                <div data-bind="visible:adm.addUser()">
+                    <div class=""><br>
+                        <div class="col-md-12" data-bind="with:adm">
+                            <form id="formAddUser" class='form-horizontal'>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">UserName</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="loginid" id="loginid" class="form-control input-sm" name="UserName" placeholder="Input User Name Here" data-bind="value: UserName" required validationMessage="Enter User Name" checkvalue="Enter User Name">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Full Name</label>
+                                            <div class="col-sm-8">
+                                                <input required pattern="[a-zA-Z0-9_ ]+" data-pattern-msg="Only alphabet, number, space and underscore allowed for FullName" type="text" class="form-control input-sm" name="FullName" placeholder="Input FullName Here" data-bind="value: Fullname" id="fullname" validationMessage="Full Name cannot be empty">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Email</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" required type="email" class="form-control input-sm" name="Email" placeholder="Input Email Here" data-bind="value: Email" id="email" validationMessage="Email cannot be empty / Invalid email address" data-checkemail-msg="Please check youre email address">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Password</label>
+                                            <div class="col-sm-8">
+                                                <input type="password" class="form-control input-sm" name="Password" placeholder="Input Password Here" data-bind="value: Password, attr:{required: isNewUser}" id="password" validationMessage="Password cannot be empty">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Re-Type Password</label>
+                                            <div class="col-sm-8">
+                                                <input type="password" class="form-control input-sm" name="RePassword" placeholder="Re-Input Password Here" data-bind="value: RePassword, attr:{required: isNewUser}" id="repassword" validationMessage="Re type cannot be empty">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" data-bind="visible: updateUser">
+                                            <div class="col-sm-4"></div>
+                                            <div class="col-sm-8">
+                                                <small>Note: Just leave empty if you don't want to change the password</small>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Group</label>
+                                            <div class="col-sm-8">
+                                                <select style="width:100%;" required data-bind="kendoMultiSelect:{ data:adm.listGroup, dataValueField: '_id', dataTextField: 'id', optionLabel:'User Defined', value: valueGroup}" id="group" name="Group" validationMessage="Group cannot be empty"></select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Enable</label>
+                                            <div class="col-sm-8">
+                                                <label class="switch">
+                                                    <input type="checkbox" id="enableuser">
+                                                    <div class="slidersw round"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

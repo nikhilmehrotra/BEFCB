@@ -1,0 +1,690 @@
+{{if (.InitiativeMaster.Global.Upload) or (.InitiativeMaster.Region.Upload) or (.InitiativeMaster.Country.Upload)}}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (.InitiativeMaster.Global.Curtain) or (.InitiativeMaster.Region.Curtain) or (.InitiativeMaster.Country.Curtain)}}
+{{template "initiative_chart.html" .}}
+{{end}}
+<script type="text/javascript">
+  model.PageId("INITIATIVEMASTER");
+  var c = { 
+    hd:{
+      cblead: ko.observable(),
+      bwide: ko.observable(),
+      iHigh: ko.observable(),
+      iMedium: ko.observable(),
+      ytd: ko.observable(),
+      remain: ko.observable(),
+      see: ko.observable(false)
+    },
+    visibleBtnExpend: ko.observable(true),
+    Filter:{
+      CBLead:ko.observable(false),
+      BankWide: ko.observable(false),
+      High: ko.observable(false),
+      Medium: ko.observable(false),
+      Low: ko.observable(false),
+      YtdComplete: ko.observable(false),
+      Remaining: ko.observable(false)
+    }
+  };
+
+  var InitiativeMaster = {
+    InitaitiveOwner:ko.observableArray([]),
+    OwnedInitiative:ko.observableArray([]),
+    RegionList:ko.observableArray([]),
+    CountryList:ko.observableArray([]),
+    // CountryListMaster:ko.observableArray([]),
+    RegionalData: ko.observableArray([]),
+    SBDList: ko.observableArray([]),
+    LifeCycleList: ko.observableArray([]),
+    SCCategoryList: ko.observableArray([]),
+    DataSource:ko.observableArray([])
+  }
+
+  InitiativeMaster.Init = function(){
+    ajaxPost("/web-cb/initiativeowner/getdata",{},function(res){
+      var arr = Enumerable.From(res.Data).Select("$.FullName").OrderBy(function(x){return x}).ToArray();
+      InitiativeMaster.InitaitiveOwner(arr);
+    });
+    ajaxPost("/web-cb/masterregion/getdata",{},function(res){
+      // InitiativeMaster.CountryList(Enumerable.From(res.Data).GroupBy("$.Country").Select("{_id:$.Key()}").ToArray());
+      InitiativeMaster.CountryList(Enumerable.From(res.Data).GroupBy("$.Country").Select("$.Key()").ToArray());
+      InitiativeMaster.RegionList(Enumerable.From(res.Data).GroupBy("$.Major_Region").Select("$.Key()").ToArray());
+      InitiativeMaster.RegionalData(res.Data);
+    });
+    ajaxPost("/web-cb/initiativemaster/summarybusinessdriver",{},function(res){
+      InitiativeMaster.SBDList(res);
+      // InitiativeMaster.SCCategoryList(Enumerable.From(InitiativeMaster.SBDList()).GroupBy("$.Parentid").Select("{Text:$.source[0].Name, Value: $.Key()}").ToArray())
+      InitiativeMaster.SCCategoryList(Enumerable.From(InitiativeMaster.SBDList()).GroupBy("$.Parentid").Select("{Text:$.source[0].Parentname, Value: $.source[0].Parentid}").ToArray())
+    });
+    ajaxPost("/web-cb/initiativemaster/lclist",{},function(res){
+      InitiativeMaster.LifeCycleList(res);
+    });
+  }
+
+  InitiativeMaster.GetData = function(){
+      InitiativeMaster.OwnedInitiative([]);
+      ajaxPost("{{BaseUrl}}initiativemaster/getownedinitiative",{},function(res){
+        if (res.IsError) {
+          swal("", res.Message, "info");
+          return false;
+        }
+        InitiativeMaster.OwnedInitiative(res.Data);
+        InitiativeMaster.GetDataGrid();
+      })
+  }
+
+  InitiativeMaster.GetDataGrid = function(){
+    // var crudServiceBaseUrl = "/initiativemaster",
+    // dataSource = new kendo.data.DataSource({
+        
+    // });
+
+    // $("#gridInitiativeMaster").kendoGrid({
+    var d = $("#gridInitiativeMaster");
+    d.html("");
+    d.kendoGrid({
+        theme: "material",
+        toolbar: ["excel"],
+            excel: {
+                allPages: true
+        },
+        dataSource: {
+          transport: {
+            // read: {
+            //   url: "{{BaseUrl}}initiativemaster/initiativemasterdata",
+            //   type: "POST",
+            //   dataType: "json",
+            //   contentType: "application/json; charset=utf-8"
+            // },
+            // update: {
+            //     url: "{{BaseUrl}}initiativemaster/initiativemastersave",
+            //     type: "POST",
+            //     dataType: "json",
+            //     contentType: "application/json; charset=utf-8"
+            // },
+            read: function (e) {
+              var parm = {
+                page:$("#gridInitiativeMaster").data("kendoGrid").dataSource._page,
+                pageSize:$("#gridInitiativeMaster").data("kendoGrid").dataSource._pageSize,
+                skip:$("#gridInitiativeMaster").data("kendoGrid").dataSource._skip,
+                take:$("#gridInitiativeMaster").data("kendoGrid").dataSource._take,
+                // filter:$("#UserLoginActivityList").data("kendoGrid").dataSource.filter(),
+                // sort:$("#gridInitiativeMaster").data("kendoGrid").dataSource.sort(),
+              }
+              // console.log($("#gridInitiativeMaster").data("kendoGrid").dataSource._page)
+              var url = "/web-cb/initiativemaster/initiativemasterdata";
+              ajaxPost(url, parm, function (res) {
+                // console.log(res)
+                // if (res.IsError) {
+                //   e.success([]);
+                //     return false;
+                // }
+                // console.log(res)
+                InitiativeMaster.DataSource(res)
+                e.success(res);
+                
+                  // $("#gridInitiativeMaster p[initiativeid!='']").each(function(x,e){
+                  //   var id = $(e).attr("initiativeid");
+                  //   if(InitiativeMaster.InitaitiveOwner().indexOf(id)<0){
+                  //     $(e).parent().parent().find("*.k-button").hide("fast");
+                  //   }
+                  // })
+              }, function (e) {
+                alert(e);
+              });
+
+            },
+            update: function (e) {
+              parm = e.data.models;
+              // console.log(parm)
+              if(parm.length > 0){
+                temp1 = parm[0]
+
+                a = _.find(InitiativeMaster.DataSource(), function(v){return v.Id == temp1.Id})
+                if(a != undefined){
+                  Changes = []
+
+                  fieldarr = [
+                    "InvestmentId",
+                    "ProjectName",
+                    "StartDate",
+                    "FinishDate",
+                    "ProjectManager",
+                    "AccountableExecutive",
+                    "TechnologyLead",
+                    "ProblemStatement",
+                    "ProjectDescription",
+                    "ProgressCompletion",
+                    "PlannedCost",
+                    "IsGlobal",
+                    "BusinessImpact",
+                    "EX",
+                    "OE",
+                    "SCCategory",
+                    "BusinessDriverId",
+                    "LifeCycleId",
+                  ]
+
+                  _.each(a, function(v,i){
+                    if(fieldarr.indexOf(i) != -1){
+                      if(a[i] != temp1[i]){
+                        var NewChanges = {
+                            Whatchanged:i+"("+a.InitiativeID+")",
+                            OldValue:""+a[i],
+                            NewValue:""+temp1[i],
+                        }
+                        Changes.push(NewChanges)
+                      }
+                    } else if(i == "Region" || i == "Country"){
+                      var olds = generateTemplate(temp1[i], a.IsGlobal)
+                      var news = generateTemplate(a[i], a.IsGlobal)
+                      if(olds != news){
+                        var NewChanges = {
+                            Whatchanged:i+"("+a.InitiativeID+")",
+                            OldValue:olds,
+                            NewValue:news,
+                        }
+                        Changes.push(NewChanges)
+                      }
+                    }
+                  })
+                }
+
+                var prm = {
+                  InitiativeData: parm[0],
+                  Logs: Changes
+                }
+
+                var url = "/web-cb/initiativemaster/initiativemastersave";
+                ajaxPost(url, prm, function (res) {
+                  // console.log(res)
+                  var parm = {
+                    page:$("#gridInitiativeMaster").data("kendoGrid").dataSource._page,
+                    pageSize:$("#gridInitiativeMaster").data("kendoGrid").dataSource._pageSize,
+                    skip:$("#gridInitiativeMaster").data("kendoGrid").dataSource._skip,
+                    take:$("#gridInitiativeMaster").data("kendoGrid").dataSource._take,
+                    // filter:$("#UserLoginActivityList").data("kendoGrid").dataSource.filter(),
+                    // sort:$("#gridInitiativeMaster").data("kendoGrid").dataSource.sort(),
+                  }
+                  // console.log($("#gridInitiativeMaster").data("kendoGrid").dataSource._page)
+                  ajaxPost("{{BaseUrl}}initiativemaster/getownedinitiative",{},function(res){
+                    if (res.IsError) {
+                      swal("", res.Message, "info");
+                      return false;
+                    }
+                    InitiativeMaster.OwnedInitiative(res.Data);
+                    var url = "/web-cb/initiativemaster/initiativemasterdata";
+                    ajaxPost(url, parm, function (res) {
+                      // console.log(res)
+                      // if (res.IsError) {
+                      //   e.success([]);
+                      //     return false;
+                      // }
+                      // console.log(res)
+                      InitiativeMaster.DataSource(res)
+                      e.success(res);
+                    }, function (e) {
+                      alert(e);
+                    });
+
+                  })
+                
+                }, function (e) {
+                  alert(e);
+                });
+              }
+              // if(e.data != undefined){
+              //   var url = "/web-cb/initiativemaster/initiativemastersave";
+              //   ajaxPost(url, parm, function (res) {
+              //     if (res.IsError) {
+              //       // e.success([]);
+              //         return false;
+              //     }
+              //     // console.log(res)
+              //     // e.success(res.Data);
+              //   }, function (e) {
+              //     alert(e);
+              //   });
+              // }
+            },
+            // destroy: function (e) {
+            //     var url = "/web-cb/initiativemaster/initiativemasterremove";
+            //     ajaxPost(url, parm[0], function (res) {
+            //       // console.log(res)
+            //       var parm = {
+            //         page:$("#gridInitiativeMaster").data("kendoGrid").dataSource._page,
+            //         pageSize:$("#gridInitiativeMaster").data("kendoGrid").dataSource._pageSize,
+            //         skip:$("#gridInitiativeMaster").data("kendoGrid").dataSource._skip,
+            //         take:$("#gridInitiativeMaster").data("kendoGrid").dataSource._take,
+            //         // filter:$("#UserLoginActivityList").data("kendoGrid").dataSource.filter(),
+            //         // sort:$("#gridInitiativeMaster").data("kendoGrid").dataSource.sort(),
+            //       }
+            //       // console.log($("#gridInitiativeMaster").data("kendoGrid").dataSource._page)
+            //       var url = "/web-cb/initiativemaster/initiativemasterdata";
+            //       ajaxPost(url, parm, function (res) {
+            //         // console.log(res)
+            //         // if (res.IsError) {
+            //         //   e.success([]);
+            //         //     return false;
+            //         // }
+            //         // console.log(res)
+            //         InitiativeMaster.DataSource(res)
+            //         e.success(res);
+            //       }, function (e) {
+            //         alert(e);
+            //       });
+
+            //     }, function (e) {
+            //       alert(e);
+            //     });
+            // },
+            // destroy: {
+            //     url: "{{BaseUrl}}initiativemaster/initiativemasterremove",
+            //     type: "POST",
+            //     dataType: "json",
+            //     contentType: "application/json; charset=utf-8"
+            // },
+            // create: {
+            //     url: crudServiceBaseUrl + "/Products/Create",
+            //     dataType: "jsonp"
+            // },
+            parameterMap: function(options) {
+              // var a = options.models != undefined ? options.models[0] : options;
+              // if(options.models != undefined){
+              //   // console.log(a)
+              // }
+              return JSON.stringify(a);
+            }
+          },
+          batch: true,
+          pageSize: 15,
+          schema: {
+              model: {
+                  id: "Id",
+                  fields: {
+                      id: { editable: false, nullable: true },
+                      ProjectName: {type: ""},
+                      StartDate: {type: "date"},
+                      FinishDate: {type: "date"},
+                      ProjectManager: {type: ""},
+                      AccountableExecutive: {type: ""},
+                      TechnologyLead: {type: ""},
+                      ProblemStatement: {type: ""},
+                      ProjectDescription: {type: ""},
+                      ProgressCompletion: {type: "number", validation: { required: true, min: 0, max: 100}},
+                      PlannedCost: {type: "number", validation: { required: true, min: 0}},
+                      IsGlobal: {type: "boolean"},
+                      Region: {type: ""},
+                      Country: {type: ""},
+                      BusinessImpact: {type: ""},
+                      EX: {type: "boolean"},
+                      OE: {type: "boolean"},
+                      SCCategory: {type: ""},
+                      BusinessDriverId: {type: ""},
+                      LifeCycleId: {type: ""},
+
+                  }
+              }
+          }
+        },
+        pageable: true,
+        resizable: true,
+        sortable: true,
+        filterable: true,
+        height: 500,
+        dataBound:function(){
+          $("#gridInitiativeMaster p[initiativeid!='']").each(function(x,e){
+              var id = $(e).attr("initiativeid");
+              if(typeof id !== "undefined"){
+                if(InitiativeMaster.OwnedInitiative().indexOf(id)<0){
+                  $(e).parent().parent().find(".k-button").parent().html("")
+                }else{
+                  // $(e).parent().parent().find(".k-button").html('<a class="k-button k-button-icontext k-grid-edit" href="#"><span class="k-icon k-edit"></span>Edit</a>')
+                }
+              }
+          })
+        },
+        // toolbar: ["create"],
+        columns: [
+            { field: "InvestmentId", title: "Investment Id", width: "100px" },
+            { field: "ProjectName", title: "Project Name", width: "150px", template:"<p initiativeid='#:Id#' class='textalignLeft'>#: ProjectName #</p>" },
+            { field: "StartDate", title: "Start Date", width: "100px", template: '#= kendo.toString(StartDate, "dd/MM/yyyy") #',editor:DateEditor ,filterable : {
+                                                  ui: function (element) {
+                                                    element.kendoDatePicker({
+                                                      format: "dd/MM/yyyy"}); } 
+                                                } 
+            },
+            { field: "FinishDate", title: "Finish Date", width: "100px", template: '#= kendo.toString(FinishDate, "dd/MM/yyyy") #',editor:DateEditor,filterable : {
+                                                          ui: function (element) { 
+                                                          element.kendoDatePicker({format: "dd/MM/yyyy"}); } 
+                                                        } 
+            },
+            { field: "ProjectManager", title: "Project Manager", editor:InitiativeOwnerEditor, width: "120px" ,template: "#=generateTemplateMetricOwner(ProjectManager)#"},
+            { field: "AccountableExecutive", title: "Accountable Executive", editor:InitiativeOwnerEditor, width: "150px" ,template: "#=generateTemplateMetricOwner(AccountableExecutive)#"},
+            { field: "TechnologyLead", title: "Technology Lead", editor:InitiativeOwnerEditor, width: "120px",template: "#=generateTemplateMetricOwner(TechnologyLead)#" },
+            { field: "ProblemStatement", title: "Problem Statement", width: "250px", editor:TextareaEditor, template: "#= generateTitle(ProblemStatement) #" },
+            { field: "ProjectDescription", title: "Project Description", width: "250px", editor:TextareaEditor, template: "#= generateTitle(ProjectDescription) #" },
+            { field: "ProgressCompletion", title: "Progress Completion", editor: NumericTextboxEditor, width: "120px", template: '<p class="textalignRight">#= kendo.toString(ProgressCompletion, "N2") #</p>' },
+            { field: "PlannedCost", title: "Planned Cost", editor: NumericTextboxEditor, width: "120px", template: '<p class="textalignRight">#= kendo.toString(PlannedCost, "N2") #</p>' },
+            { field: "IsGlobal", title: "Global", width: "80px", editor: isGlobalEditor, template: "#= (IsGlobal) ? 'Yes' : 'No' #" },
+            { field: "Region", title: "Region", width: "100px", editor: RegionEditor, template: "#=generateTemplate(Region, IsGlobal)#" },
+            { field: "Country", title: "Country", width: "100px", editor: CountryEditor, template: "#=generateTemplate(Country, IsGlobal)#" },
+            { field: "BusinessImpact", title: "Business Impact", width: "120px", editor:BusinessImpactEditor },
+            { field: "EX", title: "EX", width: "50px", template: "#= (EX) ? 'Yes' : 'No' #" },
+            { field: "OE", title: "OE", width: "50px", template: "#= (OE) ? 'Yes' : 'No' #" },
+            { field: "SCCategory", title: "Scorecard Categories", width: "150px", editor: SCCategoryEditor ,template: "#=generateTemplateSCCategory(SCCategory)#" },
+            { field: "BusinessDriverId", title: "BusinessDriver", width: "150px", editor: BusinessDriverIdEditor ,template: "#=generateTemplateBusinessDriverId(BusinessDriverId)#" },
+            { field: "LifeCycleId", title: "LifeCycle", width: "150px", editor: LifeCycleIdEditor ,template: "#=generateTemplateLifeCycleId(LifeCycleId)#" },
+            {{if (.InitiativeMaster.Global.Update) or (.InitiativeMaster.Region.Update) or (.InitiativeMaster.Country.Update)}}
+              { command: ["edit"], title: "Action", width: "150px"},
+            {{end}}
+        ],
+        editable: "inline",
+        excelExport: function(e) {
+          var sheet = e.workbook.sheets[0];
+          var template2 = kendo.template(this.columns[2].template);
+          var template3 = kendo.template(this.columns[3].template);
+          var template17 = kendo.template(this.columns[17].template);
+          var template18 = kendo.template(this.columns[18].template);
+          var template19 = kendo.template(this.columns[19].template);
+
+          for (var i = 1; i < sheet.rows.length; i++) {
+            var row = sheet.rows[i];
+
+            var dataItem2 = {
+               StartDate: row.cells[2].value
+            };
+
+            var dataItem3 = {
+               FinishDate: row.cells[3].value
+            };
+
+            var dataItem17 = {
+               SCCategory: row.cells[17].value
+            };
+
+            var dataItem18 = {
+               BusinessDriverId: row.cells[18].value
+            };
+
+            var dataItem19 = {
+               LifeCycleId: row.cells[19].value
+            };
+
+            row.cells[2].value = template2(dataItem2);
+            row.cells[3].value = template3(dataItem3);
+            row.cells[17].value = template17(dataItem17);
+            row.cells[18].value = template18(dataItem18);
+            row.cells[19].value = template19(dataItem19);
+          }
+        }
+    });
+  }
+  
+  function generateTemplate(ReportList, IsGlobal) {
+    var template = "";
+    for (var i = 0; i < ReportList.length; i++) {
+        template = template + ReportList[i];
+        if(i != ReportList.length - 1){
+          template += ", "
+        }
+    }
+    // console.log(IsGlobal);
+    if(IsGlobal){
+      template = "Global"
+    }
+  
+    return template;
+  }
+
+  function generateTitle(isi){
+    tmpIsi = isi.length > 100 ? isi.substr(0,100) + "..." : isi
+    var template = "<p class='textalignLeft' title='"+isi+"'>"+tmpIsi+"</p>"
+    return template
+  }
+
+  function generateTemplateSCCategory(isi){
+    var template = ""
+    a = _.find(InitiativeMaster.SCCategoryList() , function (o) { return o.Value == isi; })
+    if(a != undefined){
+      template = a.Text
+    }
+    return template
+  }
+
+  function generateTemplateBusinessDriverId(isi){
+    var template = ""
+    a = _.find(InitiativeMaster.SBDList() , function (o) { return o.Idx == isi; })
+    if(a != undefined){
+      template = a.Name
+    }
+    return template
+  }
+  function generateTemplateMetricOwner(d){
+    if(typeof d !== undefined && d !== null){
+      return d.join();
+    }
+    return "";
+  }
+  function generateTemplateLifeCycleId(isi){
+    var template = ""
+    a = _.find(InitiativeMaster.LifeCycleList() , function (o) { return o.LifeCycleId == isi; })
+    if(a != undefined){
+      template = a.Name
+    }
+    return template
+  }
+
+  function DateEditor(container, options){
+      $('<input data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoDatePicker({
+          value: options.field,
+          format: "dd/MM/yyyy"
+      });
+  }
+
+  function TextareaEditor(container, options){
+    $('<textarea style="width:95%;" data-bind="value:' + options.field + '"></textarea>')
+      .appendTo(container)
+  }
+
+  function NumericTextboxEditor(container, options) {
+    // if(options.model.IsGlobal){
+    //     $('<label class="grey" data-bind="text:' + options.field + '" >')
+    //     .appendTo(container);
+    // } else {
+      $('<input data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoNumericTextBox({
+        format: "N2"
+      });
+    // }
+  }
+
+  function BusinessImpactEditor(container, options) {
+    // if(options.model.IsGlobal){
+    //     $('<label class="grey" data-bind="text:' + options.field + '" >')
+    //     .appendTo(container);
+    // } else {
+      $('<input data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoDropDownList({
+          dataSource: ["Low","Medium","High"],
+          optionLabel: "BusinessImpact"
+      });
+    // }
+  }
+
+  function isGlobalEditor(container, options) {
+    $('<input type="checkbox" name="IsGlobal" data-type="boolean" id="isGlobalEditor" data-bind="checked:'+ options.field +'", onclick="InitiativeMaster.ChangeisGlobe();">').appendTo(container)
+  }
+
+  InitiativeMaster.ChangeisGlobe = function(){
+    val = $("#isGlobalEditor").is(":checked");
+    if(val){
+      $('#CountryEditor').parent().hide();
+      $('#RegionEditor').parent().hide();
+    } else{
+      $('#CountryEditor').parent().show();
+      $('#RegionEditor').parent().show();
+    }
+  }
+
+  InitiativeMaster.GetCountryDS = function(e){
+    var d = e.sender._old;
+
+    var arr = [];
+    if(d.length > 0){
+        for(var i in d){
+            var temp_arr = Enumerable.From(InitiativeMaster.RegionalData()).Where("$.Major_Region === '"+d[i]+"'").GroupBy("$.Country").Select("$.Key()").ToArray();
+            arr = arr.concat(temp_arr);
+        }
+    } else{
+        for(i in InitiativeMaster.RegionalData()){
+            // console.log(InitiativeMaster.RegionalData()[i])
+            arr.push(InitiativeMaster.RegionalData()[i].Country)
+        }
+    }
+
+    $('#CountryEditor').data("kendoMultiSelect").dataSource.data(arr);
+    $('#CountryEditor').data("kendoMultiSelect").value([]);
+    
+    // InitiativeMaster.CountryList(arr);
+    // Initiative.FormValue().Country([])
+  }
+
+  function RegionEditor(container, options) {
+    // if(options.model.IsGlobal){
+    //   $('<label class="grey" data-bind="text:' + generateTemplate(options.field) + '" >')
+    //   .appendTo(container);
+    // } else {
+      $('<input id="RegionEditor" data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoMultiSelect({
+          dataSource: InitiativeMaster.RegionList(),
+          optionLabel: "Region",
+          // change: InitiativeMaster.GetCountryDS,
+      });
+
+      if(options.model.IsGlobal){
+        $('#RegionEditor').parent().hide();
+      } else{
+        $('#RegionEditor').parent().show();
+      }
+
+    // }
+  }
+
+  function CountryEditor(container, options) {
+    // if(options.model.IsGlobal){
+    //     $('<label class="grey" data-bind="text:' + options.field + '" >')
+    //     .appendTo(container);
+    // } else {
+      $('<input id="CountryEditor" data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoMultiSelect({
+          dataSource: InitiativeMaster.CountryList(),
+          optionLabel: "Country"
+      });
+
+      if(options.model.IsGlobal){
+        $('#CountryEditor').parent().hide();
+      } else{
+        $('#CountryEditor').parent().show();
+      }
+    // }
+  }
+
+  function SCCategoryEditor(container, options) {
+    // if(options.model.IsGlobal){
+    //     $('<label class="grey" data-bind="text:' + options.field + '" >')
+    //     .appendTo(container);
+    // } else {
+      $('<input data-text-field="Text" data-value-field="Value" data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoDropDownList({
+          dataSource: InitiativeMaster.SCCategoryList(),
+          dataValueField: 'Value', 
+          dataTextField: 'Text',
+          optionLabel: "SCCategory"
+      });
+    // }
+  }
+
+  function BusinessDriverIdEditor(container, options) {
+    // if(options.model.IsGlobal){
+    //     $('<label class="grey" data-bind="text:' + options.field + '" >')
+    //     .appendTo(container);
+    // } else {
+      $('<input data-text-field="Name" data-value-field="Idx" data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoDropDownList({
+          dataSource: InitiativeMaster.SBDList(),
+          dataValueField: 'Idx', 
+          dataTextField: 'Name',
+          optionLabel: "BusinessDriver"
+      });
+    // }
+  }
+
+  function InitiativeOwnerEditor(container, options) {
+      $('<input data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoMultiSelect({
+          dataSource: InitiativeMaster.InitaitiveOwner(),
+          optionLabel: options.field
+      });
+    // }
+  }
+
+  function LifeCycleIdEditor(container, options) {
+    // if(options.model.IsGlobal){
+    //     $('<label class="grey" data-bind="text:' + options.field + '" >')
+    //     .appendTo(container);
+    // } else {
+      $('<input data-text-field="Name" data-value-field="LifeCycleId" data-bind="value:' + options.field + '"/>')
+      .appendTo(container)
+      .kendoDropDownList({
+          dataSource: InitiativeMaster.LifeCycleList(),
+          dataValueField: 'LifeCycleId', 
+          dataTextField: 'Name',
+          optionLabel: "LifeCycle"
+      });
+    // }
+  }
+
+  function resizetable(){
+    $('#gridInitiativeMaster').width("100px")
+    $('#gridInitiativeMaster').width($('#InitiativeMaster').width())
+  }
+
+  $(document).ready(function(){
+    InitiativeMaster.Init()
+    {{if (.InitiativeMaster.Global.Read) or (.InitiativeMaster.Region.Read) or (.InitiativeMaster.Country.Read)}}
+    InitiativeMaster.GetData()
+    setTimeout(function() {
+      resizetable()
+    }, 200);
+    {{end}}
+    
+  })
+
+  $(".navbar-toggle.no-border.mgRight-5").click(function(){
+    setTimeout(function() {
+      resizetable()
+    }, 200);
+  })
+</script>
+
+ <div id="InitiativeMaster">
+  <div class="row">
+    <h4 class="col-md-12 col-sm-12">Initiative Master</h4>
+    <div class="col-md-12 col-sm-12">
+      {{if (.InitiativeMaster.Global.Read) or (.InitiativeMaster.Region.Read) or (.InitiativeMaster.Country.Read)}}
+      <div id="gridInitiativeMaster" style="width: 500px;"></div>
+      {{end}}
+    </div>
+  </div>
+ </div>

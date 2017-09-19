@@ -1,0 +1,168 @@
+<link href="/web-cb/static/css/core/scorecard_countryanalysis.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/scorecard_countryanalysis.js"></script>
+<script type="text/javascript">
+	// if .Scorecard.Country.Owned}}
+	    ScorecardCountryAnalysis.UserCountry("{{.UserCountry}}");
+	    if(ScorecardCountryAnalysis.UserCountry()!= ""){
+	    	ScorecardCountryAnalysis.OwnedCountry(true)
+	    }
+	// end}}
+</script>
+<style type="text/css">
+	#ScorecardCountryAnalysis .k-datepicker{
+		border: none !important;
+		background: #3f77a7 !important;
+	}
+	#ScorecardCountryAnalysis .k-state-default{
+		background: #3f77a7 !important;
+    	border: none;
+	}
+	#ScorecardCountryAnalysis .k-select{
+		border: none;
+	}
+	#ScorecardCountryAnalysis .periodgap{
+		background: #3f77a7 !important;
+		color: white;
+	}
+	#ScorecardCountryAnalysis .k-icon{
+		background-position: -48px -176px;
+		opacity: 1;
+	}
+</style>
+<div data-bind="with:ScorecardCountryAnalysis" id="ScorecardCountryAnalysis">
+	<div class="col-sm-12 no-padding">
+	    <ul class="nav nav-pills" role="tablist">
+	      <li class="active col-sm-7 no-margin no-padding" style="padding-right: 3px !important;text-align: center;">
+	      <div style="width: 100px;position: absolute;z-index: 1;right: 4px;" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+	      <input class="periodgap" data-bind="kendoDatePicker:{value:Period,start: 'year', depth: 'year',format:'MMM-yyyy'}" onkeydown="return false;"></div>
+	      <a class="rounded-modified" href="#sc_countryanalysis_gap" role="tab" data-toggle="tab" onclick="ScorecardCountryAnalysis.ChangeSort('Gap')">
+	        % Gap <span data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'Gap'"><span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></span> 
+	      </a>
+	      </li>
+	      <li class="active col-sm-5 no-margin no-padding" style="text-align: center;"><a class="rounded-modified" href="#sc_countryanalysis_gap" role="tab" data-toggle="tab">
+	        Trend Chart
+	      </a></li>
+	    </ul>   
+	    <div class="tab-content">
+	      <div role="tabpanel" class="tab-pane active col-sm-12 no-padding" id="sc_countryanalysis_gap" >
+	      	<div class="col-sm-7 no-margin no-padding" style="padding-right: 3px !important;">
+	      		<table style="width: 100%" class="table-gap">
+		        	<tr>
+		        		<th width="10" class="thmodified borderrightadded" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">#</th>
+		        		<th width="100" class="thmodified borderrightadded mousehover" onclick="ScorecardCountryAnalysis.ChangeSort('Actual')" data-bind="visible:ScorecardAnalysis.DataReference().Type=='spot'">
+		        			<p data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'Actual'" style="width: 100px;text-decoration: underline;margin:0;"><span data-bind="text: kendo.toString(getUTCDate(Period()),'MMM-yy') + ' Actual'"></span> <span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></p>
+		        			<span data-bind="visible:ScorecardCountryAnalysis.SortByValue() != 'Actual', text: kendo.toString(getUTCDate(Period()),'MMM-yy') + ' Actual'"></span>
+		        		</th>
+		        		<th width="60" class="thmodified borderrightadded mousehover" onclick="ScorecardCountryAnalysis.ChangeSort('LastYearActual')" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+		        			<p data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'LastYearActual'" style="width: 60px;text-decoration: underline;margin:0;"><span data-bind="text: parseInt(kendo.toString(getUTCDate(Period()),'yyyy'))-1 + ' YTD Actual'"></span> <span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></p>
+		        			<span data-bind="visible:ScorecardCountryAnalysis.SortByValue() != 'LastYearActual', text: parseInt(kendo.toString(getUTCDate(Period()),'yyyy'))-1 + ' YTD Actual'"></span>
+		        		</th>
+		        		<th width="60" class="thmodified borderrightadded mousehover" onclick="ScorecardCountryAnalysis.ChangeSort('Actual')"  data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+		        			<p data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'Actual'" style="width: 60px;text-decoration: underline;margin:0;"><span data-bind="text: kendo.toString(getUTCDate(Period()),'yyyy') + ' YTD Actual'"></span> <span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></p>
+		        			<span data-bind="visible:ScorecardCountryAnalysis.SortByValue() != 'Actual', text: kendo.toString(getUTCDate(Period()),'yyyy') + ' YTD Actual'"></span>
+		        		</th>
+		        		<th width="70" class="thmodified borderleftadded mousehover"  onclick="ScorecardCountryAnalysis.ChangeSort('YoY')"  data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+		        			<p data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'YoY'" style="width: 60px;text-decoration: underline;margin:0;">YoY % <span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></p>
+		        			<span data-bind="visible:ScorecardCountryAnalysis.SortByValue() != 'YoY'">YoY % Actual</span>
+		        		</th>
+		        		<th data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'"></th>
+		        		<th data-bind="visible:ScorecardAnalysis.DataReference().Type=='spot'">
+		        			<div class="col-sm-4" style="text-align: right;">% to Target</div>
+	                		<div class="col-sm-4" style="text-align: center;">Target</div>
+							<div class="col-sm-4" style="text-align: left;">% Over Target</div>
+		        		</th>
+		        		<th width="60" class="thmodified borderleftadded mousehover"  onclick="ScorecardCountryAnalysis.ChangeSort('Target')" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+		        			<p data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'Target'" style="width: 60px;text-decoration: underline;margin:0;"><span data-bind="text: kendo.toString(getUTCDate(Period()),'yyyy') + ' Target'"></span> <span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></p>
+		        			<span data-bind="visible:ScorecardCountryAnalysis.SortByValue() != 'Target', text: kendo.toString(getUTCDate(Period()),'yyyy') + ' Target'"></span>
+		        		</th>
+		        		<th width="60" class="thmodified borderleftadded mousehover"  onclick="ScorecardCountryAnalysis.ChangeSort('GaptoTarget')" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+		        			<p data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'GaptoTarget'" style="width: 60px;text-decoration: underline;margin:0;"><span data-bind="text: kendo.toString(getUTCDate(Period()),'yyyy') + ' % Gap to Target'"></span> <span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></p>
+		        			<span data-bind="visible:ScorecardCountryAnalysis.SortByValue() != 'GaptoTarget', text: kendo.toString(getUTCDate(Period()),'yyyy') + ' % Gap to Target'"></span>
+		        		</th>
+		        		<th width="60" class="thmodified borderleftadded mousehover"  onclick="ScorecardCountryAnalysis.ChangeSort('LastYearGaptoTarget')" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+		        			<p data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'LastYearGaptoTarget'" style="width: 60px;text-decoration: underline;margin:0;"><span data-bind="text: parseInt(kendo.toString(getUTCDate(Period()),'yyyy')) - 1 + ' % Gap to Target'"></span> <span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></p>
+		        			<span data-bind="visible:ScorecardCountryAnalysis.SortByValue() != 'LastYearGaptoTarget', text: parseInt(kendo.toString(getUTCDate(Period()),'yyyy')) - 1 + ' % Gap to Target'"></span>
+		        		</th>
+		        		<th width="100" class="thmodified borderleftadded mousehover"  onclick="ScorecardCountryAnalysis.ChangeSort('Target')"  data-bind="visible:ScorecardAnalysis.DataReference().Type=='spot'">
+		        			<p data-bind="visible:ScorecardCountryAnalysis.SortByValue() == 'Target'" style="width: 100px;text-decoration: underline;margin:0;">Full Year Target <span class="fa fa-caret-up" data-bind="attr:{class:ScorecardCountryAnalysis.SortByValueType() == 'asc' ? 'fa fa-caret-up' : 'fa fa-caret-down'}"></span></p>
+		        			<span data-bind="visible:ScorecardCountryAnalysis.SortByValue() != 'Target'">Full Year Target</span>
+		        		</th>
+		        	</tr>
+		        	<tbody data-bind="foreach: Data">
+			        	<tr>
+			        		<td class="text-center tdmodified borderrightadded" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'"><span data-bind="html:$index()+1">0</span></td>
+
+			        		<td class="text-center tdmodified borderrightadded"><span data-bind="text: kendo.toString(LastYearActual, 'N2'), visible:( ScorecardCountryAnalysis.OwnedCountry() && Name == ScorecardCountryAnalysis.UserCountry() ) || !ScorecardCountryAnalysis.OwnedCountry()">0</span></td>
+
+			        		<td class="text-center tdmodified borderrightadded" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'"><span data-bind="text: kendo.toString(Actual, 'N2'), visible:( ScorecardCountryAnalysis.OwnedCountry() && Name == ScorecardCountryAnalysis.UserCountry() ) || !ScorecardCountryAnalysis.OwnedCountry()">0</span></td>
+
+			        		<td class="text-center tdmodified borderrightadded" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot' && YoY < 0" style="color:red;"><span data-bind="html: '<span class=\'fa fa-caret-down\'></span>&nbsp;'+kendo.toString(YoY*-1, 'N2')+'%'">0</span></td>
+
+			        		<td class="text-center tdmodified borderrightadded" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot' && YoY >= 0" style="color:green;"><span data-bind="html: '<span class=\'fa fa-caret-up\'></span>&nbsp;'+kendo.toString(YoY, 'N2')+'%'">0</span></td>
+
+			        		<td class="tdmodified no-padding mousehover" data-bind="attr:{onclick: 'ScorecardCountryAnalysis.GetTrendChart(\''+Name+'\', \''+$index()+'\')'}, visible:(ActualPercent*100) > 0 && ScorecardAnalysis.DataReference().Type!=='spot'">
+			        			<span class="title" data-bind="text: Name" style="color: black;"></span>
+			        			<div data-bind="attr:{title: parseInt(kendo.toString(getUTCDate(ScorecardCountryAnalysis.Period()),'yyyy'))+' Actual % : '+kendo.toString(ActualPercent*100,'N2')+' %',style: 'float:left;'+(ActualPercent<=0? 'display:none;':'')+'width:'+((ActualPercent*100>100) ? 100 : (ActualPercent*100<0) ? 0 : ActualPercent*100)+'%;', class: ScorecardCountryAnalysis.ActiveCountry() == Name ? 'percentage percentage-right active' : 'percentage percentage-right'}"></div>
+			        			<!-- <div data-bind="attr:{title: parseInt(kendo.toString(getUTCDate(ScorecardCountryAnalysis.Period()),'yyyy'))+' Actual % : '+kendo.toString(ActualPercent*100,'N2')+'%\nYoY % : '+kendo.toString(YoY,'N2')+' %',style: 'float:left;width:'+((YoY>100) ? 100 : (YoY<0) ? 0 : YoY)+'%;'+(YoY<=0? 'display:none;':'')+';max-width:'+(100-(LastYearActualPercent*100))+'%;', class: ScorecardCountryAnalysis.ActiveCountry() == Name ? 'percentage2 percentage-right active2' : 'percentage2 percentage-right'}"></div> -->
+			        		</td>
+
+			        		<!-- <td class="tdmodified no-padding mousehover" data-bind="attr:{onclick: 'ScorecardCountryAnalysis.GetTrendChart(\''+Name+'\', \''+$index()+'\')'}, visible:(LastYearActualPercent*100) > 0 && ScorecardAnalysis.DataReference().Type!=='spot' && YoY <= 0">
+			        			<span class="title" data-bind="text: Name" style="color: black;"></span>
+			        			<div data-bind="attr:{title: 'Actual % : '+kendo.toString(LastYearActualPercent*100,'N2')+' %',style: 'float:left;width:'+((LastYearActualPercent*100>100) ? 100 : (LastYearActualPercent*100<0) ? 0 : LastYearActualPercent*100)+'%;', class: ScorecardCountryAnalysis.ActiveCountry() == Name ? 'percentage percentage-right active' : 'percentage percentage-right'}"></div>
+			        		</td> -->
+
+			        		<td class="tdmodified no-padding mousehover" data-bind="attr:{onclick: 'ScorecardCountryAnalysis.GetTrendChart(\''+Name+'\', \''+$index()+'\')'}, visible:(ActualPercent*100) <= 0 && ScorecardAnalysis.DataReference().Type!=='spot'">
+			        			<span class="title" data-bind="text: Name" style="color: black;"></span>
+			        			<div data-bind="attr:{style: 'width:'+((ActualPercent*100>100) ? 100 : (ActualPercent*100<0) ? 0 : ActualPercent*100)+'%;', class: ScorecardCountryAnalysis.ActiveCountry() == Name ? 'percentage active' : 'percentage'}"></div>
+			        		</td>
+
+			        		<td class="tdmodified no-padding mousehover" data-bind="attr:{onclick: 'ScorecardCountryAnalysis.GetTrendChart(\''+Name+'\', \''+$index()+'\')'}, visible:(OverTarget*100) > 0 && ScorecardAnalysis.DataReference().Type=='spot'">
+			        			<span class="title" data-bind="text: Name" style="color: black;"></span>
+			        			<div class="halfsize" style="margin-left: 50%;">
+			        				<div data-bind="attr:{title: 'Actual % : '+kendo.toString(ActualPercent*100,'N2')+' %',style: 'width:'+kendo.toString(((OverTarget*100>100) ? 100 : (OverTarget*100<0) ? 0 : OverTarget*100),'N2')+'%;', class: ScorecardCountryAnalysis.ActiveCountry() == Name ? 'percentage percentage-right active' : 'percentage percentage-right'}"></div>
+			        			</div>
+			        		</td>
+
+			        		<td class="tdmodified no-padding mousehover" data-bind="attr:{onclick: 'ScorecardCountryAnalysis.GetTrendChart(\''+Name+'\', \''+$index()+'\')'}, visible:(OverTarget*100) <= 0 && ScorecardAnalysis.DataReference().Type=='spot'">
+			        			<span class="title" data-bind="text: Name+' #'" style="color: black;"></span>
+			        			<div class="halfsize" style="margin-right: 50%;">
+			        				<div data-bind="attr:{title:'Gap % : '+kendo.toString(((Gap*100>100) ? 100 : (Gap*100<0) ? (Gap*100*-1>100?100:Gap*100*-1) : Gap*100),'N2')+'%',style: 'float: right;width:'+((Gap*100>100) ? 100 : (Gap*100<0) ? (Gap*100*-1>100?100:Gap*100*-1) : Gap*100)+'%;', class: ScorecardCountryAnalysis.ActiveCountry() == Name ? 'percentage active' : 'percentage grey'}"></div>
+			        			</div>
+			        		</td>
+
+			        		<td class="text-center tdmodified borderleftadded"><span data-bind="text: kendo.toString(Target, 'N2'), visible:( ScorecardCountryAnalysis.OwnedCountry() && Name == ScorecardCountryAnalysis.UserCountry() ) || !ScorecardCountryAnalysis.OwnedCountry()">0</span></td>
+
+			        		<td class="text-center tdmodified borderleftadded" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+			        			<span data-bind="text: kendo.toString(GaptoTarget, 'N2') + '%'">0</span>
+			        		</td>
+
+			        		<td class="text-center tdmodified borderleftadded" data-bind="visible:ScorecardAnalysis.DataReference().Type!=='spot'">
+			        			<span data-bind="text: kendo.toString(LastYearGaptoTarget, 'N2') + '%'">0</span>
+			        		</td>
+			        	</tr>
+		        	</tbody>
+		        </table>
+	      	</div>
+	        <div class="col-sm-5 no-margin no-padding" style="">
+	        	<div style="width: 460px;" id="TrendChart"></div>
+	        </div>
+	      </div>	      
+	    </div>
+	</div>
+	<!-- <div class="col-sm-12 no-padding" data-bind="visible:ScorecardAnalysis.DataReference().Type=='cumulative'">
+        <div class="col-sm-7 no-margin no-padding" style="padding-top: 10px !important;">
+        	<div class="col-sm-3"></div>
+        	<div class="col-sm-3" style="padding-right: 2px">
+        		<div style="width: 100%;background: #36bc9b;text-align: center;vertical-align: middle;padding: 7px 0px;border-radius: 6px;font-weight: bold;">
+        			<span data-bind="text: parseInt(kendo.toString(getUTCDate(Period()),'yyyy'))-1 + ' YTD Actual'"></span>
+        		</div>
+        	</div>
+        	<div class="col-sm-3" style="padding-left: 2px">
+        		<div style="width: 100%;background: #8ddeca;text-align: center;vertical-align: middle;padding: 7px 0px;border-radius: 6px;font-weight: bold;">
+        			<span data-bind="text: parseInt(kendo.toString(getUTCDate(Period()),'yyyy')) + ' YTD Actual'"></span>
+        		</div>
+        	</div>
+        	<div class="col-sm-3"></div>
+        </div>
+    </div> -->
+</div>

@@ -1,0 +1,644 @@
+<div id="mu-button" data-bind="visible:false">
+    <button class='editing-button navbar-toggle no-border mgRight-5' onclick="MU.UploadDownload()">
+     <img style="width: 13px; margin-top: -1px;" src="/web-cb/static/img/icon-upload.png">
+    </button>
+</div>
+<link href="/web-cb/static/css/core/scorecard.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<style type="text/css">
+.box-upload-download{
+        border: 3px solid #5BC4E5;
+        margin: 22px;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bolder;
+        background-color: #EDEDED;
+}
+.box-spasi{
+    height: 100px;
+    width: 3px;
+    padding: 0 !important;
+    background-color: #A8BADD;
+}
+#modal-upload-download-metric h5 {
+    font-weight: bold;
+    margin: 0px;
+    margin-bottom: 7px;
+}
+</style>
+
+<script type="text/javascript">
+    var MU = {
+        Processing:ko.observable(false),
+        DownloadOption:ko.observable(""),
+        StatusUploadorDownload: ko.observable(true),
+        ProcessingUploadData:ko.observable(false),
+        datemetric: ko.observable(new Date()),
+        metric: ko.observable(""),
+        IsMulti: ko.observable(false),
+        ProcessingBMData:ko.observable(false),
+        DataMetrics:ko.observableArray([]),
+        DataSource: ko.observableArray([]),
+        RegionalData: ko.observableArray([]),
+        CountryData: ko.observableArray([]),
+    }
+    MU.ListPeriod = ko.observableArray([]);
+    MU.GetDenominationTitle = function(val){
+        switch(val){
+            case 'NUMERIC':
+                return "Numeric Value";
+                break;
+            case 'DOLLAR':
+                return "Dollar Value ($)";
+                break;
+            case 'PERCENTAGE':
+                return "Percentage (%)";
+                break;
+            default:
+                return "Numeric Value";
+                break;      
+        }
+        return "Numeric Value";
+    }
+    MU.GetDecimalPoint = function(val){
+        switch(val){
+            case '0':
+                return "No Decimal";
+                break;
+            case '1':
+                return "0.0";
+                break;
+            case '2':
+                return "0.00";
+                break;
+            default:
+                return "No Decimal";
+                break;      
+        }
+        return "No Decimal";
+    }
+
+    MU.downloadAsOneTemplate = function() {
+        var isAvailable = false;
+        var parm = {
+            BusinessName:["COMMERCIAL BANKING"], //[..,..] wanna be
+            // AllMetrics:[],
+            BMName:[],
+            Date:"",
+        }
+        // MU.metric
+        if (MU.metric().length > 0) {
+            isAvailable = true;
+            MU.metric().forEach(function(e,i) {
+                if (e == "All") {
+                    MU.KeyMetrics().forEach(function(v,idx) {
+                        if (v.text != "All") {
+                            parm.BMName.push(v)
+                        }
+                    }); 
+                }else{
+                    parm.BMName.push(_.find(MU.KeyMetrics(), {metricId: e}));
+                }
+                
+                parm.Date=moment(MU.datemetric()).format("MMM YYYY");
+            });
+        }
+        
+        if(!isAvailable){
+            swal("","Please select at least one Business Metrics", "info");
+            return false;
+        }
+        parm.DownloadOption = MU.DownloadOption();
+        ajaxPost("/web-cb/scorecard/getbmfiletemplatemultiple",parm,function(res){
+            if(res.IsError) {
+                swal('File Template', 'Cannot get file template', 'error');
+                return false;
+            }
+            location.href = "/web-cb/static/templatefile/"+encodeURIComponent(res.Data);
+        });
+    }
+
+    MU.checkingFinanceMetrics = function(parmchecking,howMany,payload){
+        toolkit.ajaxPost("/web-cb/scorecard/checkuploadfinancemetrics",payload,function(res){
+            if(res.Message != ""){
+                swal({
+                  title: "",
+                  text: res.Message,
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonClass: "btn-danger",
+                  confirmButtonText: "Yes",
+                  // closeOnConfirm: false
+                },
+                function(){
+                  MU.uploadMetricsTemplate(howMany,payload);
+                });
+            }else{
+                MU.uploadMetricsTemplate(howMany,payload);
+            }
+        }, function () {
+            swal('Failed to upload', 'Some error happen', 'error');
+        });
+    }
+
+    MU.newInputMetric = function () {
+        return {
+            metric: '',
+            date: new Date()
+        }
+    }
+    MU.inputMetrics = ko.observableArray([
+        MU.newInputMetric()
+    ]);
+
+    MU.UploadDownload = function(){
+        MU.inputMetrics([MU.newInputMetric()])
+        $('#modal-upload-download-metric').modal('show');
+        MU.metric([]);
+        MU.datemetric(new Date());
+        ///clear file uploaded
+        $("#uploadtemplate").wrap('<form>').closest('form').get(0).reset();
+        $("#uploadtemplate").unwrap();
+    }
+
+    MU.Upload = function (option) {
+        MU.DownloadOption(option);
+        MU.StatusUploadorDownload(true)
+        $('#modal-upload-metric').modal('show');
+        $('#modal-upload-download-metric').modal('hide');
+    }
+
+    MU.Download = function (option) {
+        MU.DownloadOption(option);
+        MU.StatusUploadorDownload(false)
+        $('#modal-upload-metric').modal('show');
+        $('#modal-upload-download-metric').modal('hide');
+    }
+
+    MU.GetDownloadOption = ko.computed(function(){
+        var opt = MU.DownloadOption();
+        var option = "";
+        switch(opt){
+            case "owner":
+                option = "Metric Owner";
+                break;
+            case "finance":
+                option = "Finance Team";
+                break;
+            default:
+                option = "Metric Owner";
+                break;
+        }
+        return option;
+    });
+
+    MU.KeyMetrics = ko.computed(function () {
+        var res = [];
+        var nomorurut = 1;
+        MU.DataSource().forEach(function (d) {
+            d.BusinessMetric.forEach(function (e) {
+                res.push({ id: d.Id, metricId: e.Id, value: e.BDId, text: e.Description, urut: nomorurut })
+                nomorurut++;
+            })
+        })
+        res.push({ id: 0, metricId: "All", value: "All", text: "All", urut: 0 });
+        // console.log(res)
+        hasil = sortStringNumber(100,res, 'text')
+        // hasil = _.sortBy(hasil, "urut")
+        return hasil;
+    }, MU.Data)
+
+    MU.uploadMultiTemplate = function () {
+        var payload = new FormData();
+        var howMany = 0;
+        var currentMonth = parseInt(kendo.toString(new Date(),"yyyyMM"));
+        var isReplacingPrevMonthData = false;
+        
+        var o = {};
+        o.date = moment(MU.datemetric()).format('YYYYMM');
+        o.files = $('#uploadtemplate')[0].files;
+        if (o.files.length > 0) {
+            payload.append('date', o.date);
+            payload.append('file', o.files[0]);
+
+            howMany++
+            if(parseInt(o.date) < currentMonth){
+                isReplacingPrevMonthData = true;
+            }
+        }
+        payload.append('downloadOption', MU.DownloadOption())
+     //    for (var pair of payload.entries()) {
+        //     console.log(pair[0]+ ', ' + pair[1]); 
+        // }
+        // console.log(payload)
+        if (howMany == 0) {
+            swal('No data to be upload', '', 'error');
+            return
+        }
+        if(isReplacingPrevMonthData){
+            swal({
+                  title: "",
+              text: 'You are replacing data from a previous month in the scorecard, please click "Confirm" to continue',
+              type: "warning",
+              showCancelButton: true,
+              confirmButtonClass: "btn-danger",
+              confirmButtonText: "Confirm",
+              closeOnConfirm: true
+            },
+            function(){
+              MU.uploadMetricsTemplate(howMany,payload);
+            });
+            return
+        }else{
+            switch(MU.DownloadOption()){
+                case "owner":
+                    MU.checkingMetrics(o,howMany,payload);
+                    break;
+                case "finance":
+                    MU.checkingFinanceMetrics(o,howMany,payload);
+                    break;
+                default:
+                    MU.checkingMetrics(o,howMany,payload);
+                break;
+            }
+        }
+    }
+
+    MU.checkingMetrics = function(parmchecking,howMany,payload){
+        toolkit.ajaxPost("/web-cb/scorecard/checkuploadmetrics",payload,function(res){
+            if(res.Message != ""){
+                // console.log(res.Message)
+                var message = res.Message.replace(" have already been uploaded, are you sure you want to upload again?","");
+                // console.log(message)
+                swal({
+                  title: "",
+                  // text: res.Message,
+                  text: "One or more business metrics already been uploaded, are you sure you want to upload again?",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonClass: "btn-danger",
+                  confirmButtonText: "Yes",
+                  // closeOnConfirm: false
+                },
+                function(){
+                  MU.uploadMetricsTemplate(howMany,payload);
+                });
+            }else{
+                MU.uploadMetricsTemplate(howMany,payload);
+            }
+        }, function () {
+            swal('Failed to upload', 'Some error happen', 'error');
+        });
+    }
+
+    MU.uploadMetricsTemplate = function(howMany,payload){
+        MU.ProcessingUploadData(true);
+        toolkit.ajaxPost('/web-cb/scorecard/uploadmetricstemplate', payload, 
+            function (res) {
+                MU.ProcessingUploadData(false);
+                if(res.IsError) {
+                    var msg = (res.Message != "") ? res.Message : 'Cannot upload file';
+                    alert(msg);
+                    swal('Upload Failed', msg, 'error');
+                    return;
+                }
+                $('#modal-upload-metric').modal('hide');
+                setTimeout(function () {
+                    swal('Upload success', howMany + ' files uploaded', 'success');
+                    var ListPeriod = [];
+                    for(var i in res.Data){
+                        var format = "N";
+                        switch(res.Data[i].MetricType){
+                            case "DOLLAR": 
+                            break;
+                            case "NUMERIC":
+                            break;
+                            case "PERCENTAGE":
+                            format = "P";
+                            break;
+                            default:break;
+                        }
+                        for(var x in res.Data[i].DataList){
+                            res.Data[i].DataList[x].Format = format+res.Data[i].DataList[x].DecimalFormat;
+                            res.Data[i].DataList[x].MetricType = res.Data[i].MetricType;
+                        }
+                        ListPeriod = res.Data[i].finCol;
+                    }
+                    MU.ListPeriod(ListPeriod);
+
+                    setTimeout(function(){
+                        MU.DataMetrics(res.Data);                     
+                        $('#modal-review-metric').modal('show');
+                        // setTimeout(function(){
+                        //  MU.GetData();
+                        // }, 2000);
+                    },1000);
+                }, 500)
+                
+            }, function (a, b, c) {
+                swal('Failed to upload', 'Some error happen', 'error');
+            });
+    }
+
+    MU.RMDGrid = function(e){
+        var grid = e.sender;
+        if (grid.dataSource.total() == 0) {
+            var colCount = grid.columns.length;
+                $(e.sender.wrapper)
+                .find('tbody')
+                .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" class="no-data" style="text-align:center;font-size: 12px;color: red;">No Data Matches</td></tr>');
+        }
+    }
+
+    MU.DataListColumn = ko.computed(function(){
+        var arr = [
+            {field:"BusinessName",title:"BUSINESS NAME",width:"150px"},
+            {field:"BusinessMetricDescription",title:"METRIC",width:"150px"},
+            {field:"Region",title:"REGION",width:"100px"},
+            {field:"Country",title:"COUNTRY",width:"100px"},
+            {field:"CountryCode",title:"COUNTRY CODE",width:"80px"},
+        ];
+        switch(MU.DownloadOption()){
+            case "owner":
+                arr.push({field:"MetricType",title:"METRIC DENOMINATION",width:"100px",template:"#:MU.GetDenominationTitle(MetricType)#"});
+                arr.push({field:"DecimalFormat",title:"DECIMAL POINT",width:"100px",template:"#:MU.GetDecimalPoint(DecimalFormat)#"});
+                arr.push({field:"ActualYTD",title:"YTD ACTUAL",width:"80px",template:"#:ActualYTD===130895111188?'N/A':kendo.toString((MetricType=='PERCENTAGE'?(ActualYTD/100):ActualYTD),Format)#",
+                        attributes: {"class": "text-right"}});
+                arr.push({field:"RAG",title:"RAG",width:"50px"});
+                break;
+            case "finance":
+                arr.push({field:"Baseline",title:"BASELINE",template:"#:Baseline===130895111188?'N/A':kendo.toString((MetricType=='PERCENTAGE'?(Baseline/100):Baseline),Format)#",
+                        attributes: {"class": "text-right"},width:"80px"
+                    });
+                var Period = MU.ListPeriod();
+                for(var i in Period){
+                    arr.push({field:Period[i],title:Period[i],template:"#:"+Period[i]+"===130895111188?'N/A':kendo.toString((MetricType=='PERCENTAGE'?("+Period[i]+"/100):"+Period[i]+"),Format)#",
+                        width:"80px",
+                        attributes: {"class": "text-right"}
+                    });
+                }
+                
+                arr.push({field:"Target",title:"FULL YEAR TARGET",template:"#:Target===130895111188?'N/A':kendo.toString((MetricType=='PERCENTAGE'?(Target/100):Target),Format)#",
+                        width:"80px",attributes: {"class": "text-right"}});
+                break;
+            default:
+                // Old
+                // {field:"Actual",title:"ACTUAL",template:"#:Actual===130895111188?'N/A':kendo.toString(Actual,Format)#",
+                //  attributes: {"class": "text-right"}},
+                // {field:"ActualYTD",title:"YTD ACTUAL",template:"#:ActualYTD===130895111188?'N/A':kendo.toString(ActualYTD,Format)#",
+                //  attributes: {"class": "text-right"}},
+                // {field:"FullYearForecast",title:"FULL YEAR FORECAST",template:"#:FullYearForecast===130895111188?'N/A':kendo.toString(FullYearForecast,Format)#",
+                //  attributes: {"class": "text-right"}},,
+                break;
+        }
+        
+
+        return arr;
+    });
+
+    MU.processBMData = function(){
+        MU.ProcessingBMData(true);
+        var parm = {
+            Data:MU.DataMetrics(),
+            UploadOptions:MU.DownloadOption()
+        }
+        ajaxPost("/web-cb/scorecard/processbmdata",parm,function(res){
+            MU.ProcessingBMData(false);
+            if(res.IsError) {
+                swal('Processing Data', res.Message, 'error');
+                return false;
+            }
+            swal('Process Complete', 'All data has been processed', 'success');
+            $('#modal-review-metric').modal('hide');
+
+            // swal({
+            //   title: "Process Complete",
+            //   text: 'Press "Continue" to go to Staging Area ',
+            //   type: "success",
+            //   showCancelButton: true,
+            //   confirmButtonColor: "#DD6B55",
+            //   confirmButtonText: "Continue",
+            //   cancelButtonText:"Stay Here",
+            //   closeOnConfirm: false
+            // },
+            // function(){
+            //  location.href = "/stagingarea/default?access="+res.Data;
+            // },function(){
+                MU.GetData();
+            // });
+        })
+
+    }
+
+    MU.randomString = function () {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for( var i=0; i < 12; i++ )
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+    }
+
+    MU.GetData = function(){
+        var url = "/web-cb/scorecard/getdata";
+        var parm = {
+            Region:"",
+            Country:"",
+            // Region:c.Filter.RegionCountry(),
+            // Country:c.Filter.RegionCountry()
+        };
+        ajaxPost(url, parm, function(res) {
+            if (res.IsError) {
+                swal("", res.Message, "info");
+            }
+
+            var RegionalData = [];
+            var CountryData = [];
+            res.Data.forEach(function (d) {
+                d.BusinessMetric.forEach(function (e) {
+                    e.rid = MU.randomString()
+                    e.Idx = d.Idx
+                    if(RegionalData.length === 0 ){
+                        RegionalData = e.RegionalData;
+                    }
+                    if(CountryData.length === 0 ){
+                        CountryData= e.CountryData;
+                    }
+
+                    e.LastUpdate = "";
+                    var files = ko.mapping.toJS(e.MetricFiles)
+                    if (toolkit.isArray(files)) {
+                        var MOFiles = Enumerable.From(files).Where("$.OriginalFileName.toLowerCase().indexOf('finance')<0").ToArray();
+                        if (MOFiles.length > 0) {
+                            var MonthYear = MOFiles[MOFiles.length - 1].MonthYear;
+                            var year = parseInt(String(MonthYear).substr(0,4));
+                            var month = parseInt(String(MonthYear).substr(4,2))-1;
+                            e.LastUpdate = kendo.toString(new Date(year,month,1),'MMM yyyy');
+                        }
+                    }
+
+
+                })
+            });
+            MU.RegionalData(RegionalData);
+            MU.CountryData(CountryData);
+            MU.DataSource(res.Data);
+        });
+    }
+    MU.Init = function(){
+        MU.GetData();
+    }
+    $(document).ready(function(){
+        MU.Init();
+    })
+</script>
+
+<!-- modal upload -->
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-upload-download-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Please Choose</h4>
+            </div>
+            <div class="modal-body" data-bind="foreach: MU.inputMetrics">
+                <div>
+                    <h5 class="col-sm-12 text-center">Metric Owner</h5>
+                </div>
+                <div>
+                    <button class="col-sm-5 box-upload-download" onclick="MU.Download('owner')">Download Template</button>
+                    <div class="col-sm-1 box-spasi"></div>
+                    <button class="col-sm-5 box-upload-download" onclick="MU.Upload('owner')">Upload Metrics</button>
+                    <div class="clearfix"></div>
+                </div>
+                {{if .IsFINADMIN}}
+                {{else}}
+                <hr style="border: 1px solid #848484;"/>
+                <div>
+                    <h5 class="col-sm-12 text-center">Finance Team</h5>
+                </div>
+                <div>
+                    <button class="col-sm-5 box-upload-download" onclick="MU.Download('finance')">Download Template</button>
+                    <div class="col-sm-1 box-spasi"></div>
+                    <button class="col-sm-5 box-upload-download" onclick="MU.Upload('finance')">Upload Metrics</button>
+                    <div class="clearfix"></div>
+                </div>
+                {{end}}
+                <hr/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-upload-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" data-bind="visible: !MU.StatusUploadorDownload()">Download Template - <span data-bind="text:MU.GetDownloadOption"></h4>
+                <h4 class="modal-title" data-bind="visible: MU.StatusUploadorDownload()">Upload Metrics - <span data-bind="text:MU.GetDownloadOption"></span></h4>
+            </div>
+            <!-- upload template body -->
+             <div class="modal-body" data-bind="visible: MU.StatusUploadorDownload()">
+                <div class="modal-body" data-bind="visible:MU.ProcessingUploadData()">
+                    <div class="loader col-sm-12 text-center" style="height: 110px;">
+                        <img src="/web-cb/static/img/loader3.gif">
+                    </div>
+                </div>
+                <div data-bind="visible:!MU.ProcessingUploadData()">
+                    <span class="col-sm-2" data-bind="visible: MU.StatusUploadorDownload()">
+                    </span>
+                    <div class="col-sm-4" data-bind="visible: MU.StatusUploadorDownload(),attr:{'class':MU.DownloadOption()==='owner'?'col-sm-4':'col-sm-8'}">
+                        <input class="form-control" type="file" style="width: 100%;" id="uploadtemplate" />
+                    </div>
+                    <div class="col-sm-3 no-padding" data-bind="visible: MU.DownloadOption()==='owner'">
+                        <input style="width: 100%;" data-bind="kendoDatePicker: {  start: 'year', depth: 'year', format: 'MMM yyyy', value: MU.datemetric }" />
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+            <!-- download template body -->
+            <div class="modal-body" data-bind="visible: !MU.StatusUploadorDownload()">
+                <div class="downloadtemp">
+                    <span class="col-sm-2" data-bind="visible: !MU.StatusUploadorDownload()">
+                    </span>
+                    <div class="col-sm-4" data-bind="attr:{'class':MU.DownloadOption()==='owner'?'col-sm-4':'col-sm-8'}">
+                        <input style="width: 100%;" id="metrics" data-bind="kendoMultiSelect:{value:MU.metric, data:MU.KeyMetrics, dataTextField:'text',dataValueField:'metricId',filter:'contains',placeholder:'Metric'}" />
+                    </div>
+                    <div class="col-sm-4" data-bind="visible: MU.StatusUploadorDownload()">
+                        <input class="form-control" type="file" style="width: 100%;" />
+                    </div>
+                    <div class="col-sm-3 no-padding" data-bind="visible: MU.DownloadOption()==='owner'">
+                        <input style="width: 100%;" data-bind="kendoDatePicker: {  start: 'year', depth: 'year', format: 'MMM yyyy', value: MU.datemetric }" />
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div class="modal-footer" data-bind="visible: !MU.IsMulti()">
+                <button class="btn btn-sm btn-primary" data-bind="click: MU.uploadMultiTemplate, visible: MU.StatusUploadorDownload()">
+                    <i class="fa fa-arrow-up"></i> Upload
+                </button>
+                <button class="btn btn-sm btn-primary" data-bind="click: MU.downloadAsOneTemplate, visible: !MU.StatusUploadorDownload()">
+                    <i class="fa fa-download"></i> Download All
+                </button>
+                <button class="btn btn-sm btn-danger" data-dismiss="modal">
+                    <i class="fa fa-close"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-review-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Review Metrics Data</h4>
+            </div>
+            <div class="modal-body" data-bind="visible:MU.ProcessingBMData()">
+                <div class="loader col-sm-12 text-center" style="height: 110px;">
+                    <img src="/web-cb/static/img/loader3.gif">
+                </div>
+            </div>
+            <div class="modal-body" style="float: left;width: 100%" data-bind="visible:!MU.ProcessingBMData(),foreach: MU.DataMetrics">
+                <div class="col-sm-12">
+                    <div class="col-sm-12">
+                    Source File : <span data-bind="text:OriginalFileName"></span>
+                    </div>
+                    <div class="col-sm-12" data-bind="visible:MU.DownloadOption()==='owner'">
+                    Period : <span data-bind="text:kendo.toString(new Date(parseInt(String(MonthYear).slice(0,4)),(parseInt(String(MonthYear).slice(4,6))-1)),'MMMM yyyy')"></span>
+                    </div>
+                    <div class="col-sm-12" style="height: 5px;">&nbsp;</div>
+                    <div class="col-sm-12">
+                        <div data-bind="kendoGrid: { data: DataList,resizeable:true, scrollable: true, sortable: true,dataBound: MU.RMDGrid, pageable: { pageSize: 10 },columns:MU.DataListColumn()}"> </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div>&nbsp;</div>
+                <button class="btn btn-sm btn-primary" data-bind="visible:!MU.ProcessingBMData(),click: MU.processBMData">
+                    <i class="fa fa-external-link-square"></i> Process
+                </button>
+                <button class="btn btn-sm btn-danger" data-dismiss="modal" data-bind="visible:!MU.ProcessingBMData()">
+                    <i class="fa fa-close"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var btnContainer = $("#mu-button").html();
+    $("#navbar-container").append(btnContainer);
+    $("#mu-button").html("");
+</script>

@@ -1,0 +1,59 @@
+<div class="layout-sidebar">
+    <ul class="nav navbar-nav">
+        <li>
+            <a href="#" class="toggler">
+                <i class="fa fa-lg fa-bars"></i>
+            </a>
+        </li>
+    </ul>
+    <ul class="nav navbar-nav">
+        <li>
+            <a title="Dashboard" href="/main/dashboard/index" data-bind="css: { 'active': (window.location.pathname == '/main/dashboard/index') }">
+                <i class="fa fa-bar-chart"></i>
+                &nbsp; <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li>
+            <a title="Master Data" href="/main/access/master" data-bind="css: { 'active': (window.location.pathname == '/main/access/master') }" style="display: none;">
+                <i class="fa fa-database"></i>
+                &nbsp; <span>Master Data</span>
+            </a>
+        </li>
+
+        <li>
+            <a title="Logout" href="/main/auth/dologout" data-bind="css: { 'active': (window.location.pathname == '/main/auth/dologout') }">
+                <i class="fa fa-sign-out"></i>
+                &nbsp; <span>Logout</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="layout-header">
+    <div class="navbar-header">
+        <a class="navbar-brand" target="_blank" href="/">
+            <img src="/main/static/core/images/site-logo.png">
+        </a>
+    </div>
+
+    <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+            <li><a href="#" class="app-title" data-bind="text: viewModel.appName">&nbsp;</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right" style="display: none;">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-lg fa-gear"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#"><i class="fa fa-sign-out"></i>&nbsp;Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>

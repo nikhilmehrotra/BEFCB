@@ -1,0 +1,478 @@
+<script type="text/javascript">
+	var scbm = {
+		{{if (or .Global.Create .Region.Create .Country.Create .Global.Update .Region.Update .Country.Update .Global.Delete .Region.Delete .Country.Delete)}}
+		Disabled:ko.observable(false),
+		{{else}}
+		Disabled:ko.observable(true),
+		{{end}}
+		Processing:ko.observable(false),
+		Id:ko.observable(),
+		Data:ko.observableArray([]),	
+		SelectRow:ko.observable(0),	
+		DisplayColorList:ko.observableArray([
+			{name:"N/A",value:""},
+			{name:"Red",value:"red"},
+			{name:"Amber",value:"amber"},
+			{name:"Green",value:"green"},
+		]),
+		ValueTypeList:ko.observableArray([
+			{name:"Higher is better",value:1},
+			{name:"Lower is better",value:0},
+		]),
+		MetricDirectionList:ko.observableArray([
+			{name:"Unchanged",value:0},
+			{name:"Improved",value:1},
+			{name:"Declined",value:2},
+		]),
+		TypeList:ko.observableArray([
+			{name:"Relative/Cumulative",value:"cumulative"},
+			{name:"Relative",value:"relative"},
+			{name:"Absolute",value:"spot"},
+			{name:"N/A",value:"n/a"},
+		])
+	}
+	scbm.ActualData = function(obj){
+		var d = ko.mapping.fromJS(obj);
+		d.Period.subscribe(function(newval){
+			if(newval === null || newval===''){
+				d.Value(0);
+			}
+		})
+		return d;
+		// Period time.Time
+		// Value  float64
+		// Flag   string
+	}
+	scbm.CheckActualData = function(source){
+		if(jsonDate(source.CurrentPeriod())!==""){
+			source.CurrentPeriod(new Date(jsonDate(source.CurrentPeriod()).setDate(1)));
+		}else{
+			source.CurrentPeriod(jsonDate(source.CurrentPeriod()));
+		}
+
+		if(jsonDate(source.TargetPeriod())!==""){
+			source.TargetPeriod(new Date(jsonDate(source.TargetPeriod()).setDate(1)));
+		}else{
+			source.TargetPeriod(jsonDate(source.TargetPeriod()));
+		}
+
+		if(jsonDate(source.BaseLinePeriod())!==""){
+			source.BaseLinePeriod(new Date(jsonDate(source.BaseLinePeriod()).setDate(1)));
+		}else{
+			source.BaseLinePeriod(jsonDate(source.BaseLinePeriod()));
+		}
+
+		source.CurrentPeriod.subscribe(function(newval){
+			if(newval === null || newval===''){
+				source.CurrentValue(0);
+			}
+		});
+		source.TargetPeriod.subscribe(function(newval){
+			if(newval === null || newval===''){
+				source.TargetValue(0);
+			}
+		});
+		source.BaseLinePeriod.subscribe(function(newval){
+			if(newval === null || newval===''){
+				source.BaseLineValue(0);
+			}
+		});
+
+		if(source.ActualData().length === 0){
+			var Period = new Date(new Date(Now).setDate(1));
+			var Last3Month = new Date(new Date(Period).setMonth(Period.getMonth()-3));
+			var idx = 1;
+			for(var j = new Date(Last3Month);j<Period;j = new Date(j.setMonth(j.getMonth()+1))){
+				source.ActualData.push(new scbm.ActualData({Period:new Date(j),Value:0,Flag:"A"+idx}))
+				idx++;
+			}
+			source.ActualData.push(new scbm.ActualData({Period:new Date(Period),Value:0,Flag:"C1"}))
+		}else{
+			for(var i in source.ActualData()){
+				source.ActualData()[i].Period(jsonDate(source.ActualData()[i].Period()));
+				source.ActualData()[i].Period.subscribe(function(newval){
+					if(newval === null || newval===''){
+						source.ActualData()[i].Value(0);
+					}
+				})
+			}
+			source.ActualDS = ko.mapping.toJS(source.ActualData());
+		}
+	}
+	scbm.MappingDS = function(dataSource){
+		if(dataSource===null){
+			dataSource = [];
+			dataSource.push(new BM());
+		}
+		for(var i in dataSource){
+			scbm.CheckActualData(dataSource[i]);
+		}
+		return dataSource;
+	}
+	scbm.Get = function(obj,rowindex){
+		scbm.Processing(true);
+		if(scchart.IsOpen()){
+			return false;
+		}
+		scbm.Data([]);
+		var arr = obj.BusinessMetric();
+		scbm.Id(obj.Id())
+		arr = scbm.MappingDS(arr);
+		scbm.Data(arr);
+		$("#scbm").modal("show")
+		if(arr.length === 0){
+			scbm.Add();
+		}
+		scbm.SelectRow(rowindex);
+
+		//
+		var y = 0;
+		if (scbm.SelectRow() == 0){
+			y = 100;
+		} else {
+			y = 100 * scbm.SelectRow()
+			if (scbm.SelectRow() > 2) {
+				y += 200;
+			}
+		}
+		
+		$("#scbm").animate({ scrollTop: y },"slow");
+        scbm.Processing(false);
+
+		setTimeout(function() {
+        	$(".bm-wrapper").animate({ backgroundColor: "#ffffff" }, "slow");
+        }, 2000);
+	}
+
+	scbm.Add = function(){
+		scbm.Data.push(new BM());
+		scbm.CheckActualData(scbm.Data()[scbm.Data().length-1]);
+	}
+	scbm.GetPayLoad = function(){
+		var SCData = Enumerable.From(ko.mapping.toJS(Scorecard.Data())).Where("$.Id==="+scbm.Id()+"").FirstOrDefault();
+		var BusinessMetric = [];
+		
+		if(SCData.BusinessMetric === null || SCData.BusinessMetric.length === 0){
+			BusinessMetric = ko.mapping.toJS(scbm.Data());
+		}else{
+			var arr = ko.mapping.toJS(scbm.Data());
+			BusinessMetric = [];
+			for(var i in arr){
+				BusinessMetric.push(arr[i])
+			}
+		}
+
+		// ReMap BusinessMetric
+		for(var i in BusinessMetric){
+			BusinessMetric[i].CurrentPeriodStr = BusinessMetric[i].CurrentPeriod !== null && BusinessMetric[i].CurrentPeriod !== "" ? kendo.toString(BusinessMetric[i].CurrentPeriod,'yyyyMMdd') : "";
+			BusinessMetric[i].TargetPeriodStr = BusinessMetric[i].TargetPeriod !== null && BusinessMetric[i].TargetPeriod !== "" ? kendo.toString(BusinessMetric[i].TargetPeriod,'yyyyMMdd') : "";
+			BusinessMetric[i].BaseLinePeriodStr = BusinessMetric[i].BaseLinePeriod !== null && BusinessMetric[i].BaseLinePeriod !== "" ? kendo.toString(BusinessMetric[i].BaseLinePeriod,'yyyyMMdd') : "";
+			var ActualData = [];
+			if(BusinessMetric[i].CurrentPeriod===null||BusinessMetric[i].CurrentPeriod===""){
+				BusinessMetric[i].CurrentPeriod = new Date("0001-01-01T00:00:00Z")
+			}
+			if(BusinessMetric[i].TargetPeriod===null||BusinessMetric[i].TargetPeriod===""){
+				BusinessMetric[i].TargetPeriod = new Date("0001-01-01T00:00:00Z")
+			}
+			if(BusinessMetric[i].BaseLinePeriod===null||BusinessMetric[i].BaseLinePeriod===""){
+				BusinessMetric[i].BaseLinePeriod = new Date("0001-01-01T00:00:00Z")
+			}
+			
+			for(var a in BusinessMetric[i].ActualData){
+				BusinessMetric[i].ActualData[a].PeriodStr = BusinessMetric[i].ActualData[a].Period!==""&&BusinessMetric[i].ActualData[a].Period!==null?kendo.toString(BusinessMetric[i].ActualData[a].Period,"yyyyMMdd") : "";
+				if(BusinessMetric[i].ActualData[a].PeriodStr == BusinessMetric[i].CurrentPeriodStr){
+					BusinessMetric[i].ActualData[a].Value = BusinessMetric[i].CurrentValue;
+				}
+				ActualData.push(BusinessMetric[i].ActualData[a]);
+			}
+			for(var a in BusinessMetric[i].ActualDS){
+				var tempArr = Enumerable.From(ActualData).Where("$.PeriodStr === '"+BusinessMetric[i].ActualDS[a].PeriodStr+"'").ToArray();
+				if(tempArr.length === 0){
+					var temp = BusinessMetric[i].ActualDS[a];
+					temp.Flag = "";
+					ActualData.push(temp);
+				}
+			}
+			ActualData = Enumerable.From(ActualData).OrderBy("$.PeriodStr").ToArray();
+			BusinessMetric[i].ActualData = ActualData;
+		}
+
+		var parm = {
+			Id:scbm.Id(),
+			BusinessMetric:BusinessMetric
+		};
+		return parm;
+	}
+	scbm.Cancel = function(){
+		$("#scbm").modal("hide");
+		
+		setTimeout(function () {
+			scbm.Data([]);
+			Scorecard.Refresh();
+		}, 300);
+	}
+	scbm.Save = function(){
+		var url = "/web-cb/scorecard/savebusinessmetrics";
+		var parm = scbm.GetPayLoad();
+		for(var i in parm.BusinessMetric){
+			parm.BusinessMetric[i].ValueType = parseInt(parm.BusinessMetric[i].ValueType);
+			parm.BusinessMetric[i].MetricDirection = parseInt(parm.BusinessMetric[i].MetricDirection);
+		}
+		parm.Region = c.Filter.RegionOne();
+		parm.Country = c.Filter.CountryOne();
+		// console.log(parm)
+		ajaxPost(url,parm,function(res){
+			scbm.Processing(false);
+			if(res.IsError){
+				swal("", res.Message, "info");
+			}
+			$("#scbm").modal("hide");
+			Scorecard.GetData();
+			c.GetData();
+			// Scorecard.SetDataSource(res.Data);
+		});
+	}
+	scbm.Remove = function(obj){
+		scbm.Data.remove(obj);
+	}
+
+	scbm.AddNewLine = function (arr){
+		var str =''
+		for(var i =0; i< arr.length;i++){
+			str+=arr[i]+',';
+		}
+	    var result = '';
+
+	    if(str.length < 29){
+	    	return str
+	    }
+	    while (str.length > 0) {
+	        result += str.substring(0, 29) + '\n';
+	        str = str.substring(29);
+	    }
+	    
+	    return result;
+
+	}
+
+	scbm.Linkify = function (inputText) {
+    	var replacedText, replacePattern1, replacePattern2, replacePattern3;
+
+	    //URLs starting with http://, https://, or ftp://
+	    replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+	    replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+
+	    //URLs starting with "www." (without // before it, or it'd re-link the ones done above).
+	    replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+	    replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+
+	    //Change email addresses to mailto:: links.
+	    replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
+	    replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+
+	    return replacedText;
+	}
+
+    $(document).ready(function() {
+
+
+	})
+
+</script>
+<style type="text/css">
+  .bm-title{
+    font-size: 10px;
+  }
+  .bm-wrapper {
+  	border-bottom: 1px solid #ddd;
+    padding: 5px 10;
+    margin-bottom: 5px;
+  }
+  #scbm-form{
+  	width: 1000px;
+  }
+  .input-desc{
+  	height: 114px !important;
+  }
+  .na-ba{
+  	padding-top: 5px;
+  }
+  .na-ba input{
+  	float:left;
+  }
+  .na-ba span{
+  	float: left;
+    margin-top: 3px;
+    margin-right: 20px;
+    margin-left: 5px;
+  }
+  .decimal-format input{
+  	float:left;
+  }
+  .decimal-format span{
+  	float: left;
+    margin-top: 3px;
+    margin-right: 20px;
+    margin-left: 5px;
+  }
+  .na-value{
+  	padding: 7px 0px 6px 0px;
+  }
+  .bm-wrapper > div{
+  	padding: 0px 5px;
+  }
+
+</style>
+<div class="modal fade modal-fade-in-scale-up modalInput" id="scbm" aria-hidden="true"  data-backdrop="static" data-bind="with:scbm">
+	<div id="scbm-form" class="modal-dialog modal-lg">
+	   <div class="modal-content">
+			<div class="modal-header">
+			 <button type="button" class="close" data-bind="click:Cancel" aria-label="Close">
+			 <span aria-hidden="true">×</span>
+			 </button>
+			 <h4 class="modal-title">Business Metrics</h4>
+			</div>
+
+
+			<div class="modal-body form-input" >
+				<div class="row">
+					<div class="col-md-12" data-bind="visible:scbm.Processing()" style="font-weight: normal;">
+						Loading, please wait ...
+					</div>
+					<div class="col-sm-12" data-bind="foreach:Data,visible:!scbm.Processing()">
+						<!-- <div class="row bm-wrapper" > -->
+						<!-- <div data-bind="style: { 'background-color' : $parent.SelectRow() == $index() ? '#f2f7fc' : '#ffffff' }" class="row bm-wrapper" > -->
+						<div data-bind="style: { 'background-color' : $parent.SelectRow() == $index() ? '#f2f7fc' : '#ffffff', 'margin-bottom':'0px','padding':'10px 15px' }" class="row bm-wrapper" >
+							<div class="col-sm-4">Metrics Heading</div>
+							<div class="col-sm-2">Metrics Denomination</div>
+							<!-- <div class="col-sm-1">RAG</div> -->
+							<div class="col-sm-2">Value</div>
+
+							<!-- <div class="col-sm-1">Metric Direction</div> -->
+							<div class="col-sm-2">Metric Type</div>
+							<div class="col-sm-4">
+			                  <input data-bind="value: DataPoint,attr:{disabled:scbm.Disabled()}" class="input-sm form-control" placeholder="Type Name...">
+			                </div>
+			                <div class="col-sm-2">
+			                  <input data-bind="kendoDropDownList:{value:MetricType, data:MetricsTypeList, dataValueField: 'value', dataTextField: 'name', optionLabel:'Select..',enable:!scbm.Disabled()}"/>
+			                </div>
+			                <!-- <div class="col-sm-1">
+			                  <input data-bind="kendoDropDownList:{value:Display, data:$parent.DisplayColorList, dataValueField: 'value', dataTextField: 'name'}"/>
+			                </div> -->
+			                <div class="col-sm-2">
+			                  <input data-bind="kendoDropDownList:{value:ValueType, data:$parent.ValueTypeList, dataValueField: 'value', dataTextField: 'name',enable:!scbm.Disabled()}"/>
+			                </div>
+			                <!-- <div class="col-sm-1">
+			                	<input data-bind="kendoDropDownList:{value:MetricDirection, data:$parent.MetricDirectionList, dataValueField: 'value', dataTextField: 'name'}"/>
+			                </div> -->
+			                <div class="col-sm-2">
+			                	<input data-bind="kendoDropDownList:{value:Type, data:$parent.TypeList, dataValueField: 'value', dataTextField: 'name',optionLabel:'Select',enable:!scbm.Disabled()}"/>
+			                </div>
+			                <div class="col-sm-1 no-padding">
+			                  {{if (or .Global.Delete .Region.Delete .Country.Delete)}}
+			                  <button class="btn btn-sm btn-danger" data-bind="click:scbm.Remove"><i class="fa fa-times"></i></button>
+			                  {{end}}
+			                </div>
+			                <div class="col-sm-12 decimal-format">
+			                	<input type="radio" value="0" data-bind="checked:DecimalFormat,attr:{'disabled':scbm.Disabled()" > <span>No Decimal</span>
+			                	<input type="radio" value="1" data-bind="checked:DecimalFormat,attr:{'disabled':scbm.Disabled()"> <span>0.0</span> 
+			                	<input type="radio" value="2" data-bind="checked:DecimalFormat,attr:{'disabled':scbm.Disabled()"> <span>0.00</span>
+			                </div>
+			                <!--<div class="col-sm-8 text-center bm-title">Rolling 12 Months</div>
+			                <div class="col-sm-4">&nbsp;</div>-->
+			                <!-- <div class="col-sm-3" style="display: none">
+				                <div class="row">
+			                    	<div class="col-sm-12">Actuals</div>
+			                  	</div>
+			                  	<div class="row" data-bind="foreach:ActualData">
+			                    	<div class="col-sm-12" data-bind="visible:Flag()!=='C1'&&Flag()!==''">
+			                    		<div class="row">
+			                    			<div class="col-sm-6">
+					                    		<input data-bind="kendoDatePicker:{value:Period,format:'MMM-yyyy',depth:'year',start:'year'}" class="width-percent99" />
+					                    	</div>
+					                    	<div class="col-sm-6" >
+					                    		<input type="number" data-bind="kendoNumericTextBox:{ value:kendo.toString(Value,'N2') }">
+					                    	</div>
+			                    		</div>
+			                    	</div>
+			                  	</div>
+			                </div> -->
+			                <!-- <div class="col-sm-4">
+			                  	<div class="row">
+			                  		<div class="col-sm-12">&nbsp;</div>
+			                  		<label class="col-sm-4">Baseline</label>
+			                    	<div class="col-sm-8">
+			                    		<div class="row">
+					                    	<div class="col-sm-6 text-center" data-bind="visible:!NABaseline()">
+					                    		<input type="number" data-bind="kendoNumericTextBox:{ value:kendo.toString(BaseLineValue,'N2'),format: 'N'+DecimalFormat() }">
+					                    	</div>
+					                    	<div class="col-sm-6 text-center na-value" data-bind="visible:NABaseline()">
+					                    		N/A
+					                    	</div>
+					                    	<div class="col-sm-6 na-ba">
+							                	<input type="checkbox" data-bind="checked:NABaseline" > <span>N/A</span>
+							                </div>
+			                    		</div>
+			                    	</div>
+			                  	</div>
+			                  	<div class="row">
+			                  		<label class="col-sm-4">Actual YTD</label>
+			                    	<div class="col-sm-8">
+			                    		<div class="row">
+					                    	<div class="col-sm-6" data-bind="visible:!NAActual()">
+					                    		<input type="number" data-bind="kendoNumericTextBox:{ value:kendo.toString(CurrentValue,'N2'),format: 'N'+DecimalFormat() }">
+					                    	</div>
+					                    	<div class="col-sm-6 text-center na-value" data-bind="visible:NAActual()">
+					                    		N/A
+					                    	</div>
+					                    	<div class="col-sm-6 na-ba">
+							                	<input type="checkbox" data-bind="checked:NAActual" > <span>N/A</span>
+							                </div>
+			                    		</div>
+			                    	</div>
+			                  	</div>
+			                  	<div class="row">
+			                  		<label class="col-sm-4">Target</label>
+			                    	<div class="col-sm-8">
+			                    		<div class="row">
+					                    	<div class="col-sm-6" data-bind="visible:!NATarget()">
+					                    		<input type="number" data-bind="kendoNumericTextBox:{ value:kendo.toString(TargetValue,'N2'),format: 'N'+DecimalFormat() }">
+					                    	</div>
+					                    	<div class="col-sm-6 text-center na-value" data-bind="visible:NATarget()">
+					                    		N/A
+					                    	</div>
+					                    	<div class="col-sm-6 na-ba">
+							                	<input type="checkbox" data-bind="checked:NATarget" > <span>N/A</span>
+							                </div>
+			                    		</div>
+			                    	</div>
+			                  	</div>
+			                </div> -->
+			                <div class="col-sm-12">
+			                	Description
+			                </div>
+			                <div class="col-sm-12">
+			                	<textarea class="input-sm form-control input-desc" rows="6" placeholder="Input Description here.." data-bind="value: Description,attr:{'disabled':scbm.Disabled()}">
+			                	</textarea>
+			                </div>
+						</div>
+					</div>
+					{{if (or .Global.Create .Region.Create .Country.Create)}}
+					<div class="col-sm-12 text-right">
+						<button class="btn btn-sm btn-info" data-bind="click:scbm.Add"><i class="fa fa-plus"></i></button>
+					</div>
+					{{end}}
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="text-right">
+					{{if (or .Global.Create .Region.Create .Country.Create .Global.Update .Region.Update .Country.Update .Global.Delete .Region.Delete .Country.Delete)}}
+					<button class="btn btn-sm btn-warning" data-bind="click:Cancel">Cancel</button>
+					<button class="btn btn-sm btn-primary" data-bind="click:Save">Save</button>
+					{{end}}
+				</div>
+			</div>
+	   </div>
+	</div>
+
+</div>

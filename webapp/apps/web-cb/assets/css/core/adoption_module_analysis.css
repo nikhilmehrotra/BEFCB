@@ -1,0 +1,30 @@
+#AdoptionModuleAnalysis #analysis-table td{
+	text-align: right;	
+	padding: 5px;
+}
+#AdoptionModuleAnalysis #analysis-table td.text-center{
+	text-align: center;
+}
+#AdoptionModuleAnalysis #analysis-table td > span{
+	width: 50px;
+    display: inline-block;
+}
+#AdoptionModuleAnalysis #analysis-table td:first-child{
+	text-align: left;
+}
+#AdoptionModuleAnalysis .red{
+	background: #f74e4e !important;
+}
+#AdoptionModuleAnalysis .amber{
+	background: #ffd24d !important;
+}
+#AdoptionModuleAnalysis .green{
+	background: #6ac17b !important;
+}
+
+#AdoptionModuleAnalysis #analysis-table tfoot{
+	background: #6D6E71;
+}
+#AdoptionModuleAnalysis #analysis-table tfoot  td{
+	color: #FFF;
+}

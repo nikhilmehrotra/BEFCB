@@ -1,0 +1,308 @@
+<script type="text/javascript">
+	var MSharedAgenda = {
+		Processing:ko.observable(true),
+		Mode:ko.observable(""),
+		DataList:ko.observableArray([]),
+		FormValue:ko.observable(),
+		NewValue:{},
+		SharedAgendaList:ko.observableArray([]),
+		SharedAgendaValue:ko.observable(),
+		BusinessDriverList:ko.observableArray([]),
+		LeadList:ko.observableArray([{"Name":"Marrs, Anna","Code":"MA","Display":"Marrs, Anna - MA"},{"Name":"Arora, Jiten","Code":"JA","Display":"Arora, Jiten - JA"},{"Name":"Corfe, Martin","Code":"MC","Display":"Corfe, Martin - MC"},{"Name":"Phebey, Tom","Code":"TP","Display":"Phebey, Tom - TP"},{"Name":"Rathnam, Venkatesh","Code":"VKR","Display":"Rathnam, Venkatesh - VKR"},{"Name":"Siva, Ve","Code":"SV","Display":"Siva, Ve - SV"},{"Name":"Thomas, Alistair","Code":"AT","Display":"Thomas, Alistair - AT"},{"Name":"Regional Heads","Code":"RH","Display":"Regional Heads - RH"},{"Name":"Walker, Mark","Code":"MW","Display":"Walker, Mark - MW"},{"Name":"Kohli, Gurdeep Singh","Code":"GK","Display":"Kohli, Gurdeep Singh - GK"}]),
+		RAGList:ko.observableArray([
+			{Id:"red",Name:"Red"},
+			{Id:"amber",Name:"Amber"},
+			{Id:"green",Name:"Green"},
+		])
+	}
+
+	MSharedAgenda.SharedAgendaValue.subscribe(function(d){
+		// console.log(d)
+		var tmp = _.find(MSharedAgenda.SharedAgendaList(), function(e){return e.Idx == d})
+		// console.log(tmp)
+		if(tmp != undefined){
+			MSharedAgenda.BusinessDriverList(tmp.BusinessDriverList)
+		} else{
+			MSharedAgenda.BusinessDriverList([])
+		}
+		
+		MSharedAgenda.FormValue().SCId(d)
+		// console.log(ko.mapping.toJS(MSharedAgenda.FormValue()))
+	})
+
+	// UI Magician :
+	MSharedAgenda.Create = function(){
+		MSharedAgenda.Mode("create");
+		MSharedAgenda.SharedAgendaValue("");
+		MSharedAgenda.FormValue(ko.mapping.fromJS(MSharedAgenda.NewValue));
+		// MSharedAgenda.FormValue().IsDeleted(false);
+	}
+	MSharedAgenda.Save = function(){
+		
+			MSharedAgenda.Mode("");
+			var parm = ko.mapping.toJS(MSharedAgenda.FormValue);
+
+			parm.Seq = parseFloat(parm.Seq)
+			parm.CreatedDate = getUTCDate(moment(parm.CreatedDate, "dd-MM-yyyy")._d);
+			parm.UpdatedDate = getUTCDate(moment(parm.UpdatedDate, "dd-MM-yyyy")._d);
+			// console.log(parm)
+
+			ajaxPost("/web-cb/m/sharedagendasave",parm,function(res){
+				// swal("Saved!", "", "success");
+				MSharedAgenda.GetData();
+			});
+	}
+	MSharedAgenda.Edit = function(id){
+		var data = ko.mapping.toJS(Enumerable.From(MSharedAgenda.DataList()).Where("$.Id == '"+id+"'").FirstOrDefault());
+		if(data != undefined){
+			// data.Seq = 0;
+			// console.log(data)
+			MSharedAgenda.SharedAgendaValue(data.SCId)
+			tmp = ko.mapping.fromJS(data);
+			MSharedAgenda.FormValue(tmp);
+			MSharedAgenda.Mode("edit");
+
+		}
+	}
+
+	MSharedAgenda.Delete = function(id){
+		swal({
+		  title: "Are you sure?",
+		  text: "You will not be able to recover this!",
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: "#DD6B55",
+		  confirmButtonText: "Yes, remove it!",
+		  closeOnConfirm: false
+		},
+		function(){
+			MSharedAgenda.Mode("");
+			var parm = {
+				Id:id
+			}
+			ajaxPost("/web-cb/m/sharedagendadelete",parm,function(res){
+				swal("Deleted!", "Your selected sponsor has been removed.", "success");
+				MSharedAgenda.GetData();
+			});
+		});
+	}
+	MSharedAgenda.Cancel = function(){
+		MSharedAgenda.Mode("");
+	}
+	MSharedAgenda.Render = function(dataSource){
+		for(var i in dataSource){
+			// dataSource[i].Updated_Date = new Date();
+			// dataSource[i].Updated_By = "eaciit"; 
+
+			var tmpleadcode = "";
+			var tmpleadname = "";
+			_.each(dataSource[i].Leads, function(v,i){
+				tmpleadcode = tmpleadcode + v;
+				tmpleadcode = tmpleadcode + ", ";
+
+				var tmp = _.find(MSharedAgenda.LeadList(), function(e){return e.Code == v});
+				if(tmp != undefined){
+					tmpleadname = tmpleadname + tmp.Name;
+					tmpleadname = tmpleadname + " & ";
+				}
+			})
+
+			dataSource[i].LeadsCode = tmpleadcode.trim().slice(0, -1); 
+			dataSource[i].LeadsName = tmpleadname.trim().slice(0, -1).trim(); 
+		}
+
+		// console.log(dataSource)
+		$("#grid").kendoGrid({
+		    selectable: "multiple cell",
+		    scrollable:false,
+		    filterable:true,
+		    sortable:true,
+		    dataBound:function() {
+				    $('td').each(function(){if($(this).text()=='red'){$(this).addClass('red')}});
+				    $('td').each(function(){if($(this).text()=='green'){$(this).addClass('green')}});
+				    $('td').each(function(){if($(this).text()=='amber'){$(this).addClass('amber')}});
+				},
+		    columns: [
+		        { title: "Scorecard", field: "SCName" },
+		        { title: "BusinesDriver", field: "BDName" },
+		        { title: "Shared Agenda Drivers", field: "Name" },
+		        { title: "Leads",width:100,field: "LeadsName" },
+		        { title: "RAG",width:70,field: "RAG" },
+		      //   { 
+		      //   	title: "RAG", 
+		      //   	field: "RAG",
+		      //   	width:70,
+		      //   	template:function(e){
+		      //   		var color = ""
+		      //   		if(e.RAG == 'red'){
+		      //   			color = "#f74e4e"
+		      //   		}else if(e.RAG == 'amber'){
+								// 	color = "#ffd24d"
+		      //   		}else if(e.RAG == 'green'){
+								// 	color = "#6ac17b"
+		      //   		} else{
+								// 	color = "#f2f2f2"
+		      //   		}
+		      //   		$(this).addClass()
+		      //   		return "<div class='ragcolor' style='width:100%;height:100%;background-color:"+color+"'>&nbsp;</div>";
+		      //   	},
+		    		// },
+		        {
+		        	title:"",
+		        	width:60,
+		        	template:"<button class='btn btn-xs btn-warning' onclick='MSharedAgenda.Edit(\"#:Id#\")'><i class='fa fa-pencil'></i></button> "+
+		        	"<button class='btn btn-xs btn-danger' onclick='MSharedAgenda.Delete(\"#:Id#\")'><i class='fa fa-times'></i></button>"
+		    	}
+		    ],
+		    dataSource:dataSource
+		});
+	}
+	// Get Data From Sources : 
+	MSharedAgenda.GetInitData = function(){
+		ajaxPost("/web-cb/sharedagenda/getdata",{},function(res){
+			// console.log(res)
+			MSharedAgenda.SharedAgendaList(res.Data);
+		});
+
+		MSharedAgenda.NewValue = {Id:"",Name:"",RAG:"",Leads:[],CreatedDate:"",CreatedBy:"",UpdatedDate:"",UpdatedBy:"",SCId:"",SCName:"",BDId:"",BDName:"",Seq:0,IsDeleted:false}
+		MSharedAgenda.FormValue(ko.mapping.fromJS(MSharedAgenda.NewValue));
+	}
+	MSharedAgenda.GetData = function(){
+		ajaxPost("/web-cb/m/sharedagendagetdata",{},function(res){
+			MSharedAgenda.DataList(res.Data);
+			MSharedAgenda.Render(res.Data);
+			MSharedAgenda.Processing(false);
+		});
+	}
+	MSharedAgenda.Init = function(){
+		MSharedAgenda.GetInitData();
+		MSharedAgenda.GetData();
+	}
+	$(document).ready(function(){
+		MSharedAgenda.Init();
+	})
+</script>
+<style type="text/css">
+	#MSharedAgenda{
+		margin-top: 10px;
+	}
+	#MSharedAgenda .actionbutton{
+		margin-bottom: 5px;
+	}
+	#MSharedAgenda .hide{
+		display: none;
+	}
+	#MSharedAgenda .form-wrapper{
+		margin-bottom: 15px;
+	}
+	#MSharedAgenda .form-input{
+		line-height: 25px;
+		padding-right: 0px;
+	}
+	#MSharedAgenda .form-input:after{
+		content: ":";
+		float: right;
+	}
+	.red{
+		background-color: #f74e4e !important;
+		color: #f74e4e !important;
+	}
+	.amber{
+		background-color: #ffd24d !important;
+		color: #ffd24d !important;
+
+	}
+	.green{
+		background-color: #6ac17b !important;
+		color: #6ac17b !important;
+
+	}
+	.default{
+		background-color: #f2f2f2 !important;
+		color: #f2f2f2 !important;
+
+	}
+</style>
+<div data-bind="with:MSharedAgenda" id="MSharedAgenda">
+	<div class="row" data-bind="visible:!Processing()">
+		<div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+			<div class="row actionbutton">
+				<h4 class="col-lg-4 col-md-4 col-sm-4 col-xs-4">Master Shared Agenda</h4>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right" data-bind="visible:Mode()===''">
+					<button class="btn btn-sm btn-primary" data-bind="click:MSharedAgenda.Create">
+						Create New SharedAgenda
+					</button>
+				</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right" data-bind="visible:Mode()!==''">
+					<button class="btn btn-sm btn-success" data-bind="click:MSharedAgenda.Save">
+						Save
+					</button>
+					<button class="btn btn-sm btn-warning" data-bind="click:MSharedAgenda.Cancel">
+						Cancel
+					</button>
+				</div>
+			</div>
+			<div class="row form-wrapper" data-bind="visible:Mode()!=='',with:FormValue">
+
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding-bottom: 10px;">
+					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 form-input">
+						Scorecard
+					</label>
+					<div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+						<!-- <input type="text" class="form-control input-sm" data-bind="value:SCName"> -->
+						<input data-bind="kendoDropDownList:{value:MSharedAgenda.SharedAgendaValue, data:MSharedAgenda.SharedAgendaList, dataValueField: 'Idx', dataTextField: 'Name', optionLabel:'Select..'}">
+					</div>
+				</div>
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding-bottom: 10px;">
+					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 form-input">
+						BusinesDriver
+					</label>
+					<div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+						<!-- <input type="text" class="form-control input-sm" data-bind="value:BDName"> -->
+						<input data-bind="kendoDropDownList:{value:BDId, data:MSharedAgenda.BusinessDriverList, dataValueField: 'Idx', dataTextField: 'Name', optionLabel:'Select..'}">
+					</div>
+				</div>
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding-bottom: 10px;">
+					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 form-input">
+						Shared Agenda Drivers
+					</label>
+					<div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+						<input type="text" class="form-control input-sm" data-bind="value:Name">
+					</div>
+				</div>
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding-bottom: 10px;">
+					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 form-input">
+						Leads
+					</label>
+					<div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+						<!-- <input type="text" class="form-control input-sm" data-bind="value:Leads"> -->
+						<input data-bind="kendoMultiSelect:{value:Leads,data:MSharedAgenda.LeadList,placeholder:'Assign by..',dataValueField:'Code',dataTextField:'Name'}">
+					</div>
+				</div>
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding-bottom: 10px;">
+					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 form-input">
+						RAG
+					</label>
+					<div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+						<!-- <input type="text" class="form-control input-sm" data-bind="value:RAG"> -->
+						<input data-bind="kendoDropDownList:{value:RAG, data:MSharedAgenda.RAGList, dataValueField: 'Id', dataTextField: 'Name', optionLabel:'Select..'}">
+					</div>
+				</div>
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding-bottom: 10px;">
+					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 form-input">
+						Seq
+					</label>
+					<div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+						<input type="text" class="form-control input-sm" data-bind="value:Seq">
+					</div>
+				</div>
+
+			</div>
+			<div class="row" data-bind="visible:Mode()==''">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div id="grid"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

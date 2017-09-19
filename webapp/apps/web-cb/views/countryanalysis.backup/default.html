@@ -1,0 +1,381 @@
+<script type="text/javascript">
+    model.PageId("DASHBOARD");
+    model.BreadCrumbs.push(new BreadCrumb("Dashboard", "Dashboard", "#", "active", ""));
+</script>
+<style>
+    .tt:after {
+        content: "-";
+        position: absolute;
+        font-weight: bold;
+        top: 7px;
+        right: -2px;
+    }
+    #dashboard{
+    	display: none;
+    }
+    .red{
+        background-color: #f74e4e !important;
+        color: #f74e4e !important;
+    }
+    .amber{
+        background-color: #ffd24d !important;
+        color: #ffd24d !important;
+
+    }
+    .green{
+        background-color: #6ac17b !important;
+        color: #6ac17b !important;
+
+    }
+    .default{
+        background-color: #f2f2f2 !important;
+        color: #f2f2f2 !important;
+
+    }
+</style>
+<link href="/web-cb/static/css/core/dashboard.css?cache_counter=1" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/redipsInit.js"></script>
+<script src="/web-cb/static/core/dashboard.js?cache_counter=2"></script>
+<script src="/web-cb/static/core/dashboard_businessdriver.js"></script>
+<script src="/web-cb/static/core/task.js"></script>
+<script src="/web-cb/static/core/dashboard_businessdriver-summary.js"></script>
+<script src="/web-cb/static/core/search.js?cache_counter=1"></script>
+   {{template "analysis.html" .}}  
+        
+    
+
+
+<div class="row" id="dashboard" data-bind="with:c">
+    <div class="col-sm-12 row-wrapper">
+        <div data-bind="visible:scchart.IsOpen()" id="navbar-disabler">&nbsp;</div>
+        <div data-bind="attr:{'style':(!scchart.IsOpen()?'display:none;':'')+'height:'+(Scorecard.BMTotal()*23.92+35)+'px'}" id="sc-disabler">&nbsp;</div>
+
+        <div class="col-sm-2 form-input dashboard-filter switcher">
+            <ul id="secondmenu" class="nav nav-pills">
+                <li class="col-sm-6 active" id="ScorecardTabMenu">
+                    <a id="aScorecardTabMenu" href="#ScorecardTab" data-toggle="tab" onclick="changeTabMenu('Scorecard')">Scorecard</a>
+                </li>
+                <li class="col-sm-6" id="InitiativeTabMenu">
+                    <a id="aInitiativeTabMenu" href="#InitiativeTab" data-toggle="tab" onclick="changeTabMenu('Initiative')">Initiative</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-sm-2 form-input dashboard-filter date" data-bind="visible: c.visibleBtnExpend()">
+            <div class="col-sm-1">
+                <i class="fa fa-calendar fa-2x begrey" aria-hidden="true"></i>
+            </div>
+            <div class="col-sm-5">
+                <input id="filterStartDate" placeholder="Start" data-bind="kendoDatePicker: {placeholder: 'tetete', value:Filter.StartDate,min: new Date(1900, 0, 1), max: new Date(2099, 11, 31),start: 'year',depth: 'year',format:'MMM-yyyy'}" />
+            </div>
+            <div class="col-sm-1">
+                <span class="separator">-</span>
+            </div>
+            <div class="col-sm-5">
+                <input id="filterEndDate" placeholder="Finish" data-bind="kendoDatePicker: {placeholder: 'tetete', value:Filter.EndDate,min: new Date(1900, 0, 1), max: new Date(2099, 11, 31),start: 'year',depth: 'year',format:'MMM-yyyy'}" />
+            </div>
+        </div>
+
+        <div class="col-sm-2 form-input dashboard-filter dropdown" data-bind="visible: c.visibleBtnExpend()">
+            <div class="col-sm-1 icon-for-dropdown">
+                <i class="fa fa-globe fa-2x begrey" aria-hidden="true"></i>
+            </div>
+            <div class="col-sm-10">
+                <input style="width: 100%;" data-bind="kendoMultiSelect:{value:Filter.Region,data:RegionList,dataTextField:'_id',dataValueField:'_id',placeholder:'Region'}">
+            </div>
+        </div>
+
+        <div class="col-sm-2 form-input dashboard-filter dropdown" data-bind="visible: c.visibleBtnExpend()">
+            <div class="col-sm-1 icon-for-dropdown">
+                <i class="fa fa-map-marker fa-2x begrey" aria-hidden="true"></i>
+            </div>
+            <div class="col-sm-10">
+                <input style="width: 100%;" data-bind="kendoMultiSelect:{value:Filter.Country,data:CountryList,dataTextField:'_id',dataValueField:'_id',placeholder:'Country'}">
+            </div>
+        </div>
+
+        <div class="col-sm-2 form-input dashboard-filter dropdown" data-bind="visible: !c.visibleBtnExpend()">
+            <div class="col-sm-1 icon-for-dropdown">
+                <i class="fa fa-globe fa-2x begrey" aria-hidden="true"></i>
+            </div>
+            <div class="col-sm-10">
+                <input style="width: 100%;" data-bind="kendoDropDownList:{value:Filter.RegionOne,data:RegionList,dataTextField:'_id',dataValueField:'_id',optionLabel:'Region'}">
+            </div>
+        </div>
+
+        <div class="col-sm-2 form-input dashboard-filter dropdown" data-bind="visible: !c.visibleBtnExpend()">
+            <div class="col-sm-1 icon-for-dropdown">
+                <i class="fa fa-map-marker fa-2x begrey" aria-hidden="true"></i>
+            </div>
+            <div class="col-sm-10">
+                <input style="width: 100%;" data-bind="kendoDropDownList:{value:Filter.CountryOne,data:CountryList,dataTextField:'_id',dataValueField:'_id',optionLabel:'Country'}">
+            </div>
+        </div>
+
+        <div class="form-input dashboard-filter search col-sm-4">
+            <input id="search-input" class="input-sm form-control width-percent100" placeholder="&#xf002; Search">
+        </div>
+
+        <div class="col-sm-2 form-input dashboard-filter switcher" data-bind="visible: !c.visibleBtnExpend()">
+            <ul id="scorcardview" class="nav nav-pills">
+                <li class="col-sm-6 active" id="liscorecardVisual">
+                    <a id="scorecardVisual" data-toggle="tab" onclick="changeScorecardView('visual')">Visual View</a>
+                </li>
+                <li class="col-sm-6" id="liscorecardTabular">
+                    <a id="scorecardTabular" data-toggle="tab" onclick="changeScorecardView('tabular')">Tabular View</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <!--<div class="clearfix"></div>-->
+
+    <div class="tab-content">
+        <div id="ScorecardTab" class="tab-pane active">
+            <div class="col-sm-12 row-wrapper" id="dashboard-menu-header">
+                <div class="col-sm-2 cell">
+                    <div>
+                        <label>Scorecard Categories</label>
+                    </div>
+                </div>
+                <div class="col-sm-10 no-padding" data-bind="visible: ScorecardView() == 'visual'">
+                    <div class="col-sm-7 cell">
+                        <div>
+                            <label>Key Metrics</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 cell">
+                        <div>
+                            <label>BAT Meter</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 last-child">
+                        <div class="col-sm-10 cell">
+                            <div>
+                                <label>Business Driver Name</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 cell last-child">
+                            <div>
+                                <i class="fa fa-info-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-10 no-padding" data-bind="visible: ScorecardView() == 'tabular'">
+                    <div class="col-sm-7 cell">
+                        <div>
+                            <label>Key Metrics</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-5 last-child">
+                        <div class="col-sm-8 last-child">
+                            <div class="col-sm-4 cell">
+                                <div style="padding: 7px 0px;">
+                                    <label>2016 Baseline</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 cell">
+                                <div>
+                                    <label>2017 Target</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 cell">
+                                <div>
+                                    <label>2017 YTD</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1 cell last-child">
+                            <div style="padding: 7px 5px;">
+                                <label>RAG</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 cell last-child" style="padding-left: 10px;">
+                            <div>
+                                <label>Last Updated</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{template "scorecard.html" .}}
+        </div>
+
+        <div id="InitiativeTab" class="tab-pane" data-bind="with: DataSource">
+            <div data-bind="visible:c.Loading">
+
+                <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                    <defs>
+                        <filter id="gooey">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
+                            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo"></feColorMatrix>
+                            <feBlend in="SourceGraphic" in2="goo"></feBlend>
+                        </filter>
+                    </defs>
+                </svg>
+
+                <div class="blob blob-0"></div>
+                <div class="blob blob-1"></div>
+                <div class="blob blob-2"></div>
+                <div class="blob blob-3"></div>
+                <div class="blob blob-4"></div>
+                <div class="blob blob-5"></div>
+            </div>
+
+            <div data-bind="visible:!c.Loading()">
+                <div data-bind="with:Data">
+                    {{template "initiativeTab.html" .}}
+                </div>
+            </div>
+
+        </div>
+
+        {{template "search.html" .}} {{template "task.html" .}} {{template "initiative.html" .}} 
+    </div>
+</div>
+<script type="text/javascript">
+    // var mode.Process = ko.observable("");
+    c.visibleBtnExpend = ko.observable(false);
+    TabMenuValue = ko.observable('')
+    ScorecardView = ko.observable("visual")
+
+    function changeTabMenu(menu) {
+        TabMenuValue(menu)
+        if (menu == 'SupportingEnablers') {
+            c.SelectedTab('SupportingEnablers');
+            c.visibleBtnExpend(true);
+        } else if (menu == 'Initiative') {
+            c.Loading(true);
+            c.SelectedTab('Initiative');
+            c.visibleBtnExpend(true);
+        } else if (menu == 'KeyEnablers') {
+            c.visibleBtnExpend(true);
+            c.SelectedTab('KeyEnablers');
+        } else {
+            c.visibleBtnExpend(false);
+        }
+
+        setTimeout(function() {
+            c.Loading(false);
+            c.LCWidth($('.lcHeader').width() - 22);
+        }, 100);
+        //
+        // setTimeout(function() {c.SelectedTab('KeyEnablers');c.SyncSCHeight();}, 100);
+        // setTimeout(function() {c.SelectedTab('SupportingEnablers');c.SyncSCHeight();}, 100);
+    }
+
+    function changeScorecardView(item){
+        ScorecardView(item)
+    }
+</script>
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-upload-download-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Please Choose</h4>
+            </div>
+            <div class="modal-body" data-bind="foreach: Scorecard.inputMetrics">
+                <div>
+                    <button class="col-sm-5 box-upload-download" onclick="Scorecard.Download()">Download Template</button>
+                    <div class="col-sm-1 box-spasi"></div>
+                    <button class="col-sm-5 box-upload-download" onclick="Scorecard.Upload()">Upload Metrics</button>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-upload-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" data-bind="visible: !Scorecard.StatusUploadorDownload()">Download Template</h4>
+<h4 class="modal-title" data-bind="visible: Scorecard.StatusUploadorDownload()">Upload Metrics</h4>
+            </div>
+            <div class="modal-body" data-bind="foreach: Scorecard.inputMetrics">
+                <div>
+                    <span class="col-sm-2" data-bind="visible: !Scorecard.StatusUploadorDownload()">
+                    </span>
+                    <div class="col-sm-4">
+                        <input style="width: 100%;" data-bind="kendoDropDownList: { data: Scorecard.KeyMetrics, filter: 'contains', dataValueField: 'metricId', dataTextField: 'text', optionLabel: 'Select Metric', value: metric }" />
+                    </div>
+                    <div class="col-sm-4" data-bind="visible: Scorecard.StatusUploadorDownload()">
+                        <input class="form-control" type="file" style="width: 100%;" />
+                    </div>
+                    <div class="col-sm-3 no-padding">
+                        <input style="width: 100%;" data-bind="kendoDatePicker: {  start: 'year', depth: 'year', format: 'MMM yyyy', value: date }" />
+                    </div>
+                    <div class="col-sm-1 last-child" data-bind="visible: (($index() + 1) == Scorecard.inputMetrics().length)">
+                        <button type="button" class="btn btn-sm btn-primary" data-bind="click: Scorecard.addInputMetric">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="col-sm-1 last-child" data-bind="visible: (($index() + 1) != Scorecard.inputMetrics().length)">
+                        <button type="button" class="btn btn-sm btn-danger" data-bind="click: Scorecard.removeInputMetric($data)">
+                            <i class="fa fa-remove"></i>
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-sm btn-primary" data-bind="click: Scorecard.submitMetrics, visible: Scorecard.StatusUploadorDownload()">
+                    <i class="fa fa-arrow-up"></i> Upload
+                </button>
+                <button class="btn btn-sm btn-primary" data-bind="click: Scorecard.downloadTemplate, visible: !Scorecard.StatusUploadorDownload()">
+                    <i class="fa fa-download"></i> Download
+                </button>
+                <button class="btn btn-sm btn-danger" data-dismiss="modal">
+                    <i class="fa fa-close"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade modal-fade-in-scale-up modal-flat" id="modal-review-metric" aria-hidden="true" aria-labelledby="modalTitle" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Review Metrics Data</h4>
+            </div>
+            <div class="modal-body" data-bind="foreach: Scorecard.DataMetrics">
+                <div>
+                    <div class="col-sm-12">
+                    Source File : <span data-bind="text:OriginalFileName"></span>
+                    </div>
+                    <div class="col-sm-12">
+                    Period : <span data-bind="text:kendo.toString(new Date(parseInt(String(MonthYear).slice(0,4)),(parseInt(String(MonthYear).slice(4,6))-1)),'MMMM yyyy')"></span>
+                    </div>
+                    <div class="col-sm-12">&nbsp;</div>
+                    <div class="col-sm-12">
+                        <div data-bind="kendoGrid: { data: DataList,resizeable:true, scrollable: true, sortable: true,dataBound: Scorecard.RMDGrid, pageable: { pageSize: 10 },columns:Scorecard.DataListColumn}"> </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div>&nbsp;</div>
+                <button class="btn btn-sm btn-primary" data-bind="click: Scorecard.processBMData">
+                    <i class="fa fa-external-link-square"></i> Process
+                </button>
+                <button class="btn btn-sm btn-danger" data-dismiss="modal">
+                    <i class="fa fa-close"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

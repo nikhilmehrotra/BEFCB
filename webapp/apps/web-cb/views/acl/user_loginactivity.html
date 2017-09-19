@@ -1,0 +1,724 @@
+<script type="text/javascript">
+	var UserLoginActivity = {
+		Processing:ko.observable(false),
+		Data: ko.observableArray([]),
+		Filter:{
+			LoginID:ko.observableArray([]),
+			FullName:ko.observableArray([]),
+			Country:ko.observableArray([]),
+			UserRoles:ko.observableArray([]),
+			Action:ko.observableArray([]),
+			StartDate:ko.observable(new Date(Now.getFullYear(),Now.getMonth(),(Now.getDate()-6))),
+			FinishDate:ko.observable(new Date(Now.getFullYear(),Now.getMonth(),Now.getDate())),
+			Modules:ko.observable([])
+		},
+		// References 
+		LoginIDList:ko.observableArray([]),
+		FullNameList:ko.observableArray([]),
+		CountryList:ko.observableArray([]),
+		UserRolesList:ko.observableArray([]),
+		ActionList:ko.observableArray([]),
+		ActionListDataSource:ko.observableArray([]),
+		ModulesList:ko.observableArray([]),
+		AppliedFilter:ko.observableArray([])
+	}
+
+	// UserLoginActivity.Filter.LoginID.subscribe(function(){
+	// 	UserLoginActivity.RefreshGridUsingFilter()
+	// })
+	// UserLoginActivity.Filter.FullName.subscribe(function(){
+	// 	UserLoginActivity.RefreshGridUsingFilter()
+	// })
+	// UserLoginActivity.Filter.Country.subscribe(function(){
+	// 	UserLoginActivity.RefreshGridUsingFilter()
+	// })
+	// UserLoginActivity.Filter.UserRoles.subscribe(function(){
+	// 	UserLoginActivity.RefreshGridUsingFilter()
+	// })
+	UserLoginActivity.Filter.Modules.subscribe(function(val){
+		var source = ko.mapping.toJS(UserLoginActivity.ActionListDataSource());
+		UserLoginActivity.Filter.Action([]);
+		if(val.length >0){
+			var arr = Enumerable.From(source).Where(function(x){return val.indexOf(x.modules) >= 0;}).ToArray();
+			UserLoginActivity.ActionList(arr);
+		}else{
+			UserLoginActivity.ActionList(source);
+		}
+		
+	})
+	// UserLoginActivity.Filter.Action.subscribe(function(){
+	// 	UserLoginActivity.RefreshGridUsingFilter()
+	// })
+	// UserLoginActivity.Filter.StartDate.subscribe(function(){
+	// 	UserLoginActivity.RefreshGridUsingFilter()
+	// })
+	// UserLoginActivity.Filter.FinishDate.subscribe(function(){
+	// 	UserLoginActivity.RefreshGridUsingFilter()
+	// })
+
+	UserLoginActivity.RefreshGridUsingFilter = function(){		
+		var filter = ko.mapping.toJS(UserLoginActivity.Filter)
+		if( (filter.StartDate==null||(typeof filter.StartDate==="string" && filter.StartDate.trim()=="")) || (filter.FinishDate==null||(typeof filter.FinishDate==="string" && filter.FinishDate.trim()=="")) ){
+			swal("", "Time Range Filter Is Required", "info");
+			return false;
+		}
+
+		if(filter.StartDate === null||filter.StartDate===""){
+			filter.StartDate = ""
+		} else{
+			filter.StartDate = kendo.toString(new Date(filter.StartDate), "yyyyMMddHHmmss")
+		}
+		if(filter.FinishDate === null||filter.FinishDate===""){
+			filter.FinishDate = ""
+		} else{
+			filter.FinishDate = kendo.toString(new Date(filter.FinishDate), "yyyyMMddHHmmss")
+		}
+		UserLoginActivity.AppliedFilter(filter)
+
+		$("#UserLoginActivityList").data("kendoGrid").dataSource.read()
+	}
+
+	UserLoginActivity.Init = function(){
+		var url = "/web-cb/acl/getuserloginactivityreferences";
+		var parm = {};
+		ajaxPost(url, parm, function (res) {
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			  	return false;
+			}
+			// console.log(res)
+			UserLoginActivity.LoginIDList(res.Data.LoginIDList)
+			UserLoginActivity.FullNameList(res.Data.FullNameList)
+			res.Data.CountryList.unshift({Country:"GLOBAL"});
+			UserLoginActivity.CountryList(res.Data.CountryList)
+			UserLoginActivity.UserRolesList(res.Data.UserRolesList)
+			UserLoginActivity.ActionList(res.Data.ActionList)
+			UserLoginActivity.ActionListDataSource(res.Data.ActionList)
+			UserLoginActivity.ModulesList(res.Data.ModuleList);
+
+			var filter = ko.mapping.toJS(UserLoginActivity.Filter)
+			if( (filter.StartDate==null||(typeof filter.StartDate==="string" && filter.StartDate.trim()=="")) || (filter.FinishDate==null||(typeof filter.FinishDate==="string" && filter.FinishDate.trim()=="")) ){
+				swal("", "Time Range Filter Is Required", "info");
+				return false;
+			}
+
+			if(filter.StartDate === null||filter.StartDate===""){
+				filter.StartDate = ""
+			} else{
+				filter.StartDate = kendo.toString(new Date(filter.StartDate), "yyyyMMddHHmmss")
+			}
+			if(filter.FinishDate === null||filter.FinishDate===""){
+				filter.FinishDate = ""
+			} else{
+				filter.FinishDate = kendo.toString(new Date(filter.FinishDate), "yyyyMMddHHmmss")
+			}
+			UserLoginActivity.AppliedFilter(filter)
+
+			// ["Scorecard","Configuration","Role Management","User Management","Adoption Module","BEF Sponsor","Country Analysis","Dashboard","Inititative","Initiative Master","Metric Upload","Shared Agenda","Meric Validation"]
+		});
+	}
+
+	UserLoginActivity.GetData = function(){
+		UserLoginActivity.Render();
+		UserLoginActivity.Init();
+	}
+	UserLoginActivity.Render = function(){
+		// console.log("sad",dataSource)
+		var d = $("#UserLoginActivityList");
+		d.html("");
+		d.kendoGrid({
+			// dataSource: {
+			// 	data: dataSource,
+			// 	pageSize : 10  
+			// },
+			dataSource: {
+                transport: {
+           //      	read: {
+			        //     url: "/web-cb/acl/getuserloginactivitylist2",
+			        //     type: "POST",
+			        //     dataType: "json",
+			        //     contentType: "application/json; charset=utf-8"
+			        // }, 
+			        read: function (e) {
+			        	var tmpFilter = $("#UserLoginActivityList").data("kendoGrid").dataSource.filter();
+			            if(tmpFilter!==undefined && tmpFilter != null){
+			             tmpFilter = ko.mapping.toJS(tmpFilter)
+			            }
+
+			        	var parm = {
+			        		page:$("#UserLoginActivityList").data("kendoGrid").dataSource._page,
+							pageSize:$("#UserLoginActivityList").data("kendoGrid").dataSource._pageSize,
+							skip:$("#UserLoginActivityList").data("kendoGrid").dataSource._skip,
+							take:$("#UserLoginActivityList").data("kendoGrid").dataSource._take,
+							filter:tmpFilter,
+							sort:$("#UserLoginActivityList").data("kendoGrid").dataSource.sort(),
+			        	}
+			            var topFilter = ko.mapping.toJS(UserLoginActivity.AppliedFilter);
+			        	for(var x in topFilter){
+			        		parm[x] = topFilter[x];
+			        	}
+
+			        	if(parm.filter != undefined){
+			        		if(parm.filter.filters.length > 0){
+			        			_.each(parm.filter.filters, function(v,i){
+			        				if(v.filters != undefined && v.filters.length > 0){
+					        			_.each(v.filters, function(vv,ii){
+					        				if(vv.field == "created" || vv.field == "expired"){
+					        					parm.filter.filters[i].filters[ii].value = kendo.toString(vv.value, "yyyyMMddHHmmss")
+					        					parm.filter.filters[i].filters[ii].type = "date"
+					        				} else{
+					        					parm.filter.filters[i].filters[ii].type = ""
+					        				}
+					        			})	
+					        		} else{
+					        			if(v.field == "created" || v.field == "expired"){
+					        				parm.filter.filters[i].value = kendo.toString(v.value, "yyyyMMddHHmmss")
+					        				parm.filter.filters[i].type = "date"
+				        				} else{
+				        					parm.filter.filters[i].type = ""
+				        				}
+					        		}
+			        			})	
+			        		}
+			        	}
+			        	if (parm != undefined){
+			        		var url = "/web-cb/acl/getuserloginactivitylist";
+							ajaxPost(url, parm, function (res) {
+								if (res.IsError) {
+									e.success([]);
+								  	return false;
+								}
+
+								_.each(res.Data.Data, function(v,i){
+									if(res.Data.Data[i].fullname === undefined){
+										res.Data.Data[i].fullname = ""
+									}
+									if(res.Data.Data[i].country === undefined){
+										res.Data.Data[i].country = ""
+									}
+								})
+
+								UserLoginActivity.Data(res.Data)
+								e.success(res.Data);
+							}, function (e) {
+								alert(e);
+							});
+			        	}
+			        },
+			        parameterMap: function(options) {
+			            // console.log(options);
+			            return JSON.stringify(options);
+			        }
+                },
+                serverPaging: true,
+                serverSorting: true,
+                serverFiltering: true,
+                pageSize: 10,
+		        schema: {
+		          data: "Data",
+		          total: "Total",
+		          model: {
+                        fields: {
+                            loginid: { type: "string" },
+                            created: { type: "date" },
+                            expired: { type: "date" }
+                        }
+                  }
+		        }
+            },
+            sortable: true,
+		    filterable: {
+                // extra: false,
+                operators: {
+                    string: {
+                        contains: "Contains",
+                        eq: "Is equal to",
+                        neq: "Is not equal to",
+                        startswith: "Is Start With",
+                        endswith: "Is End With",
+                    },
+                    date: {
+                        eq: "Is equal to",
+                        lte: "Is Lower Than",
+                        gte: "Is Greater Than",
+                    }
+                }
+            },
+		    pageable: {
+		        refresh: true,
+		        pageSizes: true,
+		        buttonCount: 5
+		    },
+			detailTemplate: kendo.template($("#template").html()),
+			detailInit: detailInit,
+			columns: [
+			// {
+			//   field:"id",
+			//   title:'Session ID',
+			//   filterable: false,
+			// },
+			{
+			  field:"loginid",
+			  title:'Login ID',
+			  width:100,
+			},
+			{
+			  field:"fullname",
+			  title:'Full Name'
+			},
+			{
+			  field:"country",
+			  title:'Country',
+			  template:"#:country==''?'GLOBAL':country#"
+			},
+			{
+			  field:"groupdescription",
+			  title:'User Role(s)',
+			},
+			{
+			  field:"created",
+			  title:'Last Login',
+			  width:240,
+			  template:"#:kendo.toString(new Date(created),'dddd, MMMM dd, yyyy h:mm:ss tt')#",
+			  format: "{0:MM/dd/yyyy HH:mm tt}",
+              filterable: {
+                ui: "datetimepicker"
+              }
+			},
+			{
+			  field:"expired",
+			  title:'Expired Date',
+			  width:240,
+			  template:"#:kendo.toString(new Date(expired),'dddd, MMMM dd, yyyy h:mm:ss tt')#",
+			  format: "{0:MM/dd/yyyy HH:mm tt}",
+              filterable: {
+                ui: "datetimepicker"
+              }
+			},
+			{
+			  field:"",
+			  title:'&nbsp;',
+			  width:80,
+			  template:'<button class="btn btn-xs btn-success" onclick="UserLoginActivity.DownloadLog(\'#: id#\')">Download</button>'
+			}
+			]
+		});
+	}
+
+	function detailInit(e) {
+        var detailRow = e.detailRow;
+        z = detailRow.find(".gridDetail")
+        z.addClass("uid-"+e.data._id)
+         z.kendoGrid({
+            dataSource: {
+                transport: {
+           //      	read: {
+			        //     url: "/web-cb/acl/getdetaillogbasedonsession",
+			        //     type: "POST",
+			        //     dataType: "json",
+			        //     contentType: "application/json; charset=utf-8"
+			        // }, 
+			        // parameterMap: function(options) {
+			        //     // console.log(options);
+			        //     return JSON.stringify(options);
+			        // }
+			        read: function (e) {
+			        	var tmpFilter = z.data("kendoGrid").dataSource.filter();
+			            if(tmpFilter!==undefined && tmpFilter != null){
+			             tmpFilter = ko.mapping.toJS(tmpFilter)
+			            }
+			        	var parm = {
+			        		page:z.data("kendoGrid").dataSource._page,
+							pageSize:z.data("kendoGrid").dataSource._pageSize,
+							skip:z.data("kendoGrid").dataSource._skip,
+							take:z.data("kendoGrid").dataSource._take,
+							filter:tmpFilter,
+							sort:z.data("kendoGrid").dataSource.sort(),
+			        	}
+			        	if(parm.filter != undefined){
+			        		if(parm.filter.filters.length > 0){
+			        			_.each(parm.filter.filters, function(v,i){
+			        				if(v.filters != undefined && v.filters.length > 0){
+					        			_.each(v.filters, function(vv,ii){
+					        				if(vv.field == "dateaccess"){
+					        					parm.filter.filters[i].filters[ii].value = kendo.toString(vv.value, "yyyyMMddHHmmss")
+					        					parm.filter.filters[i].filters[ii].type = "date"
+					        				} else{
+					        					parm.filter.filters[i].filters[ii].type = ""
+					        				}
+					        			})	
+					        		} else{
+					        			if(v.field == "dateaccess"){
+					        				parm.filter.filters[i].value = kendo.toString(v.value, "yyyyMMddHHmmss")
+					        				parm.filter.filters[i].type = "date"
+				        				} else{
+				        					parm.filter.filters[i].type = ""
+				        				}
+					        		}
+			        			})	
+			        		}
+			        	}
+			        	var topFilter = ko.mapping.toJS(UserLoginActivity.AppliedFilter);
+			        	for(var x in topFilter){
+			        		parm[x] = topFilter[x];
+			        	}
+
+			        	if (parm != undefined){
+			        		var url = "/web-cb/acl/getappusagedetails";
+							ajaxPost(url, parm, function (res) {
+								// res.Data = res.Data == undefined || res.Data == null ? [] : res.Data;
+								// res.Total = res.Total == undefined ? 0 : res.Total;
+								if (res.IsError) {
+									e.success([]);
+								  	return false;
+								}
+								// UsageDetail.Data(res.Data)
+								e.success(res.Data);
+							}, function (e) {
+								alert(e);
+							});
+			        	}
+			        },
+			        parameterMap: function(options) {
+			            // console.log(options);
+			            return JSON.stringify(options);
+			        }
+                },
+                serverPaging: true,
+                serverSorting: true,
+                serverFiltering: true,
+                pageSize: 10,
+                filter: [{ field: "sessionid", operator: "eq", value: e.data._id }],
+                sort: { field: "dateaccess", dir: "desc" },
+		        schema: {
+		          data: "Data",
+		          total: "Total",
+		          model: {
+                        fields: {
+                        	userid: { type: "string" },
+                        	fullname: { type: "string" },
+                        	countryuser: { type: "string" },
+                        	role: { type: "string" },
+                        	do : { type: "string" },
+							whatchanged: { type: "string" },
+							oldvalue: { type: "string" },
+							newvalue: { type: "string" },
+							dateaccess: { type: "date" },
+							requesturi: { type: "string" },
+							newvalue: { type: "string" },
+							sources: { type: "string" },
+							module: {type: "string"}
+                        }
+                  }
+		        }
+            },
+            scrollable: false,
+            sortable: true,
+            filterable: {
+                // extra: false,
+                operators: {
+                    string: {
+                        contains: "Contains",
+                        eq: "Is equal to",
+                        neq: "Is not equal to",
+                        startswith: "Is Start With",
+                        endswith: "Is End With",
+                    },
+                    date: {
+                        eq: "Is equal to",
+                        lte: "Is Lower Than",
+                        gte: "Is Greater Than",
+                    }
+                }
+            },
+            pageable: {
+		        refresh: true,
+		        pageSizes: true,
+		        buttonCount: 5
+		    },
+            columns: [
+                { field: "module", title:"Modules",attributes:{style:'text-transform:capitalize'}},
+                { field: "do", title:"Action",attributes:{style:'text-transform:capitalize'}},
+                { field: "whatchanged", title:"What Changed" },
+                { field: "oldvalue", title:"Old Value",width:100 ,attributes:{style:'text-transform:capitalize'}},
+                { field: "newvalue", title:"New Value",width:100 ,attributes:{style:'text-transform:capitalize'}},
+                { field: "dateaccess", title:"Action Time",width:250, template:"#:kendo.toString(new Date(dateaccess),'dddd, MMMM dd, yyyy h:mm:ss tt')#" },
+                {
+				  field:"requesturi",
+				  title:"Resource Url",
+				},
+				{
+				  field:"sources",
+				  title:"Sources",
+				  template:function(d){
+				  	// console.log(d)
+				    if(d.sourcetype == "file"){
+				      return "<a href='/web-cb/static/metricfiles/"+d.sources+"'>"+d.sources+"</a>";
+				    }else{
+				      return "&nbsp;";
+				    }
+				  }
+				}
+            ]
+        });
+    }
+
+    UserLoginActivity.DownloadLog = function(SessionID){
+    	data = _.find(UserLoginActivity.Data().Data, function(e){
+    		return e.id == SessionID
+    	})
+
+    	z = $(".uid-"+data.id)
+    	if(z.length > 0){
+	    	var tmpFilter = z.data("kendoGrid").dataSource.filter();
+	        if(tmpFilter!==undefined && tmpFilter != null){
+	         tmpFilter = ko.mapping.toJS(tmpFilter)
+	        }
+	    	var parm = {
+	    		page:z.data("kendoGrid").dataSource._page,
+				pageSize:z.data("kendoGrid").dataSource._pageSize,
+				skip:z.data("kendoGrid").dataSource._skip,
+				take:z.data("kendoGrid").dataSource._take,
+				filter:tmpFilter,
+				sort:z.data("kendoGrid").dataSource.sort(),
+	    	}
+	    	if(parm.filter != undefined){
+	    		if(parm.filter.filters.length > 0){
+	    			_.each(parm.filter.filters, function(v,i){
+	    				if(v.filters != undefined && v.filters.length > 0){
+		        			_.each(v.filters, function(vv,ii){
+		        				if(vv.field == "dateaccess"){
+		        					parm.filter.filters[i].filters[ii].value = kendo.toString(vv.value, "yyyyMMddHHmmss")
+		        					parm.filter.filters[i].filters[ii].type = "date"
+		        				} else{
+		        					parm.filter.filters[i].filters[ii].type = ""
+		        				}
+		        			})	
+		        		} else{
+		        			if(v.field == "dateaccess"){
+		        				parm.filter.filters[i].value = kendo.toString(v.value, "yyyyMMddHHmmss")
+		        				parm.filter.filters[i].type = "date"
+	        				} else{
+	        					parm.filter.filters[i].type = ""
+	        				}
+		        		}
+	    			})	
+	    		}
+	    	}
+	    }
+    	// console.log(data.id)
+    	if(data != undefined){
+    		data.created = kendo.toString(data.created, "yyyyMMddHHmmss")
+    		data.expired = kendo.toString(data.expired, "yyyyMMddHHmmss")
+    		data.Filter = parm;
+
+    		var topFilter = ko.mapping.toJS(UserLoginActivity.AppliedFilter);
+        	data.Modules = topFilter.Modules;
+    		// console.log(parm)
+    		ajaxPost("/web-cb/acl/exportxlsuserloginactivitylog",data,function(res){
+				if (res.IsError) {
+					swal("", res.Message, "info");
+					return false;
+				}
+				location.href = "/web-cb/static/download/"+encodeURIComponent(res.Data);
+			})
+    	}
+    }
+
+    UserLoginActivity.GetExcel = function(){
+    	var tmpFilter = $("#UserLoginActivityList").data("kendoGrid").dataSource.filter();
+	    if(tmpFilter!==undefined){
+	     tmpFilter = ko.mapping.toJS(tmpFilter)
+	    }
+    	var parm = {
+			page:$("#UserLoginActivityList").data("kendoGrid").dataSource._page,
+			pageSize:$("#UserLoginActivityList").data("kendoGrid").dataSource._pageSize,
+			skip:$("#UserLoginActivityList").data("kendoGrid").dataSource._skip,
+			take:$("#UserLoginActivityList").data("kendoGrid").dataSource._take,
+			filter:tmpFilter,
+			sort:$("#UserLoginActivityList").data("kendoGrid").dataSource.sort(),
+    	}
+    	if(parm.filter != undefined){
+    		if(parm.filter.filters.length > 0){
+    			_.each(parm.filter.filters, function(v,i){
+    				if(v.filters != undefined && v.filters.length > 0){
+	        			_.each(v.filters, function(vv,ii){
+	        				if(vv.field == "created" || vv.field == "expired"){
+	        					parm.filter.filters[i].filters[ii].value = kendo.toString(vv.value, "yyyyMMddHHmmss")
+	        					parm.filter.filters[i].filters[ii].type = "date"
+	        				} else{
+	        					parm.filter.filters[i].filters[ii].type = ""
+	        				}
+	        			})	
+	        		} else{
+	        			if(v.field == "created" || v.field == "expired"){
+	        				parm.filter.filters[i].value = kendo.toString(v.value, "yyyyMMddHHmmss")
+	        				parm.filter.filters[i].type = "date"
+        				} else{
+        					parm.filter.filters[i].type = ""
+        				}
+	        		}
+    			})	
+    		}
+    	}
+		ajaxPost("/web-cb/acl/exportxlsuserloginactivity",parm,function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			location.href = "/web-cb/static/download/"+encodeURIComponent(res.Data);
+		})
+    }
+
+	$(document).ready(function(){
+		UserLoginActivity.GetData();
+	})
+</script>
+
+<style type="text/css">
+	.k-state-hover .k-i-calendar{
+		background-position: -32px -176px;
+	}
+	.k-state-hover .k-i-clock{
+		background-position: -32px -192px;
+	}
+	.col-sm-1.spaces{
+		text-align: center;
+		font-size: 20px;
+	}
+
+	.paddingleftzero{
+		padding-left: 0px;
+	}
+</style>
+
+<!-- <button onclick="UserLoginActivity.GetExcel();" class="btn btn-sm btn-success" id="btndownload">Download XLS</button> -->
+<div id="UserLoginActivity" data-bind="with:UserLoginActivity">
+	<div class="row" data-bind="with:Filter">
+		<div class="col-sm-12 filter">
+			<div class="col-sm-12">
+				<div class="row">
+					<label class="col-sm-1">Login ID</label>
+					<div class="col-sm-2 paddingleftzero">
+						<input data-bind="kendoMultiSelect:{value:LoginID,data:UserLoginActivity.LoginIDList,filter:'contains',placeholder:'Select'}">
+					</div>
+					<label class="col-sm-1">Full Name</label>
+					<div class="col-sm-2 paddingleftzero">
+						<input data-bind="kendoMultiSelect:{value:FullName,data:UserLoginActivity.FullNameList,filter:'contains',placeholder:'Select'}">
+					</div>
+					<label class="col-sm-1">Country</label>
+					<div class="col-sm-2 paddingleftzero">
+						<input data-bind="kendoMultiSelect:{value:Country,data:UserLoginActivity.CountryList,dataValueField:'Country',dataTextField:'Country',filter:'contains',placeholder:'Select'}">
+					</div>
+					<label class="col-sm-1">User Roles</label>
+					<div class="col-sm-2 paddingleftzero">
+						<input data-bind="kendoMultiSelect:{value:UserRoles,data:UserLoginActivity.UserRolesList,dataValueField:'_id',dataTextField:'Title',filter:'contains',placeholder:'Select'}">
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-12">&nbsp;</div>
+			<div class="col-sm-12">
+				<div class="row">
+					<label class="col-sm-1">Modules</label>
+					<div class="col-sm-2 paddingleftzero">
+						<input data-bind="kendoMultiSelect:{value:Modules,data:UserLoginActivity.ModulesList,filter:'contains',placeholder:'Select'}">
+					</div>
+					<label class="col-sm-1">Action</label>
+					<div class="col-sm-2 paddingleftzero">
+						<input data-bind="kendoMultiSelect:{value:Action,data:UserLoginActivity.ActionList,dataValueField:'name',dataTextField:'name',filter:'contains',placeholder:'Select'}">
+					</div>
+					<label class="col-sm-1">Time Range</label>
+					<div class="col-sm-5 paddingleftzero">
+						<div class="row">
+							<div class="col-sm-4">
+								<input data-bind="kendoDatePicker:{value:StartDate,format:'dd-MMM-yyyy'}">
+							</div>
+							<div class="col-sm-1 spaces"> - </div>
+							<div class="col-sm-4">
+								<input data-bind="kendoDatePicker:{value:FinishDate,format:'dd-MMM-yyyy'}">
+							</div>	
+							<div class="col-sm-3">
+								<button class="btn btn-sm btn-primary" onclick="UserLoginActivity.RefreshGridUsingFilter()" style="width: 100%">Refresh</button>
+							</div>	
+						</div>
+					</div>
+				</div>
+			</div>
+	    </div>
+	    <div class="col-sm-12">&nbsp;</div>
+    </div>
+	<div class="row">
+		<div class="col-sm-12">
+			<div id="UserLoginActivityList"></div>
+			<script type="text/x-kendo-template" id="template">
+                <div class="gridDetail"></div>
+            </script>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function debounce(func, wait, immediate) {
+	  var timeout;
+	  return function() {
+	    var context = this, args = arguments;
+	    var later = function() {
+	      timeout = null;
+	      if (!immediate) func.apply(context, args);
+	    };
+	    var callNow = immediate && !timeout;
+	    clearTimeout(timeout);
+	    timeout = setTimeout(later, wait);
+	    if (callNow) func.apply(context, args);
+	  };
+	};
+
+	var search = {
+	  SelectedItem: ko.observableArray([]),
+	  Processing: ko.observable(false),
+	  Data: ko.observableArray([]),
+	}
+
+	search.Clear = function(selector){
+		// $('#search-input').data('kendoAutoComplete').value('');	
+		$('#search-input').val('');
+	}
+
+	search.GetData = function (keyword) {
+		//  console.log("SEARCH");
+	  var url = "/web-cb/search/getresult";
+	  var parm = {};
+	  if (keyword === undefined) {
+	    parm["keyword"] = search.SelectedItem().Keyword;
+	    Initiative.CurrentSearchKeyword('');
+	  } else {
+	    parm["keyword"] = keyword;
+	    Initiative.CurrentSearchKeyword(keyword);
+	  }
+
+	  parm["keywordEscaped"] = parm["keyword"]
+	    .replace(/\(/g, "\\(")
+	    .replace(/\)/g, "\\)")
+	    .replace(/\+/g, "\\+")
+	    .replace(/\-/g, "\\-")
+	    .replace(/\//g, "\\/")
+	    .replace(/\./g, "\\.")
+	    .replace(/\&/g, "\\&")
+	    .replace(/\,/g, "\\,")
+
+	  // parm["InitiativeType"] = c.SelectedTab();
+	  ajaxPost(url, parm, function (res) {
+	    if (res.Data.ProjectName.length === 0 && res.Data.ProjectManager.length === 0 &&
+	            res.Data.AccountExecutive.length === 0 && res.Data.TechnologyLead.length === 0 &&
+	            res.Data.ProblemStatement.length === 0 && res.Data.ProjectDescription.length === 0 &&
+	            res.Data.Filenames.length === 0 && res.Data.TaskName.length === 0 &&
+	            res.Data.TaskOwner.length === 0 && res.Data.TaskStatement.length === 0 &&
+	            res.Data.TaskDesc.length === 0) {
+	      swal("Error!", "No Matching on choosen keyword.", "error");
+	      return false;
+	    } else {
+	      $("#search-result").modal("show");
+	      search.Render(res.Data);
+	    }
+	  });
+	}
+</script>

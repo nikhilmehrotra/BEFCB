@@ -1,0 +1,25 @@
+/*scorecard_countryanalysis style*/
+
+	#Scorecard-Analysis #ScorecardCountryAnalysisandFullYear .nav > li > a{
+		min-width: 100px !important;
+		padding: 7px 15px !important;
+		background: #789ab7 !important;
+    	color: #FFF !important;
+	}
+	#Scorecard-Analysis #ScorecardCountryAnalysisandFullYear .nav > li > a:hover{
+		background: #789ab7 !important;
+    	color: #FFF !important;
+	}
+	#Scorecard-Analysis #ScorecardCountryAnalysisandFullYear .nav > li.active > a{
+		background: #3f77a7 !important;
+	}
+
+	#Scorecard-Analysis #ScorecardCountryAnalysisandFullYear .mousehover{
+		cursor:pointer;
+	}
+	#Scorecard-Analysis .halfsize{
+		width: 50%;
+	}
+	.grey{
+		background: #d4d4d4 !important;
+	}

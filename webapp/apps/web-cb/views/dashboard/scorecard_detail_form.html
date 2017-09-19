@@ -1,0 +1,937 @@
+<script type="text/javascript">
+	var SCDetailForm = {
+		Status:ko.observable("detail"),
+		MonthList:["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"],
+		Period:ko.observable(""),
+		Id:ko.observable(""),
+		Name:ko.observable(""),
+		Visible:ko.observable(false),
+		Processing:ko.observable(false),
+		DataList:ko.observableArray([]),
+		BusinessMetricList:ko.observableArray([]),
+		TypeRAGorValue:ko.observable("value"),
+
+
+		DenominationList:ko.observableArray([
+		  {name: "Dollar Value ($)", value: "DOLLAR"},
+		  {name: "Numeric Value", value: "NUMERIC"},
+		  {name: "Percentage (%)", value: "PERCENTAGE"},
+		]),
+		decimalformatList:ko.observableArray([
+			{name:"No Decimal",value:"0"},
+			{name:"0.0",value:"1"},
+			{name:"0.00",value:"2"},
+		]),
+		RAGList:ko.observableArray([
+			{name:"N/A",value:" "},
+			{name:"Red",value:"red"},
+			{name:"Amber",value:"amber"},
+			{name:"Green",value:"green"},
+		]),
+		ValueTypeList:ko.observableArray([
+			{name:"Higher is better",value:1},
+			{name:"Lower is better",value:0},
+		]),
+		TypeList:ko.observableArray([
+			{name:"Cumulaive",value:"cumulative"},
+			{name:"Spot",value:"spot"},
+		]),
+
+		DataListTest:
+		[
+			{
+				id:1,
+				Name:"Income Generation",
+				SCId:1,
+				SCName:"",
+				Color:"#0077AC",
+				ListMetric:[
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample2",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample3",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample4",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample5",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+				],
+				Seq:1,
+			},{
+				id:2,
+				Name:"Speed",
+				SCId:2,
+				SCName:"",
+				Color:"#009D44",
+				ListMetric:[
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+				],
+				Seq:2,
+			},{
+				id:3,
+				Name:"Quality",
+				SCId:3,
+				SCName:"",
+				Color:"#001143",
+				ListMetric:[
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+				],
+				Seq:3,
+			},{
+				id:4,
+				Name:"Cost and Workforce",
+				SCId:4,
+				SCName:"",
+				Color:"#4EBF45",
+				ListMetric:[
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+				],
+				Seq:4,
+			},{
+				id:5,
+				Name:"Key Enablers",
+				SCId:5,
+				SCName:"",
+				Color:"#6E7378",
+				ListMetric:[
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+					{Id:"",SCId:"",SCName:"",SCDetailCategoryId:"",SCDetailCategory:"",Name:"sample1",Type:"",Denomination:"",ValueType:"",DecimalFormat:"",Description:"",Region:"",Country:"",CountryCode:"",Year:"",Jan:"",Feb:"",Mar:"",Apr:"",May:"",Jun:"",Jul:"",Aug:"",Sep:"",Oct:"",Nov:"",Dec:"",Baseline:"",Benchmark:"",Target:"",NAJan:"",NAFeb:"",NAMar:"",NAApr:"",NAMay:"",NAJun:"",NAJul:"",NAAug:"",NASep:"",NAOct:"",NANov:"",NADec:"",NABaseline:"",NABenchmark:"",NATarget:"",MetricReference:"", RAG:""},
+				],
+				Seq:5,
+			}
+		]
+	}
+	SCDetailForm.SyncTextFromList = function(searchvalue, list){
+		var a = _.find(list, function(e){return e.value == searchvalue})
+		a = (a !== undefined) ? a.name : '';
+		return a
+	}
+	SCDetailForm.SyncTextFromListIdDescription = function(searchvalue, list){
+		var a = _.find(list, function(e){return e.id == searchvalue})
+		a = (a !== undefined) ? a.description : '';
+		return a
+	}
+	SCDetailForm.Get = function(Id,Name){
+		SCDetailForm.Status("detail");
+		SCDetailForm.TypeRAGorValue("value")
+		SCDetailForm.Id(Id);
+		SCDetailForm.Name(Name);
+		SCDetailForm.Visible(false);
+		SCDetailForm.GetData(Id);
+		$('#SCDetailForm').on('shown.bs.modal', function () {         $(document).off('focusin.modal');     });
+		$("#SCDetailForm").modal("show");
+		// tmp = ko.mapping.fromJS(SCDetailForm.DataListTest)
+	}
+	SCDetailForm.Refresh = function(){
+		var id = SCDetailForm.Id();
+		SCDetailForm.GetData(id);	
+	}
+	SCDetailForm.GetData = function(Id){
+		var parm = {
+			Region:c.Filter.RegionOne(),
+			Country:c.Filter.CountryOne(),
+			SCId:SCDetailForm.Id(),
+		};
+		ajaxPost("/web-cb/scorecarddetail/getdata",parm,function(res){
+			// console.log(res.Data)
+			_.each(res.Data, function(v,i){
+				_.each(v.ListMetric, function(vv,ii){
+					_.each(vv, function(vvv,iii){
+						if(typeof(vvv) === "boolean" && vvv){
+							tmp = iii.replace("na", "");
+							res.Data[i].ListMetric[ii][tmp] = "";
+						}
+					})
+				})
+			})
+			SCDetailForm.DataList(ko.mapping.fromJS(res.Data)());
+		})
+	}
+	SCDetailForm.Save = function(Id){
+		swal({
+	      	title: "Are you sure?",
+	      	text:"You will not be able to reset",
+	      	showCancelButton: true,
+			confirmButtonColor: "#2cbd8e",
+			confirmButtonText: "Yes, Save Now!",
+			closeOnConfirm: true
+	    },
+	    function(res){
+	      if(res) {
+			SCDetailForm.Processing(true)
+			var parm = {
+				Region:c.Filter.RegionOne(),
+				Country:c.Filter.CountryOne(),
+				SCId:SCDetailForm.Id(),
+				DataList:SCDetailForm.GetParameter(),
+			};
+			ajaxPost("/web-cb/scorecarddetail/save",parm,function(res){
+				SCDetailForm.Processing(false)
+				SCDetailForm.Close();
+				$("#SCDetailForm").modal("hide");
+
+			})
+		  }
+		});
+	}
+	SCDetailForm.Close = function(){
+		SCDetailForm.Id("");
+		SCDetailForm.Name("");
+		SCDetailForm.Visible(false);
+		SCDetail.Visible(true);
+		SCDetail.GetData();
+		$("#SCDetailForm").modal("hide");
+	}
+	SCDetailForm.SelectedArea = ko.computed(function(){
+		var result = "";
+		if(c.Filter.RegionOne()==""&&c.Filter.CountryOne()==""){
+			result = "[GLOBAL]";
+		}else if(c.Filter.RegionOne()!=="Region"){
+			result = "["+c.Filter.RegionOne()+"]";
+		}else if(c.Filter.CountryOne()!=="Country"){
+			result = "["+c.Filter.CountryOne()+"]";
+		}else{
+			result = "[GLOBAL]";
+		}
+		return result
+	});
+	SCDetailForm.GetParameter = function(){
+		var tmp = ko.mapping.toJS(SCDetailForm.DataList());
+		for(var i in tmp){
+			for(var x in tmp[i].ListMetric){
+
+				tmp[i].ListMetric[x].valuetype = parseInt(tmp[i].ListMetric[x].valuetype);
+
+				if(typeof tmp[i].ListMetric[x].jan == "string" && tmp[i].ListMetric[x].jan.replace(" ","")==""){
+					tmp[i].ListMetric[x].jan = 0;
+					tmp[i].ListMetric[x].najan =true;
+				}else{
+					tmp[i].ListMetric[x].jan = parseFloat(tmp[i].ListMetric[x].jan);
+					tmp[i].ListMetric[x].najan =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].feb == "string" && tmp[i].ListMetric[x].feb.replace(" ","")==""){
+					tmp[i].ListMetric[x].feb = 0;
+					tmp[i].ListMetric[x].nafeb =true;
+				}else{
+					tmp[i].ListMetric[x].feb = parseFloat(tmp[i].ListMetric[x].feb);
+					tmp[i].ListMetric[x].nafeb =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].mar == "string" && tmp[i].ListMetric[x].mar.replace(" ","")==""){
+					tmp[i].ListMetric[x].mar = 0;
+					tmp[i].ListMetric[x].namar =true;
+				}else{
+					tmp[i].ListMetric[x].mar = parseFloat(tmp[i].ListMetric[x].mar);
+					tmp[i].ListMetric[x].namar =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].apr == "string" && tmp[i].ListMetric[x].apr.replace(" ","")==""){
+					tmp[i].ListMetric[x].apr = 0;
+					tmp[i].ListMetric[x].naapr =true;
+				}else{
+					tmp[i].ListMetric[x].apr = parseFloat(tmp[i].ListMetric[x].apr);
+					tmp[i].ListMetric[x].naapr =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].may == "string" && tmp[i].ListMetric[x].may.replace(" ","")==""){
+					tmp[i].ListMetric[x].may = 0;
+					tmp[i].ListMetric[x].namay =true;
+				}else{
+					tmp[i].ListMetric[x].may = parseFloat(tmp[i].ListMetric[x].may);
+					tmp[i].ListMetric[x].namay =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].jun == "string" && tmp[i].ListMetric[x].jun.replace(" ","")==""){
+					tmp[i].ListMetric[x].jun = 0;
+					tmp[i].ListMetric[x].najun =true;
+				}else{
+					tmp[i].ListMetric[x].jun = parseFloat(tmp[i].ListMetric[x].jun);
+					tmp[i].ListMetric[x].najun =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].jul == "string" && tmp[i].ListMetric[x].jul.replace(" ","")==""){
+					tmp[i].ListMetric[x].jul = 0;
+					tmp[i].ListMetric[x].najul =true;
+				}else{
+					tmp[i].ListMetric[x].jul = parseFloat(tmp[i].ListMetric[x].jul);
+					tmp[i].ListMetric[x].najul =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].aug == "string" && tmp[i].ListMetric[x].aug.replace(" ","")==""){
+					tmp[i].ListMetric[x].aug = 0;
+					tmp[i].ListMetric[x].naaug =true;
+				}else{
+					tmp[i].ListMetric[x].aug = parseFloat(tmp[i].ListMetric[x].aug);
+					tmp[i].ListMetric[x].naaug =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].sep == "string" && tmp[i].ListMetric[x].sep.replace(" ","")==""){
+					tmp[i].ListMetric[x].sep = 0;
+					tmp[i].ListMetric[x].nasep =true;
+				}else{
+					tmp[i].ListMetric[x].sep = parseFloat(tmp[i].ListMetric[x].sep);
+					tmp[i].ListMetric[x].nasep =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].oct == "string" && tmp[i].ListMetric[x].oct.replace(" ","")==""){
+					tmp[i].ListMetric[x].oct = 0;
+					tmp[i].ListMetric[x].naoct =true;
+				}else{
+					tmp[i].ListMetric[x].oct = parseFloat(tmp[i].ListMetric[x].oct);
+					tmp[i].ListMetric[x].naoct =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].nov == "string" && tmp[i].ListMetric[x].nov.replace(" ","")==""){
+					tmp[i].ListMetric[x].nov = 0;
+					tmp[i].ListMetric[x].nanov =true;
+				}else{
+					tmp[i].ListMetric[x].nov = parseFloat(tmp[i].ListMetric[x].nov);
+					tmp[i].ListMetric[x].nanov =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].dec == "string" && tmp[i].ListMetric[x].dec.replace(" ","")==""){
+					tmp[i].ListMetric[x].dec = 0;
+					tmp[i].ListMetric[x].nadec =true;
+				}else{
+					tmp[i].ListMetric[x].dec = parseFloat(tmp[i].ListMetric[x].dec);
+					tmp[i].ListMetric[x].nadec =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragjan == "string" && tmp[i].ListMetric[x].ragjan.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragjan = "";
+					tmp[i].ListMetric[x].naragjan =true;
+				}else{
+					// tmp[i].ListMetric[x].ragjan = parseFloat(tmp[i].ListMetric[x].ragjan);
+					tmp[i].ListMetric[x].naragjan =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragfeb == "string" && tmp[i].ListMetric[x].ragfeb.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragfeb = "";
+					tmp[i].ListMetric[x].naragfeb =true;
+				}else{
+					// tmp[i].ListMetric[x].ragfeb = parseFloat(tmp[i].ListMetric[x].ragfeb);
+					tmp[i].ListMetric[x].naragfeb =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragmar == "string" && tmp[i].ListMetric[x].ragmar.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragmar = "";
+					tmp[i].ListMetric[x].naragmar =true;
+				}else{
+					// tmp[i].ListMetric[x].ragmar = parseFloat(tmp[i].ListMetric[x].ragmar);
+					tmp[i].ListMetric[x].naragmar =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragapr == "string" && tmp[i].ListMetric[x].ragapr.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragapr = "";
+					tmp[i].ListMetric[x].naragapr =true;
+				}else{
+					// tmp[i].ListMetric[x].ragapr = parseFloat(tmp[i].ListMetric[x].ragapr);
+					tmp[i].ListMetric[x].naragapr =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragmay == "string" && tmp[i].ListMetric[x].ragmay.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragmay = "";
+					tmp[i].ListMetric[x].naragmay =true;
+				}else{
+					// tmp[i].ListMetric[x].ragmay = parseFloat(tmp[i].ListMetric[x].ragmay);
+					tmp[i].ListMetric[x].naragmay =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragjun == "string" && tmp[i].ListMetric[x].ragjun.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragjun = "";
+					tmp[i].ListMetric[x].naragjun =true;
+				}else{
+					// tmp[i].ListMetric[x].ragjun = parseFloat(tmp[i].ListMetric[x].ragjun);
+					tmp[i].ListMetric[x].naragjun =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragjul == "string" && tmp[i].ListMetric[x].ragjul.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragjul = "";
+					tmp[i].ListMetric[x].naragjul =true;
+				}else{
+					// tmp[i].ListMetric[x].ragjul = parseFloat(tmp[i].ListMetric[x].ragjul);
+					tmp[i].ListMetric[x].naragjul =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragaug == "string" && tmp[i].ListMetric[x].ragaug.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragaug = "";
+					tmp[i].ListMetric[x].naragaug =true;
+				}else{
+					// tmp[i].ListMetric[x].ragaug = parseFloat(tmp[i].ListMetric[x].ragaug);
+					tmp[i].ListMetric[x].naragaug =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragsep == "string" && tmp[i].ListMetric[x].ragsep.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragsep = "";
+					tmp[i].ListMetric[x].naragsep =true;
+				}else{
+					// tmp[i].ListMetric[x].ragsep = parseFloat(tmp[i].ListMetric[x].ragsep);
+					tmp[i].ListMetric[x].naragsep =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragoct == "string" && tmp[i].ListMetric[x].ragoct.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragoct = "";
+					tmp[i].ListMetric[x].naragoct =true;
+				}else{
+					// tmp[i].ListMetric[x].ragoct = parseFloat(tmp[i].ListMetric[x].ragoct);
+					tmp[i].ListMetric[x].naragoct =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragnov == "string" && tmp[i].ListMetric[x].ragnov.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragnov = "";
+					tmp[i].ListMetric[x].naragnov =true;
+				}else{
+					// tmp[i].ListMetric[x].ragnov = parseFloat(tmp[i].ListMetric[x].ragnov);
+					tmp[i].ListMetric[x].naragnov =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].ragdec == "string" && tmp[i].ListMetric[x].ragdec.replace(" ","")==""){
+					tmp[i].ListMetric[x].ragdec = "";
+					tmp[i].ListMetric[x].naragdec =true;
+				}else{
+					// tmp[i].ListMetric[x].ragdec = parseFloat(tmp[i].ListMetric[x].ragdec);
+					tmp[i].ListMetric[x].naragdec =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].baseline == "string" && tmp[i].ListMetric[x].baseline.replace(" ","")==""){
+					tmp[i].ListMetric[x].baseline = 0;
+					tmp[i].ListMetric[x].nabaseline =true;
+				}else{
+					tmp[i].ListMetric[x].baseline = parseFloat(tmp[i].ListMetric[x].baseline);
+					tmp[i].ListMetric[x].nabaseline =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].benchmark == "string" && tmp[i].ListMetric[x].benchmark.replace(" ","")==""){
+					tmp[i].ListMetric[x].benchmark = 0;
+					tmp[i].ListMetric[x].nabenchmark =true;
+				}else{
+					tmp[i].ListMetric[x].benchmark = parseFloat(tmp[i].ListMetric[x].benchmark);
+					tmp[i].ListMetric[x].nabenchmark =false;
+				}
+
+				if(typeof tmp[i].ListMetric[x].target == "string" && tmp[i].ListMetric[x].target.replace(" ","")==""){
+					tmp[i].ListMetric[x].target = 0;
+					tmp[i].ListMetric[x].natarget =true;
+				}else{
+					tmp[i].ListMetric[x].target = parseFloat(tmp[i].ListMetric[x].target);
+					tmp[i].ListMetric[x].natarget =false;
+				}
+			}
+		}
+
+		result = []
+		_.each(tmp,function(v,i){
+			_.each(v.ListMetric, function(vv,ii){
+				result.push(vv)
+			})
+		})
+
+		return result;
+	}
+	SCDetailForm.Add = function(d){
+		// console.log(d);
+	}
+	SCDetailForm.Remove = function(d){
+		// console.log(d);
+	}
+	SCDetailForm.Init = function(){
+		SCDetailForm.Period(new Date().getFullYear());
+		ajaxPost("/web-cb/businessmetrics/getalldata",{},function(res){
+			SCDetailForm.BusinessMetricList(res.Data);
+		});
+	}
+	SCDetailForm.Sync = function(d){
+		var parm = {
+			Region:c.Filter.RegionOne(),
+			Country:c.Filter.CountryOne(),
+			SCId:SCDetailForm.Id(),
+			SCDId:d.scdetailcategoryid(),
+			DetailID:d._id(),
+			BMId:d.metricreference(),
+			Year:SCDetailForm.Period(),
+		};
+		ajaxPost("/web-cb/scorecarddetail/getdatasync",parm,function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			}
+			SCDetailForm.ApplySyncData(res.Data);
+		});
+	}
+	SCDetailForm.ApplySyncData = function(d){
+		var IsComplete = false;
+		var bmdata = Enumerable.From(SCDetailForm.BusinessMetricList()).Where("$.id === '"+d.BMId+"'").FirstOrDefault()
+
+
+		for(var l in SCDetailForm.DataList()){
+			for(var x in SCDetailForm.DataList()[l].ListMetric()){
+				if(SCDetailForm.DataList()[l].ListMetric()[x]._id()===d.DetailID){
+					var data = SCDetailForm.DataList()[l].ListMetric()[x];
+
+					// Sync Data Format
+					if(typeof bmdata !== "undefined"){
+						data.denomination(bmdata.MetricType);
+						data.valuetype(bmdata.valuetype);
+						data.type(bmdata.type);
+						data.decimalformat(bmdata.DecimalFormat);
+					}
+
+					// Reset Data
+					data.baseline("");
+					data.nabaseline("");
+					data.benchmark("");
+					data.nabenchmark("");
+					data.target("");
+					data.natarget("");
+					for(var m in SCDetailForm.MonthList){
+						data[SCDetailForm.MonthList[m]]("");
+						data["na"+SCDetailForm.MonthList[m]](true);
+						data["rag"+SCDetailForm.MonthList[m]]("");
+						data["narag"+SCDetailForm.MonthList[m]](true);
+					}
+
+					// Syncing
+					for(var i in d){
+						if(i.indexOf("na")==0){
+							var field = i.replace(/^na/, '');
+							data[i](d[i]);
+							data[field](d[field]);
+						}
+					}
+					IsComplete = true;
+					break;
+				}
+			}
+			if (IsComplete){
+				break;
+			}
+		}
+	}
+
+	$(document).ready(function(){
+		SCDetailForm.Init();
+	})
+</script>
+<style type="text/css">
+	#SCDetailForm{
+		margin: 0px 5px;
+	}
+
+	#SCDetailForm .table-isi tbody tr{
+		background: #F2F7FC;
+	}
+	#SCDetailForm  .table-isi{
+		margin-bottom: 0px !important;
+	}
+	#SCDetailForm  .table-isi thead{
+		background: #333f50;
+		color: white;
+	}
+	#SCDetailForm  .table-isi thead tr th{
+		vertical-align: middle;
+		text-align: center;
+		color: white;
+		border: 1px solid white !important;
+		padding: 4px !important;
+	}
+	#SCDetailForm  .table, #SCDetailForm  tbody, #SCDetailForm  tr, #SCDetailForm  th, #SCDetailForm  td{
+		border: none !important;
+		vertical-align: middle;
+	}
+	#SCDetailForm  .form-value-modified{
+		padding: 5px 4px;
+		width: 100%;
+	    background: #fbe5d6;
+	    text-align: right;
+	    /*border: none;*/
+	    border: 1px solid #FFF;
+	    outline: none;
+	}
+	#SCDetailForm  .form-td{
+		padding: 0px !important;
+		vertical-align: middle !important;
+		background: #F2F7FC;
+	}
+	#SCDetailForm  .fc-modified-1 {
+	    height: 23px !important;
+	    font-size: 10px;
+	    padding: 0 !important;
+	}
+	#SCDetailForm  input::-webkit-outer-spin-button,
+	#SCDetailForm  input::-webkit-inner-spin-button {
+	    /* display: none; <- Crashes Chrome on hover */
+	    -webkit-appearance: none;
+	    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+	}
+	#SCDetailForm .k-dropdown {
+	    border: 1px solid #ccc !important;
+	    border-radius: 4px;
+	}
+	#SCDetailForm .k-dropdown .k-input{
+		padding: 0 !important;
+	}
+	#SCDetailForm .td-detail{
+		padding: 5px !important;
+	    text-align: center;
+	    border: 1px solid white !important;
+	}
+	#SCDetailForm textarea.form-value-modified{
+		margin: 0px !important;
+	}
+</style>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="SCDetailForm" data-bind="with:SCDetailForm">
+  <div class="modal-dialog" role="document" style="width: 95%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="SCDetailForm.Close()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" style="padding-right: 30px;">
+	        <span data-bind="text:Name"></span> - Metric Value <span data-bind="text:SCDetailForm.SelectedArea()"></span>
+	        <div class="pull-right">
+	        	<button class="btn btn-warning btn-sm" data-bind="visible:Status() == 'detail'" onclick="SCDetailForm.Status('edit');">
+				<i class="fa fa-edit"></i>&nbsp;
+				Edit
+				</button>
+				<button class="btn btn-default btn-sm" data-bind="visible:Status() == 'edit'" onclick="SCDetailForm.Status('detail');SCDetailForm.Refresh(Id);">
+				<i class="fa fa-arrow-left"></i>&nbsp;
+				Back
+				</button>
+	        	<button type="button" class="btn btn-primary btn-sm" data-bind="visible:Status() == 'edit'" onclick="SCDetailForm.Save()">Save changes</button>
+	        </div>
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div style="overflow-x: scroll;">
+        	<div class="row-wrapper">
+			  	<div class="row" style="padding-left: 10px;padding-right: 10px;min-width:2300px;">
+		  			<table class="table table-isi" data-bind="foreach:DataList, visible:Status() == 'edit'">
+				  		<thead data-bind="visible:$index() === 0">
+				  			<tr>
+				      			<th width="203px" rowspan="2">Productivity KPIs focused on:</th>
+				      			<th width="300px" rowspan="2">Key Metric</th>
+				      			<th width="300px" rowspan="2">Definition</th>
+				      			<th width="100px" rowspan="2">Metric Denomination</th>
+				      			<th width="100px" rowspan="2">Value</th>
+				      			<th width="100px" rowspan="2">Type</th>
+				      			<th width="100px" rowspan="2">Decimal</th>
+				      			<th width="100px" rowspan="2">Baseline</th>
+				      			<!-- <th data-bind="text:SCDetailForm.Period" colspan="12"></th> -->
+				      			<th colspan="12" style="padding: 0px !important;">
+				      				<select data-bind="value:SCDetailForm.TypeRAGorValue" style="width: 100%;background-color: #333f50;text-align-last: center;border: none;padding: 4px;">
+				      					<option value="value" data-bind="text:'Value '+SCDetailForm.Period()"></option>
+				      					<option value="rag" data-bind="text:'RAG '+SCDetailForm.Period()"></option>
+				      				</select>
+				      			</th>
+				      			<th width="80px" rowspan="2">Bench.</th>
+				      			<th width="80px" rowspan="2">Target</th>
+				      			<th width="300px" rowspan="2">Metric Ref.</th>
+				      			<th width="30px" rowspan="2">&nbsp;</th>
+				      		</tr>
+				      		<tr>
+				      			<th width="80px" >Jan</th>
+				      			<th width="80px" >Feb</th>
+				      			<th width="80px" >Mar</th>
+				      			<th width="80px" >Apr</th>
+				      			<th width="80px" >May</th>
+				      			<th width="80px" >Jun</th>
+				      			<th width="80px" >Jul</th>
+				      			<th width="80px" >Aug</th>
+				      			<th width="80px" >Sep</th>
+				      			<th width="80px" >Oct</th>
+				      			<th width="80px" >Nov</th>
+				      			<th width="80px" >Dec</th>
+				      		</tr>
+				  		</thead>
+				  		<tbody data-bind="foreach:ListMetric">
+				  			<tr>
+				  				<td style="background: #a1afc2 !important;padding: 5px 4px;color: white;vertical-align: middle;border: 1px solid #FFF !important;" data-bind="text:$parent.name,attr:{'rowspan':$parent.ListMetric().length+1},visible:$index()===0"></td>
+				  				<td class="form-td" >
+				  					<input class="form-value-modified" data-bind="value:name" style="text-align: left;" /> 
+				  				</td>
+				  				<td class="form-td" >
+				  					<textarea class="form-value-modified text-left" rows="1" style="display: block;margin: 0px;" data-bind="value:description"></textarea>
+				  				</td>
+				  				<td class="form-td">
+				  					<select class="form-control fc-modified-1" data-bind="value:denomination, foreach:SCDetailForm.DenominationList">
+				  						<option data-bind="value:value,text:name"></option>
+				  						
+				  					</select>
+				  				</td>
+				  				<td class="form-td" >
+				  					<select class="form-control fc-modified-1" data-bind="value:valuetype, foreach:SCDetailForm.ValueTypeList">
+				  						<option data-bind="value:value,text:name"></option>
+				  					</select>
+				  				</td>
+				  				<td class="form-td">
+				  					<select class="form-control fc-modified-1" data-bind="value:type, foreach:SCDetailForm.TypeList">
+				  						<option data-bind="value:value,text:name"></option>
+				  					</select>
+				  				</td>
+				  				<td class="form-td">
+				  					<select class="form-control fc-modified-1" data-bind="value:decimalformat, foreach:SCDetailForm.decimalformatList">
+				  						<option data-bind="value:value,text:name"></option>
+				  					</select>
+				  				</td>
+				  				<td class="form-td">
+				  					<input class="form-value-modified" data-bind="value:baseline" /> 
+				  				</td>
+				  				<td class="form-td">
+				  					<input class="form-value-modified" data-bind="value:jan,visible:SCDetailForm.TypeRAGorValue() == 'value'" />
+				  					<select class="form-control fc-modified-1" data-bind="value: ragjan, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:feb,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragfeb, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:mar,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragmar, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:apr,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragapr, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:may,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragmay, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:jun,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragjun, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:jul,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragjul, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:aug,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragaug, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:sep,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragsep, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:oct,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragoct, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td"> 
+				  					<input class="form-value-modified" data-bind="value:nov,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragnov, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td" > 
+				  					<input class="form-value-modified" data-bind="value:dec,visible:SCDetailForm.TypeRAGorValue() == 'value'" /> 
+				  					<select class="form-control fc-modified-1" data-bind="value: ragdec, foreach:SCDetailForm.RAGList, visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td>
+				  				<td class="form-td" >
+				  					<input class="form-value-modified" data-bind="value:benchmark" /> 
+				  				</td>
+				  				<td class="form-td">
+				  					<input class="form-value-modified" data-bind="value:target" /> 
+				  				</td>
+				  				<!-- <td class="form-td">
+				  					<select class="form-control fc-modified-1" data-bind="value: ragrag, foreach:SCDetailForm.RAGList">
+				  						<option data-bind="value:value,text:name"></option>
+				                    </select>
+				  				</td> -->
+				  				<td class="form-td">
+				  					<input data-bind="kendoDropDownList:{value:metricreference, data:SCDetailForm.BusinessMetricList, dataValueField: 'id', dataTextField: 'description', optionLabel:'Select',filter:'contains'}" style="width:100%;" />
+				  				</td>
+				  				<td width="30px" style="padding: 0 !important;" class="text-center">
+				  					<button class="btn btn-xs btn-primary" title="Synchronize" data-bind="visible:metricreference()!=='',click:SCDetailForm.Sync"><i class="fa fa-refresh"></i></button>
+				  					<!-- <i class="fa fa-spinner" ></i> -->
+				  				</td>
+				  				<!-- <td class="text-center">
+				  					<button class="btn btn-xs btn-danger" data-bind="click:SCDetailForm.Remove">
+				  						<i class="fa fa-times"></i>
+				  					</button>
+				  				</td> -->
+				  			</tr>
+				  			<!-- <tr data-bind="visible:$index()==($parent.ListMetric().length-1)">
+				  				<td colspan="22" class="text-center">
+				  					<button class="btn btn-xs btn-primary" data-bind="click:SCDetailForm.Add">
+				  						<i class="fa fa-plus"></i>
+				  					</button>
+				  				</td>
+				  			</tr> -->
+				  		</tbody>
+				  	</table>
+				  	<table class="table table-isi" data-bind="foreach:DataList, visible:Status() == 'detail'">
+				  		<thead data-bind="visible:$index() === 0">
+				  			<tr>
+				      			<th width="203px" rowspan="2">Productivity KPIs focused on:</th>
+				      			<th width="300px" rowspan="2">Key Metric</th>
+				      			<th width="300px" rowspan="2">Definition</th>
+				      			<th width="100px" rowspan="2">Metric Denomination</th>
+				      			<th width="150px" rowspan="2">Value</th>
+				      			<th width="100px" rowspan="2">Type</th>
+				      			<th width="100px" rowspan="2">Decimal</th>
+				      			<th width="100px" rowspan="2">Baseline</th>
+				      			<!-- <th data-bind="text:SCDetailForm.Period" colspan="12"></th> -->
+				      			<th colspan="12" style="padding: 0px !important;">
+				      				<select data-bind="value:SCDetailForm.TypeRAGorValue" style="width: 100%;background-color: #333f50;text-align-last: center;border: none;padding: 4px;">
+				      					<option value="value" data-bind="text:'Value '+SCDetailForm.Period()"></option>
+				      					<option value="rag" data-bind="text:'RAG '+SCDetailForm.Period()"></option>
+				      				</select>
+				      			</th>
+				      			<th width="80px" rowspan="2">Bench.</th>
+				      			<th width="80px" rowspan="2">Target</th>
+				      			<th width="300px" rowspan="2">Metric Ref.</th>
+				      		</tr>
+				      		<tr>
+				      			<th width="80px" >Jan</th>
+				      			<th width="80px" >Feb</th>
+				      			<th width="80px" >Mar</th>
+				      			<th width="80px" >Apr</th>
+				      			<th width="80px" >May</th>
+				      			<th width="80px" >Jun</th>
+				      			<th width="80px" >Jul</th>
+				      			<th width="80px" >Aug</th>
+				      			<th width="80px" >Sep</th>
+				      			<th width="80px" >Oct</th>
+				      			<th width="80px" >Nov</th>
+				      			<th width="80px" >Dec</th>
+				      		</tr>
+				  		</thead>
+				  		<tbody data-bind="foreach:ListMetric">
+				  			<tr>
+				  				<td style="background: #a1afc2 !important;padding: 5px 4px;color: white;vertical-align: middle;border: 1px solid #FFF !important;" data-bind="text:$parent.name,attr:{'rowspan':$parent.ListMetric().length+1},visible:$index()===0"></td>
+				  				<td class="form-td td-detail" >
+				  					<span data-bind="html:name"></span>
+				  				</td>
+				  				<td class="form-td td-detail" >
+				  					<span data-bind="html:description"></span>
+				  				</td>
+				  				<td class="form-td td-detail">
+				  					<span data-bind="html:SCDetailForm.SyncTextFromList(denomination(),SCDetailForm.DenominationList())"></span>
+				  				</td>
+				  				<td class="form-td td-detail" >
+				  					<span data-bind="html:SCDetailForm.SyncTextFromList(valuetype(),SCDetailForm.ValueTypeList())"></span>
+				  				</td>
+				  				<td class="form-td td-detail">
+				  					<span data-bind="html:SCDetailForm.SyncTextFromList(type(),SCDetailForm.TypeList())"></span>
+				  				</td>
+				  				<td class="form-td td-detail">
+				  					<span data-bind="html:SCDetailForm.SyncTextFromList(decimalformat(),SCDetailForm.decimalformatList())"></span>
+				  				</td>
+				  				<td class="form-td td-detail">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),baseline())"></span>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),jan())"></span>
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragjan()=='red'?'background:#f74e4e':ragjan()=='amber'?'background:#ffd24d':ragjan()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),feb())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragfeb()=='red'?'background:#f74e4e':ragfeb()=='amber'?'background:#ffd24d':ragfeb()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),mar())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragmar()=='red'?'background:#f74e4e':ragmar()=='amber'?'background:#ffd24d':ragmar()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),apr())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragapr()=='red'?'background:#f74e4e':ragapr()=='amber'?'background:#ffd24d':ragapr()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),may())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragmay()=='red'?'background:#f74e4e':ragmay()=='amber'?'background:#ffd24d':ragmay()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),jun())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragjun()=='red'?'background:#f74e4e':ragjun()=='amber'?'background:#ffd24d':ragjun()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),jul())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragjul()=='red'?'background:#f74e4e':ragjul()=='amber'?'background:#ffd24d':ragjul()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),aug())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragaug()=='red'?'background:#f74e4e':ragaug()=='amber'?'background:#ffd24d':ragaug()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),sep())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragsep()=='red'?'background:#f74e4e':ragsep()=='amber'?'background:#ffd24d':ragsep()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),oct())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragoct()=='red'?'background:#f74e4e':ragoct()=='amber'?'background:#ffd24d':ragoct()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),nov())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragnov()=='red'?'background:#f74e4e':ragnov()=='amber'?'background:#ffd24d':ragnov()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'value'">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),dec())"></span> 
+				  				</td>
+				  				<td class="form-td" data-bind="visible:SCDetailForm.TypeRAGorValue() == 'rag'">
+				  					<div data-bind="text:'&nbsp;',attr:{style:'height: 25px;border:1px solid white;'+(ragdec()=='red'?'background:#f74e4e':ragdec()=='amber'?'background:#ffd24d':ragdec()=='green'?'background:#6ac17b':'background:#f2f2f2')}"></div>
+				  				</td>
+				  				<td class="form-td td-detail" >
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),benchmark())"></span>
+				  				</td>
+				  				<td class="form-td td-detail">
+				  					<span data-bind="html:Scorecard.SyncText(nabaseline(),type(),decimalformat(),target())"></span>
+				  				</td>
+				  				<td class="form-td td-detail">
+				  					<span data-bind="html:SCDetailForm.SyncTextFromListIdDescription(metricreference(),SCDetailForm.BusinessMetricList())"></span>
+				  				</td>
+				  			</tr>
+				  		</tbody>
+				  	</table>
+			  	</div>
+		  	</div>
+        </div>
+      </div>
+<!--       <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-sm" onclick="SCDetailForm.Close()">Close</button>
+        <button type="button" class="btn btn-primary btn-sm"  onclick="SCDetailForm.Save()">Save changes</button>
+      </div> -->
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

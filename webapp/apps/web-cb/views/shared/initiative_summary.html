@@ -1,0 +1,145 @@
+<script type="text/javascript">
+	var is = {
+		// Initiative Summary
+		CBLed:ko.observable(true),
+		BankWide:ko.observable(true),
+		YtdComplete:ko.observable(true),
+		Remaining:ko.observable(true),
+		High:ko.observable(true),
+		Medium:ko.observable(true),
+		Low:ko.observable(true),
+		Value:{
+			CBLED:ko.observable(0),
+			BANKWIDE:ko.observable(0),
+			Initiatives_YTDCompleted:ko.observable(0),
+			Initiatives_YTDRemaining:ko.observable(0),
+			BusinessImpactHigh:ko.observable(0),
+			BusinessImpactMedium:ko.observable(0),
+			BusinessImpactLow:ko.observable(0),
+		}
+	}
+	is.CBLed.subscribe(function(){is.Get();});
+	is.BankWide.subscribe(function(){is.Get();});
+	is.YtdComplete.subscribe(function(){is.Get();});
+	is.Remaining.subscribe(function(){is.Get();});
+	is.High.subscribe(function(){is.Get();});
+	is.Medium.subscribe(function(){is.Get();});
+	is.Low.subscribe(function(){is.Get();});
+	is.Get = function(){
+		var parm = {
+			NoCBLED:!is.CBLed(),
+			NoBankWide:!is.BankWide(),
+			NoCompleted:!is.YtdComplete(),
+			NoRemaining:!is.Remaining(),
+			NoHigh:!is.High(),
+			NoMedium:!is.Medium(),
+			NoLow:!is.Low(),
+		}
+		ajaxPost("/web-cb/initiative/getsummary",parm,function(res){
+			if(is.CBLed()){
+				is.Value.CBLED(res.Data.CBLED);
+			}
+			if(is.BankWide()){
+				is.Value.BANKWIDE(res.Data.BANKWIDE);
+			}
+			if(is.YtdComplete()){
+				is.Value.Initiatives_YTDCompleted(res.Data.Initiatives_YTDCompleted);
+			}
+			if(is.Remaining()){
+				is.Value.Initiatives_YTDRemaining(res.Data.Initiatives_YTDRemaining);
+			}
+			if(is.High()){
+				is.Value.BusinessImpactHigh(res.Data.BusinessImpactHigh);
+			}
+			if(is.Medium()){
+				is.Value.BusinessImpactMedium(res.Data.BusinessImpactMedium);
+			}
+			if(is.Low()){
+				is.Value.BusinessImpactLow(res.Data.BusinessImpactLow);
+			}
+		})
+	}
+	$(document).ready(function(){
+		is.Get();
+	})
+</script>
+<div class="col-xs-5 col-sm-6" id="header-detail" data-bind="with:is">
+    <div class="col-sm-4 space-padding" >
+        <div class="box-detail no-margin">
+            <div class="col-sm-6 no-padding cursor-pointer" onclick="is.CBLed(!is.CBLed())">
+                <div class="smallerRoundedCheckbox">
+                    <input type="checkbox" class="checkboxLegend" data-bind="checked:is.CBLed" style="visibility:hidden;">
+                    <label for="smallerRoundedCheckbox" ></label>
+                </div>
+                <p data-bind="attr:{class:is.CBLed()? 'no-margin first bewhite' : 'no-margin first begrey'},text: is.Value.CBLED"> </p>
+                <p data-bind="attr:{class:is.CBLed()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                <p data-bind="attr:{class:is.CBLed()? 'no-margin third bewhite' : 'no-margin third begrey'}">(CB Led)</p>
+            </div>
+            <div class="col-sm-6 no-padding cursor-pointer" onclick="is.BankWide(!is.BankWide())" >
+                <div class="smallerRoundedCheckbox">
+                    <input type="checkbox" class="checkboxLegend" data-bind="checked:is.BankWide" style="visibility:hidden;">
+                    <label for="smallerRoundedCheckbox" ></label>
+                </div>                            
+                <p data-bind="attr:{class:is.BankWide()? 'no-margin first bewhite' : 'no-margin first begrey'}, text: is.Value.BANKWIDE"></p>
+                <p data-bind="attr:{class:is.BankWide()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                <p data-bind="attr:{class:is.BankWide()? 'no-margin third bewhite' : 'no-margin third begrey'}">(Bank Wide)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 space-padding">
+        <div class="box-detail no-margin">
+            <div class="col-sm-6 no-padding cursor-pointer" onclick="is.YtdComplete(!is.YtdComplete())">
+                <div class="smallerRoundedCheckbox">
+                    <input type="checkbox" class="checkboxLegend" data-bind="checked:is.YtdComplete" style="visibility:hidden;">
+                    <label for="smallerRoundedCheckbox" ></label>
+                </div>
+                <p data-bind="attr:{class:is.YtdComplete()? 'no-margin first bewhite' : 'no-margin first begrey'}, text: is.Value.Initiatives_YTDCompleted"></p>
+                <p data-bind="attr:{class:is.YtdComplete()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                <p data-bind="attr:{class:is.YtdComplete()? 'no-margin third bewhite' : 'no-margin third begrey'}">(YTD Completed)</p>
+            </div>
+            <div class="col-sm-6 no-padding cursor-pointer" onclick="is.Remaining(!is.Remaining())">
+                <div class="smallerRoundedCheckbox">
+                    <input type="checkbox" class="checkboxLegend" data-bind="checked:is.Remaining" style="visibility:hidden;">
+                    <label for="smallerRoundedCheckbox" ></label>
+                </div>
+                <p class="no-margin bewhite first" data-bind="attr:{class:is.Remaining()? 'no-margin first bewhite' : 'no-margin first begrey'},text: is.Value.Initiatives_YTDRemaining"></p>
+                <p data-bind="attr:{class:is.Remaining()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                <p data-bind="attr:{class:is.Remaining()? 'no-margin third bewhite' : 'no-margin third begrey'}">(Remaining)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 space-padding" style="border-right-color:#3b3838;">
+        <div class="box-detail no-margin" style="width: 125%;">
+            <div class="col-sm-6 no-padding cursor-pointer" onclick="is.High(!is.High())" style="width: 33.3%">
+                <div class="smallerRoundedCheckbox">
+                    <input type="checkbox" class="checkboxLegend" data-bind="checked:is.High" style="visibility:hidden;">
+                    <label for="smallerRoundedCheckbox" ></label>
+                </div>
+                <p data-bind="attr:{class:is.High()? 'no-margin first bewhite' : 'no-margin first begrey'},text: is.Value.BusinessImpactHigh"></p>
+                <p data-bind="attr:{class:is.High()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                <p data-bind="attr:{class:is.High()? 'no-margin third bewhite' : 'no-margin third begrey'}">(# of High)</p>
+            </div>
+            <div class="col-sm-6 no-padding cursor-pointer" onclick="is.Medium(!is.Medium())" 
+            style="width: 33.3%">
+                <div class="smallerRoundedCheckbox">
+                    <input type="checkbox" class="checkboxLegend" data-bind="checked:is.Medium" style="visibility:hidden;">
+                    <label for="smallerRoundedCheckbox" ></label>
+                </div>
+                <p data-bind="attr:{class:is.Medium()? 'no-margin first bewhite' : 'no-margin first begrey'},text: is.Value.BusinessImpactMedium"></p>
+                <p data-bind="attr:{class:is.Medium()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                <p data-bind="attr:{class:is.Medium()? 'no-margin third bewhite' : 'no-margin third begrey'}">(# of Medium)</p>
+            </div>
+            <div class="col-sm-6 no-padding cursor-pointer" onclick="is.Low(!is.Low())" 
+            style="width: 33.3%">
+                <div class="smallerRoundedCheckbox">
+                    <input type="checkbox" class="checkboxLegend" data-bind="checked:is.Low" style="visibility:hidden;">
+                    <label for="smallerRoundedCheckbox" ></label>
+                </div>
+                <p data-bind="attr:{class:is.Low()? 'no-margin first bewhite' : 'no-margin first begrey'},text: is.Value.BusinessImpactLow"></p>
+                <p data-bind="attr:{class:is.Low()? 'no-margin second bewhite' : 'no-margin second begrey'}">Initiatives</p>
+                <p data-bind="attr:{class:is.Low()? 'no-margin third bewhite' : 'no-margin third begrey'}">(# of Low)</p>
+            </div>
+        </div>
+    </div>
+    
+</div>

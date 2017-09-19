@@ -1,0 +1,531 @@
+<script type="text/javascript">
+	var UserManagement = {
+		CurrentFullname:ko.observable(""),
+		Mode:ko.observable(""),
+		IsFormOpen:ko.observable(false),
+		Processing:ko.observable(false),
+		Data:ko.observable(),
+		DataList:ko.observableArray([]),
+		OldLoginID:ko.observable(""),
+		// Data Source
+		RegionList:ko.observableArray([]),
+		UserData:ko.observable(),
+		LoginTypeList:ko.observableArray([
+			{value:0,title:'BASIC'},
+			{value:1,title:'LDAP'},
+		]),
+		GroupList:ko.observableArray([])
+	}
+	UserManagement.IsFormOpen.subscribe(function(val){
+		if(val){
+			UserManagement.Data().LoginID.subscribe(function(x){
+				var LoginID = UserManagement.Data().LoginID();
+				var OldLoginID  = UserManagement.OldLoginID();
+				var existingUserID = Enumerable.From(UserManagement.DataList()).Where("$.loginid==='"+LoginID+"'").ToArray()
+				if(existingUserID.length > 0 && OldLoginID != LoginID){
+					swal("Warning","Login ID already exists","warning")
+					UserManagement.Data().LoginID("");
+				}
+			})
+			UserManagement.Data().FirstName.subscribe(function(x){
+				var FullName = UserManagement.Data().FirstName().trim() + ' ' + UserManagement.Data().LastName().trim();
+				var existingFullName = Enumerable.From(UserManagement.DataList()).Where("$.fullname.toLowerCase() ==='"+FullName.toLowerCase()+"'").ToArray()
+				if(existingFullName.length > 0 && FullName.toLowerCase()!== UserManagement.CurrentFullname().toLowerCase()){
+					swal("Warning",FullName+" already exists","warning")
+					UserManagement.Data().FirstName("");
+					UserManagement.Data().FullName("");
+				}else{
+					UserManagement.Data().FullName(FullName.trim());
+				}
+			})
+			UserManagement.Data().LastName.subscribe(function(x){
+				var FullName = UserManagement.Data().FirstName().trim() + ' ' + UserManagement.Data().LastName().trim();
+				var existingFullName = Enumerable.From(UserManagement.DataList()).Where("$.fullname.toLowerCase() ==='"+FullName.toLowerCase()+"'").ToArray()
+				if(existingFullName.length > 0&& FullName.toLowerCase()!== UserManagement.CurrentFullname().toLowerCase()){
+					swal("Warning",FullName+" already exists","warning")
+					UserManagement.Data().LastName("");
+					UserManagement.Data().FullName("");
+				}else{
+					UserManagement.Data().FullName(FullName.trim());
+				}
+			})
+		}
+	})
+	UserManagement.GetData = function(){
+		ajaxPost("/web-cb/acl/getuserlist",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			// console.log(res.Data)
+			_.each(res.Data, function(v,i){
+				var lastname = res.Data[i].lastname
+				var firstname = res.Data[i].firstname
+				res.Data[i].lastname = (lastname == undefined) ? "" : lastname;
+				res.Data[i].firstname = (firstname == undefined) ? "" : firstname;
+			})
+			UserManagement.Render(res.Data);
+		})
+	}
+	UserManagement.GroupDisplay = function(d){
+		var x = d.join(', ');
+		x = x.replace(/CB_/g,"")
+		return x;
+	}
+	UserManagement.Render = function(dataSource){
+		for(var i in dataSource){
+			dataSource[i].usergroups =  UserManagement.GroupDisplay(dataSource[i].groups);
+			dataSource[i].logintypestring = (dataSource[i].logintype == 1) ? "LDAP" : "BASIC";
+			dataSource[i].enablestring = (dataSource[i].enable) ? "enabled" : "disabled";
+			dataSource[i].country = (dataSource[i].country=='') ? "GLOBAL" : dataSource[i].country;
+		}
+		UserManagement.DataList(dataSource);
+		var d = $("#UserList");
+		d.html("");
+		d.kendoGrid({
+			dataSource:{
+				data:dataSource,
+				pageSize:20,
+			},
+			columns: [
+				{
+				  field:"logintypestring",
+				  title:"Login Type",
+				  width:100,
+				  template:function(d){
+				    if(d.logintype == 1){
+				      return "<span class=\'label label-success status-info\' style=\'font-size: 10px;font-weight: normal;text-transform: uppercase;\'>LDAP</span>";
+				    }else{
+				      return "<span class=\'label label-default status-info\' style=\'font-size: 10px;font-weight: normal;text-transform: uppercase;\'>BASIC</span>";
+				    }
+				  },
+				  attributes:{class:'text-center'}
+				},
+				{
+				  field:"loginid",
+				  title:"Login ID",
+				  width:150,
+				},
+				// {
+				//   field:"fullname",
+				//   title:"Full Name",
+				//   width:150,
+				// },
+				{
+				  field:"firstname",
+				  title:"First Name",
+				  width:150,
+				},
+				{
+				  field:"lastname",
+				  title:"Last Name",
+				  width:150,
+				},
+				// {
+				//   field:"email",
+				//   title:"E-mail",
+				//   width:200,
+				// },
+				{
+				  field:"usergroups",
+				  title:"Roles"
+				},
+				{
+				  field:"country",
+				  title:"Country",
+				  template:"#:country==''?'GLOBAL':country#"
+				},
+				{
+				  field:"enablestring",
+				  title:"Status",
+				  width:100,
+				  template:function(d){
+				    if(d.enable){
+				      return "<span class=\'label label-success status-info\' style=\'font-size: 10px;font-weight: normal;text-transform: uppercase;\'>enabled</span>";
+				    }else{
+				      return "<span class=\'label label-default status-info\' style=\'font-size: 10px;font-weight: normal;text-transform: uppercase;\'>disabled</span>";
+				    }
+				  },
+				  attributes:{class:'text-center'}
+				},
+				{{if (or (.Global.Update) (.Region.Update) (.Country.Update) (.Global.Delete) (.Region.Delete) (.Country.Delete)) }}
+				{
+				  title:"",
+				  width: 80,
+				  attributes:{class:'text-center'},
+				  template:"{{if (or (.Global.Update) (.Region.Update) (.Country.Update)) }}<button onclick='UserManagement.Edit(\"#:_id #\")' class='btn btn-xs btn-warning'><i class='fa fa-pencil'></i></button>{{end}} {{if (or (.Global.Delete) (.Region.Delete) (.Country.Delete)) }}<button onclick='UserManagement.Remove(\"#:_id #\")' class='btn btn-xs btn-danger'><i class='fa fa-trash'></i></button>{{end}}"
+				}
+				{{end}}
+			],
+			filterable:true,
+			sortable: true,
+			pageable: {
+			  refresh: true,
+			  pageSizes: true,
+			  buttonCount: 5
+			},
+			// toolbar: ["excel"],
+			excel: {
+				fileName: "User List Name.xlsx",
+				allPages: true
+			},
+		});
+	}
+	UserManagement.Save = function(){
+		var validator = $("#UserManagement").data("kendoValidator")
+		if(validator==undefined){
+       		validator= $("#UserManagement").kendoValidator().data("kendoValidator");
+  		}
+  		if (validator.validate()) {
+  			var data = ko.mapping.toJS(UserManagement.Data())
+  			if(data.SingleGroup !== ""){
+  				data.Groups	= [data.SingleGroup]
+  			}
+  			if(data.Groups != null && data.Groups.length!=0){
+  				swal({
+				  title: "",
+				  text: 'Are You Sure?',
+				  type: "warning",
+				  showCancelButton: true,
+				  confirmButtonClass: "btn-danger",
+				  confirmButtonText: "Yes, Save Now",
+				  closeOnConfirm: true
+				},
+				function(){			
+					data.ID = data._id;
+					data.LoginType = parseInt(data.LoginType);
+					data.FirstName = data.FirstName.trim()
+					data.LastName = data.LastName.trim()
+					data.FullName = data.FullName.trim()
+					if(data.LoginType == 1){
+						data.Password = ""
+						data.ConfirmPassword = ""
+					}
+					if(typeof data.CountryCode !== "undefined" && data.CountryCode != ""){
+					data["Country"] = Enumerable.From(UserManagement.RegionList()).Where("$.CountryCode=='"+data.CountryCode+"'").FirstOrDefault().Country;
+					}else{
+					data["Country"] = "";
+					}
+					ajaxPost("/web-cb/acl/saveuser",{Mode:UserManagement.Mode(),Data:data},function(res){
+						if (res.IsError) {
+							swal("", res.Message, "info");
+							return false;
+						}
+						UserManagement.Mode("");
+						UserManagement.IsFormOpen(false);
+						setTimeout(function(){swal('Save success', '', 'success');},100);
+						UserManagement.GetData();
+						$('body').animate({scrollTop:0}, 500, 'swing');
+					});
+				});
+  			}else{
+				swal('Groups cannot be empty', '', 'info');
+
+  			}
+  			
+		}	
+	}
+	UserManagement.Add = function(){
+		UserManagement.CurrentFullname("");
+		UserManagement.Mode("create");
+		UserManagement.Data(ko.mapping.fromJS(UserManagement.UserData()))
+		UserManagement.OldLoginID("");
+		UserManagement.IsFormOpen(true);
+	}
+	UserManagement.Cancel = function(){
+		UserManagement.Mode("");
+		UserManagement.IsFormOpen(false);
+	}
+	UserManagement.Edit = function(id){
+		ajaxPost("/web-cb/acl/getuser",{Id:id},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			_.each(res.Data, function(v,i){
+				var lastname = res.Data[i].lastname
+				var firstname = res.Data[i].firstname
+				res.Data[i].lastname = (lastname == undefined) ? "" : lastname;
+				res.Data[i].firstname = (firstname == undefined) ? "" : firstname;
+			})
+			UserManagement.OpenEditForm(res.Data);
+		});
+	}
+	UserManagement.OpenEditForm = function(d){
+		UserManagement.Mode("update");
+		UserManagement.Data(ko.mapping.fromJS(UserManagement.UserData()))
+		var data = UserManagement.Data();
+		data._id(d._id);
+		data.LoginType(d.logintype);
+		data.LoginID(d.loginid);
+		data.FullName(d.fullname);
+		data.FirstName(d.firstname);
+		data.LastName(d.lastname);
+		data.Email(d.email);
+		data.Enable(d.enable);
+		data.Groups(d.groups);
+		data.CountryCode(d.countrycode);
+		UserManagement.CurrentFullname(d.fullname)
+		if(d.groups.length>0){
+			data.SingleGroup(d.groups[0]);
+		}else{
+			data.SingleGroup("");
+		}
+		UserManagement.OldLoginID(d.loginid);
+		UserManagement.IsFormOpen(true);
+	}
+	UserManagement.Remove = function(id){
+		swal({
+		  title: "",
+		  text: 'Are you sure, this data cannot be restore?',
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonClass: "btn-danger",
+		  confirmButtonText: "Yes, Delete Now",
+		  closeOnConfirm: true
+		},
+		function(){	
+			ajaxPost("/web-cb/acl/removeuser",{Id:id},function(res){
+				if (res.IsError) {
+					swal("", res.Message, "info");
+					return false;
+				}
+				setTimeout(function(){swal('Delete success', '', 'success');},100);
+				UserManagement.GetData();
+			});
+		});
+	}
+	UserManagement.RefreshGroup = function(){
+		ajaxPost("/web-cb/acl/getusermanagementreferences",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			var d = res.Data;
+			UserManagement.RegionList(d.RegionList)
+			UserManagement.GroupList(d.GroupList)
+		})
+	}
+	UserManagement.Init = function(){
+		ajaxPost("/web-cb/acl/getusermanagementreferences",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			var d = res.Data;
+			d.UserData["LoginType"] = 1;
+			d.UserData["Password"] = "";
+			d.UserData["ConfirmPassword"] = "";
+			d.UserData["Enable"] = true;
+			d.UserData["SingleGroup"] = "";
+			d.UserData["CountryCode"] = "";
+			d.UserData["Country"] = "";
+			d.UserData["FirstName"] = "";
+			d.UserData["LastName"] = "";
+			UserManagement.RegionList(d.RegionList);
+			UserManagement.GroupList(d.GroupList);
+			UserManagement.UserData(d.UserData);
+			UserManagement.Data(undefined)
+			UserManagement.GetData();
+		})
+	}
+
+	UserManagement.GetExcel = function(){
+		// var parm = {
+  //   		page:1,
+		// 	pageSize:10,
+		// 	skip:0,
+		// 	take:10,
+		// 	filter:$("#RoleList").data("kendoGrid").dataSource.filter(),
+		// 	sort:$("#RoleList").data("kendoGrid").dataSource.sort(),
+  //   	}
+  //   	if(parm.filter != undefined){
+  //   		if(parm.filter.filters.length > 0){
+  //   			_.each(parm.filter.filters, function(v,i){
+  //   				if(v.filters != undefined && v.filters.length > 0){
+	 //        			_.each(v.filters, function(vv,ii){
+	 //        				if(vv.field == "created" || vv.field == "expired"){
+	 //        					parm.filter.filters[i].filters[ii].value = kendo.toString(vv.value, "yyyyMMddHHmmss")
+	 //        					parm.filter.filters[i].filters[ii].type = "date"
+	 //        				} else{
+	 //        					parm.filter.filters[i].filters[ii].type = ""
+	 //        				}
+	 //        			})	
+	 //        		} else{
+	 //        			if(v.field == "created" || v.field == "expired"){
+	 //        				parm.filter.filters[i].value = kendo.toString(v.value, "yyyyMMddHHmmss")
+	 //        				parm.filter.filters[i].type = "date"
+  //       				} else{
+  //       					parm.filter.filters[i].type = ""
+  //       				}
+	 //        		}
+  //   			})	
+  //   		}
+  //   	}
+		ajaxPost("/web-cb/acl/exportxlsusermanagement",{},function(res){
+			if (res.IsError) {
+				swal("", res.Message, "info");
+				return false;
+			}
+			// console.log(res)
+			location.href = "/web-cb/static/download/"+encodeURIComponent(res.Data);
+		})
+	}
+
+	$(document).ready(function(){
+		UserManagement.Init();
+	})
+
+	$(function () {
+	  var container = $("#UserManagement");
+	  kendo.init(container);
+	  container.kendoValidator({
+	    rules: {
+	      confirmpassword: function (input) {
+			var data = ko.mapping.toJS(UserManagement.Data());
+	        if (input.is("[data-confirmpassword-msg]") && data.Password != "" && input.val() != data.Password) {
+	          // if(!/^[_a-zA-Z]*$/g.test(input.val())) {
+	            return false;
+	          // }
+	        }
+
+	        return true;
+	      },
+	      fullname: function (input){
+	      	var data = ko.mapping.toJS(UserManagement.Data());
+	      	var datalist = UserManagement.DataList()
+	      	return true;
+	      },
+	      lastname: function (input){
+	      	var data = ko.mapping.toJS(UserManagement.Data());
+	      	var datalist = UserManagement.DataList()
+	      	return true;
+	      },
+	    }
+	  });
+
+	});
+
+</script>
+<style type="text/css">
+	span.k-widget.k-tooltip-validation {
+        display;
+        inline-block;
+        /*width: 160px;*/
+        text-align: left;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        background: none;
+        box-shadow: none;
+        color: red;
+    }
+    .input-checkbox{
+		float: left !important;
+		margin-top: 10px !important;
+	}
+	.input-checkbox-span{
+		float: left !important;
+		margin-left: 3px !important;
+		margin-top: -3px !important;
+		margin-right: 20px !important;
+	}
+</style>
+
+<div id="UserManagement" data-bind="with:UserManagement">
+	<div class="row">
+		{{if (or (.Global.Create) (.Region.Create) (.Country.Create)) }}
+		<div class="col-sm-12" style="margin-bottom: 5px;" data-bind="visible:!IsFormOpen()">
+			<button class="btn btn-sm btn-primary" data-bind="click:UserManagement.Add,kendoTooltip: { content: 'Create New User' }"><i class="fa fa-plus-circle"></i>&nbsp;Create New User</button>
+		</div>
+		{{end}}
+		<div class="col-sm-12" data-bind="visible:!IsFormOpen()">
+			<div id="UserList"></div>
+		</div>
+		<div class="col-sm-12" data-bind="visible:IsFormOpen(),with:Data" id="form">
+			<!-- <div class="row">
+				<label class="col-sm-2">Login Type</label>
+				<div class="col-sm-1">
+					<input style="width: 100%;" data-bind="kendoDropDownList:{value:LoginType,data:$parent.LoginTypeList,dataValueField:'value',dataTextField:'title'}">
+				</div>
+			</div> -->
+			<div class="row">
+				<label class="col-sm-2">Login ID</label>
+				<div class="col-sm-5">
+					<!-- <input style="width: 100%;" required data-pattern-msg="Only alphabet, number, dot and underscore allowed for Login ID" type="text" name="loginid" id="loginid" class="input-sm form-control" placeholder="Input Login ID" data-bind="value:LoginID" validationMessage="Login ID cannot be empty"> -->
+					<input style="width: 100%;" required maxlength="7" oninput="this.value=this.value.replace(/[^0-9]/g,'');"  type="text" name="loginid" id="loginid" class="input-sm form-control" placeholder="Input Login ID" data-bind="value:LoginID" validationMessage="Login ID cannot be empty">
+				</div>
+			</div>
+<!-- 			<div class="row">
+				<label class="col-sm-2">Fullname</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" required pattern="[a-zA-Z0-9_ ]+" data-pattern-msg="Only alphabet, number, space and underscore allowed for FullName" type="text" class="form-control input-sm" name="FullName" placeholder="Input FullName Here" data-bind="value: FullName" id="fullname" validationMessage="Full Name cannot be empty">
+				</div>
+			</div> -->
+			<div class="row">
+				<label class="col-sm-2">First Name</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" required pattern="[a-zA-Z0-9_ ]+" data-pattern-msg="Only alphabet, number, space and underscore allowed for First Name" type="text" class="form-control input-sm" name="FirstName" placeholder="Input First Name Here" data-bind="value: FirstName" id="firstname" validationMessage="First Name cannot be empty">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Last Name</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" required pattern="[a-zA-Z0-9_ ]+" data-pattern-msg="Only alphabet, number, space and underscore allowed for Last Name" type="text" class="form-control input-sm" name="LastName" placeholder="Input Last Name Here" data-bind="value: LastName" id="lastname" validationMessage="Last Name cannot be empty">
+				</div>
+			</div>
+			<!-- <div class="row">
+				<label class="col-sm-2">Email</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" required type="email" class="form-control input-sm" name="Email" placeholder="Input Email Here" data-bind="value: Email" id="email" validationMessage="Email cannot be empty / Invalid email address">
+				</div>
+			</div> -->
+			<div class="row" data-bind="visible:LoginType()==0">
+				<label class="col-sm-2">Password</label>
+				<div class="col-sm-5">
+					<input type="password" style="width: 100%;" class="input-sm form-control" placeholder="Input Password" data-bind="value:Password, attr:{required: LoginType()==0&&$parent.Mode()!='update'}" name="Password" id="password" pattern="((?=.*\d)(?=.*[A-Z]).{6,24})" data-pattern-msg="Password must contains one digit from 0-9, must contains one uppercase characters and length at least 6 characters and maximum of 24" validationMessage="Password cannot be empty">
+				</div>
+			</div>
+			<div class="row" data-bind="visible:LoginType()==0">
+				<label class="col-sm-2">Confirm Password</label>
+				<div class="col-sm-5">
+					<input style="width: 100%;" type="password" class="form-control input-sm" name="ConfirmPassword" placeholder="Confirm Password Here" data-bind="value: ConfirmPassword, attr:{required: LoginType()==0&&$parent.Mode()!='update'}" id="ConfirmPassword" validationMessage="Confirm Password cannot be empty" data-confirmpassword-msg="Password did not match">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Country</label>
+				<div class="col-sm-2">
+					<input style="width: 100%;" data-bind="kendoDropDownList:{value:CountryCode,data:$parent.RegionList,dataValueField:'CountryCode',dataTextField:'Country',filter:'contains',optionLabel:'GLOBAL'}">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Role</label>
+				<div class="col-sm-5">
+					<input name="Groups" id="Groups" data-bind="kendoDropDownList:{value:SingleGroup,data:$parent.GroupList,dataValueField: '_id', dataTextField: 'title',filter:'contains',optionLabel:'Select'}" validationMessage="Group cannot be empty">
+				</div>
+			</div>
+			<div class="row">
+				<label class="col-sm-2">Enable</label>
+				<div class="col-sm-5" style="line-height: 38px;">
+					<input type="checkbox" data-bind="checked:Enable">
+				</div>
+			</div>
+			<!-- <div class="row">
+				<label class="col-sm-2">Segmentation</label>
+				<div class="col-sm-5" style="line-height: 38px;">
+					<input class="input-checkbox" type="checkbox">&nbsp;<span class="input-checkbox-span">Global</span>&nbsp;&nbsp;&nbsp;
+					<input class="input-checkbox" type="checkbox">&nbsp;<span class="input-checkbox-span">Region</span>&nbsp;&nbsp;&nbsp;
+					<input class="input-checkbox" type="checkbox">&nbsp;<span class="input-checkbox-span">Country</span>&nbsp;&nbsp;&nbsp;
+				</div>
+			</div> -->
+		</div>
+		<div class="col-sm-12" style="margin-bottom: 5px;" data-bind="visible:IsFormOpen()">
+			<div class="row">
+				<div class="col-sm-7 text-right">
+					<button class="btn btn-sm btn-default" data-bind="visible:IsFormOpen(),click:UserManagement.Cancel"><i class="fa fa-undo"></i>&nbsp;Cancel</button>
+					<button class="btn btn-sm btn-success" data-bind="visible:IsFormOpen(),click:UserManagement.Save"><i class="fa fa-floppy-o"></i>&nbsp;Save</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,633 @@
+{{if (.Overview.Global.Upload) or (.Overview.Region.Upload) or (.Overview.Country.Upload)}}
+{{template "metric_upload.html" .}}
+{{end}}
+{{if (.Overview.Global.Curtain) or (.Overview.Region.Curtain) or (.Overview.Country.Curtain)}}
+{{template "initiative_chart.html" .}}
+{{end}}
+{{if (.Overview.Global.Read) or (.Overview.Region.Read) or (.Overview.Country.Read)}}
+<script src="/web-cb/static/core/overview.js"></script>
+<style type="text/css">
+.pdLeft0{
+	padding-left: 0px;
+}
+.pdRight0{
+	padding-right: 0px;
+}
+.mgTop10{
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+}
+.mgBtm-10{
+	margin-bottom: -10px;
+}
+.col-box{
+	margin-top: 10px;
+	border-radius: 5px;
+	border: 1px solid #e6e6e6;
+}
+.boxcustom{
+	height: 137px;
+}
+.head-p{
+	font-size: 60px;
+  color: #0e4361;
+  text-align: center;
+  font-weight: 600;
+  margin: 30px 0 -10px;
+}
+.sub-p{
+	font-size: 25px;
+  color: #0e4361;
+  text-align: center;
+  font-weight: 600;
+}
+.redbox {
+  border-radius: 4px;
+  margin: 15px 0 10px;
+  height: 50px;
+  background-color: #db4453;
+}
+.yellowbox {
+  border-radius: 4px;
+  margin: 15px 0 10px;
+  height: 50px;
+  background-color: #f7bb3b;
+}
+.greenbox {
+  border-radius: 4px;
+  margin: 15px 0 10px;
+  height: 50px;
+  background-color: #36bc9b;
+}
+.metrictitle{
+	color: #0e4361;
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: -30px;
+  margin-top: 27px;
+  text-align: right;
+}
+.metrichead{
+	color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: -2px;
+  padding-top: 4px;
+  text-align: center;
+}
+.metricsub{
+	color: #fff;
+  font-size: 14px;
+  text-align: center;
+}
+.modalcustom{
+	width: 1200px;
+	margin-top: 50px;
+}
+.popupcustom{
+    margin-top: 10px;
+    cursor: pointer;
+    position: absolute;
+    z-index: 1;
+    right: 0px;
+    border: 1px solid #e6e6e6;
+    width: 21px;
+    text-align: center;
+    border-radius: 2px;
+    margin-right: 10px;
+    padding: 2px 0px;
+}
+.headermodalcustom{
+	padding-bottom: 20px;
+	background-color: #333f50;
+}
+.titlemodalcustom{
+	color: #fff;
+	font-size: 14px;
+	font-weight: 600;
+}
+.modal-header .close{
+  color: #fff;
+}
+.selectcustom{
+	height: 27px;
+  font-size: 11px;
+}
+#stackchart-1{
+	margin: 20px auto 0px;
+}
+#stackchart-2{
+	margin-top: 20px;
+}
+#stackchart-3{
+	margin-top: 20px;
+}
+#stackchart-4{
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+.mgLeft30{
+	margin-left: 30px;
+}
+.mgLeft40{
+	margin-left: 40px;
+}
+.mgLeft47{
+	margin-left: 47px;
+}
+.categorybox {
+    text-align: center;
+    background-color: #0e4361;
+    color: #fff;
+    padding: 18px 0;
+    width: 45px;
+    font-size: 8px;
+    height: 46px;
+    margin-bottom: 5px;
+}
+.categoryclientbox{
+    text-align: center;
+    background-color: #0e4361;
+    color: #fff;
+    /*padding: 5px;*/
+    /*padding-left: 10px;*/
+    font-size: 9px;
+    /*margin-left: 10px;*/
+    height: 46px;
+    /*margin-bottom: 5px;*/
+    position: relative;
+    box-sizing: border-box;
+    padding: 5px;
+}
+/*.categoryclientbox:before {
+    content: " ";
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 0;
+    height: 0;
+    border-top: 23px solid transparent;
+    border-bottom: 23px solid transparent;
+    border-left: 6px solid #ffffff;
+    z-index: 8;
+}
+.categoryclientbox:after {
+    content: " ";
+    position: absolute;
+    right: -6px;
+    top: 0px;
+    width: 0;
+    height: 0;
+    border-top: 23px solid transparent;
+    border-bottom: 23px solid transparent;
+    border-left: 6px solid #0e4361;
+}*/
+.categorycountrybox {
+  text-align: center;
+  background-color: #0e4361;
+  color: #fff;
+  margin-bottom: 5px;
+  width: 48px;
+  height: 46px;
+  font-size: 9px;
+}
+.categorypopupbox {
+  text-align: center;
+  background-color: #0e4361;
+  color: #fff;
+  padding: 7px 0;
+  font-size: 9px;
+  margin-left: 10px;
+  height: 30px;
+  width: 95%;
+  margin-top: -20px;
+  margin-bottom: 10px;
+}
+.bluecolor1 {
+	background-color: #0e4061;
+}
+.donutcolor {
+	background-color: #fff;
+}
+.donutspacer {
+	height: 24px !important;
+}
+.bluecolor2 {
+	background-color: #4ebdff;
+}
+.donutlegend {
+  height: 35px;
+  width: 50px;
+  color: #fff;
+  padding: 5px;
+}
+.pdCustom{
+	padding: 20px 0 0 40px;
+}
+.donutp1 {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: -2px;
+}
+.donutp2 {
+  font-size: 8px;
+  text-align: center;
+}
+.barlegend {
+  text-align: center;
+  color: #fff;
+  width: 80px;
+  padding: 2px;
+  margin-bottom: 1px;
+}
+.regionbarlegend {
+  text-align: center;
+  color: #fff;
+  width: 50px;
+  padding: 2px;
+  margin-bottom: 1px;
+}
+.barcolor1 {
+  background-color: #db4453;
+}
+.barcolor2 {
+  background-color: #f7bb3b;
+}
+.barcolor3 {
+  background-color: #36bc9b;
+}
+.mgLeft47{
+	margin-left: 47px;
+}
+.margincustom{
+    position: absolute;
+    /*right: 14px;*/
+    width: 80px;
+    top: 10px;
+    z-index: 1;
+}
+.stackchartlegend-1 td:nth-child(2) .categoryclientbox { background-color: #0077ac; }
+.stackchartlegend-1 td:nth-child(2) .categoryclientbox:after { border-left-color: #0077ac; }
+
+.stackchartlegend-1 td:nth-child(4) .categoryclientbox { background-color: #009d44; }
+.stackchartlegend-1 td:nth-child(4) .categoryclientbox:after { border-left-color: #009d44; }
+
+.stackchartlegend-1 td:nth-child(6) .categoryclientbox { background-color: #001143; }
+.stackchartlegend-1 td:nth-child(6) .categoryclientbox:after { border-left-color: #001143; }
+
+.stackchartlegend-1 td:nth-child(8) .categoryclientbox { background-color: #4ebf45; }
+.stackchartlegend-1 td:nth-child(8) .categoryclientbox:after { border-left-color: #4ebf45; }
+
+.stackchartlegend-1 td:nth-child(10) .categoryclientbox { background-color: #6e7378; }
+.stackchartlegend-1 td:nth-child(10) .categoryclientbox:after { border-left-color: #6e7378; }
+
+.stackchartlegend-1 td:nth-child(12) .categoryclientbox { background-color: #18baed; }
+.stackchartlegend-1 td:nth-child(12) .categoryclientbox:after { border-left-color: #18baed; }
+
+.stackchartlegend-1 td:nth-child(14) .categoryclientbox { background-color: #002bae; }
+.stackchartlegend-1 td:nth-child(14) .categoryclientbox:after { border-left-color: #002bae; }
+
+.stackchartlegend-1 td:nth-child(16) .categoryclientbox { background-color:#199489; }
+.stackchartlegend-1 td:nth-child(16) .categoryclientbox:after { border-left-color: #199489; }
+
+.stackchartlegend-1 td {
+	position: relative;
+}
+.overview-bar-legend-left {
+	position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 46px;
+    z-index: 1;
+}
+.overview-bar-legend-right {
+	position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 46px;
+    z-index: 1;
+}
+.footerdashboard{
+	    float: right;
+    margin-right: 15px;
+    margin-top: -20px;
+    padding: 5px;
+}
+.ovheader{
+    text-align: center;
+    /*font-weight: bold;*/
+    font-size: 18px;
+    line-height: 1.3;
+    font-family: 'Helvetica Neue';
+    display: none;
+    margin: 10px 0px;
+}
+#app-content {
+  font-family: "Helvetica Neue";
+  src: url("/web-cb/static/fonts/HelveticaNeue.ttf") format("truetype");
+}
+</style>
+<div class="loader col-sm-12 text-center" data-bind="visible:ov.Loading()">
+    <img src="/web-cb/static/img/hex-loader2.gif">
+</div>
+<div id="app-content" class="row" style="margin-bottom: 0px;display: none;" data-bind="visible: !ov.Loading()">
+	<div class="col-md-12 pdLeft0 pdRight0" data-bind="with:ov"  style="padding-bottom: 20px;">
+	    <div class="col-md-12" style="text-align: right; margin-top: 10px;">
+	    	<button class="btn-export-pdf btn btn-sm btn-custom btn-danger" onclick="ov.ExportAsPDF()">
+	    		<span class="tooltip" title="PDF">Some text</span>
+		        <i class="fa fa-file-pdf-o"></i>
+		    </button>
+        <button class="btn-export-png btn btn-sm btn-custom btn-primary" onclick="ov.ExportAsPNG()">
+        	<span class="tooltip" title="PNG">Some text</span>
+            <i class="fa fa-file-image-o"></i>
+        </button>
+	    </div>
+	    <p class="sub-p ovheader">Dashboard</p>
+		<div class="col-md-12 pdLeft0 pdRight0">
+			<div class="col-md-6">
+				<div class="col-md-12 col-box" >
+					<div class="col-md-3">
+						<p class="head-p" data-bind="text:Initiatives"></p>
+						<p class="sub-p">Initiatives</p>
+					</div>
+					<div class="col-md-9 pdRight0">
+	      		<div id="barchart-1"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="col-md-12 col-box">
+					<div class="col-md-3">
+						<p class="head-p" data-bind="text:Metrics"></p>
+						<p class="sub-p">Metrics</p>
+					</div>
+					<div class="col-md-9 pdRight0">
+	      		<div id="barchart-2"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12 pdLeft0 pdRight0">
+			<div class="col-md-6">
+				<div class="col-md-12 col-box boxcustom">
+					<div class="col-md-6">
+						<div class="col-md-6">
+		      		<div id="donutchart-1"></div>
+						</div>
+						<div class="col-md-6">
+							<div class="pdCustom">
+			      		<table width="100%">
+							  	<tr width="30%"> <div class="donutlegend bluecolor1">
+							  		<p class="donutp1" data-bind="text:IC.BankWide"></p>
+							  		<p class="donutp2">Bank Wide</p>
+							  	</div> </tr>
+							  	<tr width="30%"> <div class="donutlegend donutcolor donutspacer"></div> </tr>
+							  	<tr width="30%"> <div class="donutlegend bluecolor2">
+							  		<p class="donutp1" data-bind="text:IC.CBLead"></p>
+							  		<p class="donutp2">CB Led</p>
+							  	</div> </tr>
+				      	</table>
+				      </div>
+		      	</div>
+	      	</div>
+					<div class="col-md-6">
+						<div class="col-md-6">
+		      		<div id="donutchart-2"></div>
+						</div>
+						<div class="col-md-6">
+							<div class="pdCustom">
+			      		<table width="100%">
+							  	<tr width="30%"> <div class="donutlegend bluecolor1">
+							  		<p class="donutp1" data-bind="text:IC.Active"></p>
+							  		<p class="donutp2">Active</p>
+							  	</div> </tr>
+							  	<tr width="30%"> <div class="donutlegend donutcolor donutspacer"></div> </tr>
+							  	<tr width="30%"> <div class="donutlegend bluecolor2">
+							  	<p class="donutp1" data-bind="text:IC.Completed"></p>
+							  		<p class="donutp2">Completed</p>
+							  	</div> </tr>
+				      	</table>
+				      </div>
+		      	</div>
+	      	</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="col-md-12 col-box">
+					<div class="col-md-12 mgBtm-10">
+						<div class="col-md-3">
+							<p class="metrictitle">Metric Direction</p>
+						</div>
+						<div class="col-md-3">
+							<div class="redbox">
+								<p class="metrichead" data-bind="text:MD.Declined">
+									
+									<span class="fa fa-caret-down"></span>
+								</p>
+								<p class="metricsub">Declined</p>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="yellowbox">
+								<p class="metrichead" data-bind="text:MD.Unchanged">
+									
+									<span class="fa fa-caret-left"></span>
+									<span class="fa fa-caret-right"></span>
+								</p>
+								<p class="metricsub">Unchanged</p>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="greenbox">
+								<p class="metrichead" data-bind="text:MD.Improved">
+									
+									<span class="fa fa-caret-up"></span>
+								</p>
+								<p class="metricsub">Improved</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-12">
+						<div class="col-md-3">
+							<p class="metrictitle">Metric Status</p>
+						</div>
+						<div class="col-md-3">
+							<div class="redbox">
+								<p class="metrichead" data-bind="text:MS.Red"></p>
+								<p class="metricsub">Red</p>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="yellowbox">
+								<p class="metrichead" data-bind="text:MS.Amber"></p>
+								<p class="metricsub">Amber</p>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="greenbox">
+								<p class="metrichead" data-bind="text:MS.Green"></p>
+								<p class="metricsub">Green</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12 pdLeft0 pdRight0">
+			<div class="col-md-6">
+
+				<div class="col-md-12 col-box">
+					<div id="stackchart-1-width" style="height: 4px;width: 100%;">&nbsp;</div>
+					<div class="margincustom">
+						<table width="10%">
+					  	<tr width="50%"> <div class="barlegend bluecolor1">Bank Wide</div> </tr>
+					  	<tr width="50%"> <div class="barlegend bluecolor2">CB Led</div> </tr>
+				  	</table>
+					  </div>
+			      	<!-- <div id="stackchart-1"></div> -->
+			      	<div class="" style="margin-top: -5px;margin-bottom: 5px;">
+              <p style="color: #0e4361;text-align: center;padding-top: 20px;font-size: 14px;
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;">Client Life Cycle</p>
+			      	<table class="col-sm-12" style="margin-bottom: 3px;margin-top: 3px;">
+                <tr data-bind="foreach:ClientLifeCycle()" style="height: 180px !important;">
+                  <td data-bind="visible: $index() == 0" style="transform: rotate(-90deg);position: absolute;left: -50px;top: 80px;color: #0e4361;font-family: Helvetica Neue, Helvetica, Arial, sans-serif;font-size: 12px;padding-bottom: 17px;">Number of initiatives</td>
+                  <td data-bind="if:$data.BankWide != 0 || $data.CBLead != 0" style="text-align: center;vertical-align: bottom;padding: 0 10px;padding-bottom: 3px;">
+                    <div data-bind="attr:{'style':ov.GetBarStyle(BankWide)+ 'background-color: #0E4061;color: white;vertical-align: middle;' }" class="col-sm-12"><p data-bind="text: BankWide" style="font-size: 10px;font-family: Helvetica Neue, Helvetica, Arial, sans-serif;"></p></div>
+                    <div data-bind="attr:{'style':ov.GetBarStyle(CBLead)+ 'background-color: #4EBDFF;color: white;vertical-align: middle;' }" class="col-sm-12"><p data-bind="text: CBLead" style="font-size: 10px;font-family: Helvetica Neue, Helvetica, Arial, sans-serif;"></p></div>
+                  </td>
+                </tr>
+
+				      	<tr class="stackchartlegend-1" data-bind="foreach:ClientLifeCycle()">
+                  <td data-bind="visible: $index() == 0"></td>
+							  	<td width="14%" data-bind="if:$data.BankWide != 0 || $data.CBLead != 0">
+							  		<img class="overview-bar-legend-left" src="/web-cb/static/img/overview-bar-legend-left.png" />
+							  		<div class="categoryclientbox">
+							  			<div style="display: table;height: 100%;width: 100%;padding: 0px 5px 0px 4px;">
+							  				<div  style="display: table-cell;height: 100%;vertical-align: middle;text-align: center;" data-bind="text:$data.LifeCycle"></div>
+							  			</div>
+							  		</div>
+							  		<img class="overview-bar-legend-right" src="/web-cb/static/img/overview-bar-legend-right.png" />
+						  		</td>
+				      	</tr>
+			      	</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="col-md-12 col-box" style="padding: 0;">
+					<div class="col-md-5 pdLeft0 pdRight0">
+						<div class="mgTop10" style="padding-left: 20px">
+							<table width="10%">
+						  	<tr width="50%"> <div class="regionbarlegend barcolor1">Red</div> </tr>
+						  	<tr width="50%"> <div class="regionbarlegend barcolor2">Amber</div> </tr>
+						  	<tr width="50%"> <div class="regionbarlegend barcolor3">Green</div> </tr>
+					  	</table>
+						</div>
+	      		<div id="stackchart-2"></div>
+						<div class="">
+							<table width="180" class="mgLeft47">
+				      	<tr data-bind="foreach:RegionMetric">
+							  	<td width="20%"> <div class="categorybox" data-bind="text:$data.MajorRegion"></div> </td>
+				      	</tr>
+				      </table>
+						</div>
+					</div>
+					<div class="col-md-7 pdLeft0 pdRight0">
+						<a class="pull-right popupcustom" data-toggle='modal' data-target='#modal-chart' data-bind="click: ov.renderchart6">
+							<i class="fa fa-arrows"></i>
+						</a>
+	      		<div id="stackchart-3"></div>
+	      		<div class="">
+	      			<table width="255" style="margin-left: 44px;">
+				      	<tr data-bind="foreach:top5DataList">
+							  	<td width="20%"> <div class="categorycountrybox" style="width: 40px;">
+							  		<div style="display: table;width: 100%;height: 100%;">
+							  			<div data-bind="text:Country" style="display: table-cell;vertical-align: middle;height: 100%;text-align: center;"></div>
+							  		</div>
+							  	</div> </td>
+						</tr>
+				      </table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<style type="text/css">
+		.categorypopupbox{
+			text-align: center;
+		    background-color: #0e4361;
+		    color: #fff;
+		    padding: 7px 0;
+		    font-size: 9px;
+		    margin-left: 1px;
+		    height: 30px;
+		    width: 37px;
+		    margin-top: -20px;
+		    margin-bottom: 10px;
+		    overflow: hidden;
+		}
+	</style>
+	<div class="modal fade" id="modal-chart" role="dialog" aria-labelledby="myModalLabel">
+	  <div class="modal-dialog modal-lg modalcustom" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header headermodalcustom">
+	      	<span class="titlemodalcustom">Number of Metrics by Country (Split by RAG)</span>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	      </div>
+	      <div class="modal-body">
+	        <div class="pull-right">
+	        	<select class="form-control selectcustom">
+						  <option>Sort High to Low (No. of Green)</option>
+						  <option>Sort High to Low (No. of Amber)</option>
+						  <option>Sort High to Low (No. of Red)</option>
+						</select>
+	        </div>
+	        <table width="10%">
+				  	<tr width="50%"> <div class="barlegend barcolor1">Red</div> </tr>
+				  	<tr width="50%"> <div class="barlegend barcolor2">Amber</div> </tr>
+				  	<tr width="50%"> <div class="barlegend barcolor3">Green</div> </tr>
+			  	</table>
+	        <div id="stackchart-4"></div>
+	        <div class="">
+	        	<table width="95%" class="mgLeft40">
+			      	<tr data-bind="foreach:ov.DataList">
+			      			<td > <div class="categorypopupbox" data-bind="text:Country"></div> </td>
+						  	<!-- <td width="2%"> <div class="categorypopupbox">Thailand</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Singapore</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Kenya</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Botswana</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">India</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Thailand</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Singapore</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Kenya</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Botswana</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">India</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Thailand</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Singapore</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Kenya</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Botswana</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">India</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Thailand</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Singapore</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Kenya</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Botswana</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">India</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Thailand</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Singapore</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Kenya</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">Botswana</div> </td>
+						  	<td width="2%"> <div class="categorypopupbox">India</div> </td> -->
+			      	</tr>
+			      </table>
+					</div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	<!-- <div class="footerdashboard" data-bind="visible:!ov.Loading()">* as on 23rd January 2017</div> -->
+</div>
+{{end}}

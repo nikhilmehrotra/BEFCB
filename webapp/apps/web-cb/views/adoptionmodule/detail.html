@@ -1,0 +1,603 @@
+<link href="/web-cb/static/css/core/adoption_module_detail.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/adoption_module_detail.js"></script>
+<style type="text/css">
+	#AdoptionModuleDetail .no-naclass{
+		text-align: right;padding-right: 5px;
+	}
+
+	#AdoptionModuleDetail .naclass{
+		text-align: center;padding-right: 5px;
+	}
+	#AdoptionModuleDetail .nav-pills > li.active > a {
+		background: #2890C0;
+		color: #FFF;
+	}
+	#AdoptionModuleDetail .nav-pills > li > a {
+		border-radius: 4px 4px 4px 4px;
+		background: #FFFFFF;
+		border: 1px solid;
+		width: 100%;
+		text-align: center;
+		color: #2890C0;
+		font-size: 11px;
+		padding: 5px;
+	}
+	#AdoptionModuleDetail .section {
+		margin-bottom: 10px;
+	}
+	#AdoptionModuleDetail .section .nav-pills li a{
+		padding: 6px 15px;
+	}
+	#AdoptionModuleDetail .fa-cog{
+		position: absolute;
+	    z-index: 1;
+	    right: 4px;
+	    top: 4px;
+	    color: white;
+	    cursor: pointer;
+    }
+</style>
+<div id="AdoptionModuleDetail" data-bind="with:AdoptionModuleDetail">
+	<div class="row">
+		<div class="col-sm-12 no-padding section">
+			<div class="col-sm-3">
+				<input data-bind="kendoDropDownList:{value:InitiativeId, data:InitiativeList, dataValueField: 'InitiativeID', dataTextField: 'Initiatives', filter:'contains'}" style="width:100%;" />	
+			</div>
+			<div class="col-sm-1 no-padding">
+				<input data-bind="kendoDropDownList:{value:Year, data:YearList}" style="width:80px;" />	
+			</div>
+
+            <!-- <div class="col-sm-4 no-padding">
+            	&nbsp;
+            </div> -->
+			<div class="col-sm-8 text-right">
+				<button class="btn btn-sm btn-success" data-bind="visible: AdoptionModuleDetail.Mode() == 'edit',click:AdoptionModuleDetail.AddMetric"><i class="fa fa-plus"></i> Add Adoption Metric</button>
+				<button class="btn btn-sm btn-danger" data-bind="visible: AdoptionModuleDetail.Mode() == 'edit' && AdoptionModuleDetail.ActiveMetric() !== '',click:AdoptionModuleDetail.RemoveMetric"><i class="fa fa-trash"></i> Remove Adoption Metric</button>
+				<button class="btn btn-sm btn-warning" data-bind="visible: AdoptionModuleDetail.Mode() == 'edit',click:AdoptionModuleDetail.Cancel"><i class="fa fa-undo"></i> Cancel</button>
+        		<button class="btn btn-sm btn-primary" data-bind="visible: AdoptionModuleDetail.Mode() == 'edit',click:AdoptionModuleDetail.Save"><i class="fa fa-floppy-o"></i> Save</button>
+
+        		<button class="btn btn-sm btn-default" data-bind="visible: AdoptionModuleDetail.Mode() == 'view',click:AdoptionModuleDetail.Return"><i class="fa fa-arrow-left"></i> Back</button>
+        		<button class="btn btn-sm btn-warning" data-bind="visible: AdoptionModuleDetail.Mode() == 'view',click:AdoptionModuleDetail.Edit"><i class="fa fa-pencil-square-o"></i> Edit</button>
+			</div>
+		</div>
+		<div class="col-sm-12 section">
+			<ul class="nav nav-pills" data-bind="foreach:MetricData">
+			  <li data-bind="click:AdoptionModuleDetail.ChangeMetric,attr:{'title':Description(),'class':(MetricId()==AdoptionModuleDetail.ActiveMetric()?'active':'')}"><span class="fa fa-cog" data-bind="visible:AdoptionModuleDetail.Mode() == 'edit',click:AdoptionModuleDetail.EditMetric"></span><a href="#" data-bind="html:MetricName()+'&nbsp;&nbsp;&nbsp;'"></a></li>
+			</ul>
+		</div>
+		<div class="col-sm-12 section">
+			<ul id="secondmenu" class="nav nav-tabs no-padding" data-bind="visible: AdoptionModuleDetail.ActualValue()">
+				<li id="ScorecardTabMenu" data-bind="visible: AdoptionModuleDetail.ActualValue(),attr:{class:' no-padding ScorecardTabMenu '+(InputType() == 'Actual'?'active':'')}">
+                    <a id="aScorecardTabMenu" data-toggle="tab"  onclick="AdoptionModuleDetail.InputType('Actual')">Actual</a>
+                </li>
+                <li id="ScorecardTabMenu" data-bind="visible: AdoptionModuleDetail.TotalValue(),attr:{class:' no-padding ScorecardTabMenu '+(InputType() == 'Total'?'active':'')}">
+                    <a id="aScorecardTabMenu" data-toggle="tab"  onclick="AdoptionModuleDetail.InputType('Total')">Total</a>
+                </li>
+                <li id="ScorecardTabMenu" data-bind="visible: AdoptionModuleDetail.RAGValue(),attr:{class:' no-padding ScorecardTabMenu '+(!InputType() == 'RAG'?'active':'')}">
+                    <a id="aScorecardTabMenu" data-toggle="tab"  onclick="AdoptionModuleDetail.InputType('RAG')">RAG</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-12" data-bind="visible:AdoptionModuleDetail.MetricData().length == 0">
+			<div class="no-data-display">No data to display.</div>
+		</div>
+		<div class="col-sm-12" data-bind="visible:ActiveMetric()!==''">
+			<table style="width: 100%">
+	        	<thead>
+	        		<tr>
+		        		<th width="135" class="text-center borderleft1px">Country</th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Jan-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Feb-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Mar-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Apr-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'May-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Jun-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Jul-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Aug-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Sep-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Oct-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Nov-'+Year()"></th>
+		        		<th width="60" class="text-center thmodified borderleft1px" data-bind="html: 'Dec-'+Year()"></th>
+		        	</tr>
+	        	</thead>
+	        	<tbody data-bind="foreach:Data">
+		        	<tr data-bind="visible:(Country()!='TOTAL' && AdoptionModuleDetail.InputType() != 'RAG') || (AdoptionModuleDetail.InputType() == 'RAG')">
+		        		<td class="text-center tdmodified borderleft1px" data-bind="html: Country"></td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Jan">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAJan() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAJan() ? '-' : kendo.toString(Jan, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalJan">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalJan() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalJan() ? '-' : kendo.toString(TotalJan, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGJan, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGJan">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGJan()=='red'?'background:#f74e4e':RAGJan()=='amber'?'background:#ffd24d':RAGJan()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Feb">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAFeb() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAFeb() ? '-' : kendo.toString(Feb, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalFeb">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalFeb() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalFeb() ? '-' : kendo.toString(TotalFeb, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGFeb, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGFeb">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGFeb()=='red'?'background:#f74e4e':RAGFeb()=='amber'?'background:#ffd24d':RAGFeb()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Mar">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAMar() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAMar() ? '-' : kendo.toString(Mar, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalMar">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalMar() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalMar() ? '-' : kendo.toString(TotalMar, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGMar, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGMar">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGMar()=='red'?'background:#f74e4e':RAGMar()=='amber'?'background:#ffd24d':RAGMar()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Apr">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAApr() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAApr() ? '-' : kendo.toString(Apr, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalApr">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalApr() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalApr() ? '-' : kendo.toString(TotalApr, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGApr, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGApr">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGApr()=='red'?'background:#f74e4e':RAGApr()=='amber'?'background:#ffd24d':RAGApr()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: May">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAMay() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAMay() ? '-' : kendo.toString(May, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalMay">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalMay() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalMay() ? '-' : kendo.toString(TotalMay, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGMay, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGMay">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGMay()=='red'?'background:#f74e4e':RAGMay()=='amber'?'background:#ffd24d':RAGMay()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Jun">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAJun() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAJun() ? '-' : kendo.toString(Jun, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalJun">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalJun() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalJun() ? '-' : kendo.toString(TotalJun, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGJun, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGJun">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGJun()=='red'?'background:#f74e4e':RAGJun()=='amber'?'background:#ffd24d':RAGJun()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Jul">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAJul() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAJul() ? '-' : kendo.toString(Jul, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalJul">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalJul() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalJul() ? '-' : kendo.toString(TotalJul, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGJul, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGJul">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGJul()=='red'?'background:#f74e4e':RAGJul()=='amber'?'background:#ffd24d':RAGJul()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Aug">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAAug() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAAug() ? '-' : kendo.toString(Aug, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalAug">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalAug() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalAug() ? '-' : kendo.toString(TotalAug, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGAug, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGAug">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGAug()=='red'?'background:#f74e4e':RAGAug()=='amber'?'background:#ffd24d':RAGAug()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Sep">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NASep() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NASep() ? '-' : kendo.toString(Sep, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalSep">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalSep() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalSep() ? '-' : kendo.toString(TotalSep, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGSep, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGSep">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGSep()=='red'?'background:#f74e4e':RAGSep()=='amber'?'background:#ffd24d':RAGSep()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Oct">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NAOct() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NAOct() ? '-' : kendo.toString(Oct, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalOct">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalOct() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalOct() ? '-' : kendo.toString(TotalOct, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGOct, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGOct">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGOct()=='red'?'background:#f74e4e':RAGOct()=='amber'?'background:#ffd24d':RAGOct()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Nov">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NANov() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NANov() ? '-' : kendo.toString(Nov, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalNov">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalNov() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalNov() ? '-' : kendo.toString(TotalNov, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGNov, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGNov">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGNov()=='red'?'background:#f74e4e':RAGNov()=='amber'?'background:#ffd24d':RAGNov()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>
+		        		<td class="text-center tdmodified borderleft1px">
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: Dec">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Actual' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NADec() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NADec() ? '-' : kendo.toString(Dec, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<input class="input-style" data-bind="value: TotalDec">
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'Total' && AdoptionModuleDetail.Mode() == 'view'" data-bind="attr:{class: NATotalDec() ? 'naclass' : 'no-naclass' }">
+		        				<span data-bind="html: NATotalDec() ? '-' : kendo.toString(TotalDec, 'n1')"></span>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'edit'">
+		        				<!-- <input data-bind="kendoDropDownList:{value:RAGDec, data:$parent.OptionalList, dataTextField:'Text', dataValueField:'Id'}"> -->
+		        				<select class="form-control fc-modified-1" data-bind="value: RAGDec">
+			                        <option value="">RAG</option>
+			                        <option value="amber">AMBER</option>
+			                        <option value="green">GREEN</option>
+			                        <option value="red">RED</option>
+			                    </select>
+		        			</div>
+
+		        			<div data-bind="visible: AdoptionModuleDetail.InputType() == 'RAG' && AdoptionModuleDetail.Mode() == 'view'">
+		        				<div class="color-div" data-bind="text:'&nbsp;',attr:{'style':(RAGDec()=='red'?'background:#f74e4e':RAGDec()=='amber'?'background:#ffd24d':RAGDec()=='green'?'background:#6ac17b':'background:#f2f2f2')
+			                    }"></div>
+		        			</div>
+		        		</td>	        		
+		        	</tr>
+	        	</tbody>
+	        </table>
+		</div>
+	</div>
+
+
+	<!-- Start Modal -->
+	<div id="adptionmetric-form" class="modal fade" role="dialog">
+	  <div class="modal-dialog" style="width: 600px;">
+	    <!-- Modal content-->
+	    <div class="modal-content" id="form">
+			<div class="modal-header" style="padding: 10px 15px;">
+				<h5 class="modal-title">Adoption Metric Form</h5>
+			</div>
+	      <div class="modal-body" data-bind="with:MetricForm">
+	        <div class="row stylingrow">
+	        	<div class="col-sm-8">
+					<div class="row">
+						<label class="col-sm-12">Metric Name</label>
+						<div class="col-sm-12">
+							<input required id="MetricName" name="MetricName" data-bind="value:MetricName" class="input-sm form-control" placeholder="Input Metric Name">
+						</div>
+					</div>
+	        	</div>
+	        	<div class="col-sm-4">
+	        		<div class="row">
+						<label class="col-sm-12">Metric Denomination</label>
+						<div class="col-sm-12">
+							<input id="AdoptionScoreDenomination" name="AdoptionScoreDenomination" data-bind="kendoDropDownList:{value:Denomination, data:AdoptionModuleDetail.MetricsTypeList, dataValueField: 'value', dataTextField: 'name', optionLabel:'Select..'}"/>
+						</div>
+					</div>
+	        	</div>
+	        </div>
+	        <div class="row stylingrow">
+	         	<label class="col-sm-12">Select Additional Value Types</label>
+	        	<div class="col-sm-12">
+					<div class="row">
+						<div class="col-sm-4 ">
+							<div class="custombox white"><span>Actual (default)</span></div>
+						</div>
+						<div class="col-sm-4 ">
+							<div class="custombox">
+								<span>Total</span> 
+								<!-- <input type="checkbox" data-bind="checked:TotalValue" style="margin:0 !important;"> -->
+								<input id="TotalValue" type="checkbox" data-bind="checked: TotalValue" data-size="mini" data-on-text="&nbsp;&nbsp;&nbsp;" data-off-text="&nbsp;&nbsp;&nbsp;" switch="on">
+							</div>
+						</div>
+						<div class="col-sm-4 ">
+							<div class="custombox">
+								<span>RAG</span> 
+								<!-- <input type="checkbox" data-bind="checked:RAGValue" style="margin:0 !important;"> -->
+								<input id="RAGValue" type="checkbox" data-bind="checked: RAGValue" data-size="mini" data-on-text="&nbsp;&nbsp;&nbsp;" data-off-text="&nbsp;&nbsp;&nbsp;" switch="on">
+							</div>
+						</div>
+					</div>
+	        	</div>
+	        </div>
+	        <div class="row">
+	        	<label class="col-sm-12">Description</label>
+	        	<div class="col-sm-12">
+	        		<textarea data-bind="value:Description" class="input-sm form-control"></textarea>
+	        	</div>
+	        </div>
+	      </div>
+	      <div class="modal-footer text-center">
+	        <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+	        &nbsp;
+	        <button type="button" class="btn btn-sm btn-primary" onclick="AdoptionModuleDetail.SaveMetric();">Confirm</button>
+	      </div>
+	    </div>
+
+	  </div>
+	</div>
+</div>
+<style type="text/css">
+	#adptionmetric-form .stylingrow{
+		padding-bottom: 15px !important;
+	}
+	#adptionmetric-form .custombox{
+		height: 30px;
+		background: #E7E6E6;
+		padding: 6px;
+		border: 1px solid #D9D9D9;
+		line-height: 1.5;
+    	border-radius: 3px;
+	}
+	#adptionmetric-form .bootstrap-switch{
+		height: auto !important;
+		position: absolute !important;
+	    right: 19px !important;
+	    top: 4px !important;
+	    border-radius: 10px !important;
+	}
+	#adptionmetric-form .bootstrap-switch-handle-off{
+		background: rgb(109,110,113) !important;
+		color: white !important;
+	}
+	.white{
+		background: white !important;
+	}
+</style>
+<script type="text/javascript">
+	setTimeout(function() {
+        $("#TotalValue").bootstrapSwitch();
+        $('#TotalValue').on('switchChange.bootstrapSwitch', function(event, state) {
+          AdoptionModuleDetail.MetricForm.TotalValue(state)
+        });
+        $("#RAGValue").bootstrapSwitch();
+        $('#RAGValue').on('switchChange.bootstrapSwitch', function(event, state) {
+          AdoptionModuleDetail.MetricForm.RAGValue(state)
+        });
+    }, 300);
+</script>

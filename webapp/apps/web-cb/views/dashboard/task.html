@@ -1,0 +1,217 @@
+<script src="/web-cb/static/core/task.js"></script> 
+<!-- Ucik Edit -->
+<style type="text/css">
+   #Task .viewdata{
+      width: 500px;
+   }
+   #Task .viewdata{
+      width: 500px;
+   }
+   #Task .viewdata .modal-header{
+      padding: 15px 15px 5px 15px;
+   }
+   #Task .viewdata .modal-title{
+      color: #2890C0;
+      font-weight: bold;
+   }
+   #Task .viewdata .date-wrapper label{
+      font-weight: normal;
+   }
+   #Task .viewdata .data-list .row{
+      margin-bottom: 10px;
+   }
+   #Task .viewdata .data-list label{
+      font-weight: normal;
+      color: #005C84;
+      margin: 0px;
+      font-weight: bold;
+      font-size: 11px;
+   }
+   #Task .input-image{
+       height: 15px;
+       float: left;
+       margin-right: 5px;
+       margin-top: 0px;
+   }
+   #Task .input-image img{
+      height: 100%;
+   }
+</style>
+<div class="modal fade modal-fade-in-scale-up modalInput" id="Task" aria-hidden="true"  data-backdrop="static" data-bind="with:Task">
+   <div id="Task-form" class="modal-dialog modal-lg" data-bind="visible:Mode()!==''">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+            </button>
+            <h4 class="modal-title">Task Form</h4>
+         </div>
+         <div class="modal-body form-input-list" data-bind="visible: Phase() == '1'">
+            <div class="row text-center">
+               <div class="col-sm-2"></div>
+               <div class="col-sm-3">Scorecard Category</div>
+               <div class="col-sm-2">Business Driver</div>
+               <div class="col-sm-3">LifeCycle Stage</div>
+                <div class="col-sm-2"></div>
+            </div>
+            <div class="row">
+               <div class="col-sm-12 mapping-table" data-bind="foreach:Map">
+                  <div class="row">
+                   <div class="col-sm-2"></div>
+                     
+                     <div class="col-sm-3">
+                        <input data-bind="kendoDropDownList:{value:SCCategory, data:$parent.SCCategoryList, dataValueField: 'Idx', dataTextField: 'Name', optionLabel:'Select..'}"/>
+                     </div>
+                     <div class="col-sm-2">
+                        <input data-bind="kendoDropDownList:{value:BusinessDriver, data:BDList, dataValueField: 'Idx', dataTextField: 'Name', optionLabel:'Select..'}"/>
+                     </div>
+                     <div class="col-sm-3">
+                        <input data-bind="kendoDropDownList:{value:LifeCycle, data:$parent.LifeCycleList, dataValueField: 'Id', dataTextField: 'Name', optionLabel:'Select..'}"/>
+                     </div>
+                      <div class="col-sm-2"></div>
+                  </div>
+               </div>
+               <div class="col-sm-9 text-right" data-bind="visible:Mode()!=='edit'">
+                  <button class="btn btn-sm btn-info" data-bind="click:NewMap"><i class="fa fa-plus"></i></button>
+               </div>
+            </div>
+         </div>
+         <div class="modal-footer" data-bind="visible:Phase() == '1'">
+            <div class="text-right">
+               <button class="btn btn-sm btn-warning" data-dismiss="modal">Cancel</button>
+               <button class="btn btn-sm btn-primary" onclick="Task.Phase(2)">  Next</button>
+            </div>
+         </div>
+         <div class="modal-body form-input" data-bind="visible: Phase() == '2', with:FormValue">
+            <div class="row">
+               <label class="col-sm-2">
+               Task Name
+               </label>
+               <div class="col-sm-4">
+                  <input class="input-sm form-control" data-bind="value:Name,disable: Task.Mode() == 'show'" placeholder="Input Task Name">
+               </div>
+               <label class="col-sm-2">
+               Task Owner
+               </label>
+               <div class="col-sm-4">
+                  <input class="input-sm form-control" data-bind="value:Owner,disable: Task.Mode() == 'show'" placeholder="Input Task owner">
+               </div>
+            </div>
+            <div class="row">
+               <label class="col-sm-2">
+               Task Statement
+               </label>
+               <div class="col-sm-12">
+                  <textarea class="form-control" rows="3" data-bind="value:Statement,disable: Task.Mode() == 'show'"></textarea>
+               </div>
+            </div>
+            <div class="row">
+               <label class="col-sm-2">
+               Task Description
+               </label>
+               <div class="col-sm-12">
+                  <textarea class="form-control" rows="3" data-bind="value:Description,disable: Task.Mode() == 'show'"></textarea>
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-sm-2">
+                <div class="form-group">
+                   <input type="checkbox" data-bind="checked: IsGlobal">&nbsp;Global
+                </div>
+               </div>
+               <div class="col-sm-4">
+                <div class="form-group" data-bind="visible:IsGlobal() == false,">
+                   <select data-bind="kendoMultiSelect:{value: Region, data:$parent.RegionList, dataValueField: '_id', dataTextField: '_id', optionLabel:'Region',change:$parent.GetCountryDS, placeholder:'Region'}" class="region" name="pclassval" validationMessage=""></select>           
+                </div>
+               </div>
+               <div class="col-sm-4">
+                <div class="form-group" data-bind="visible:IsGlobal() == false,">
+                   <select data-bind="kendoMultiSelect:{value: Country, data:$parent.CountryList, dataValueField: '_id', dataTextField: '_id', optionLabel:'Country', placeholder:'Country'}" class="country" name="pclassval" validationMessage=""></select>           
+                </div>
+               </div>
+            </div>
+         </div>
+         <div class="modal-footer text-right" data-bind="visible:Phase() == '2'">
+            <div class="text-right">
+               <button class="btn btn-sm btn-default" onclick="Task.Phase(1)" data-bind="visible: Task.Mode() != 'show'"><span class="fa fa-arrow-left"></span> Back</button>
+               <button class="btn btn-sm btn-warning" data-dismiss="modal">Cancel</button>
+               <button class="btn btn-sm btn-primary" data-bind="click:Task.Save, visible: Task.Mode() != 'show'" ><span class="fa fa-floppy-o"></span> Save</button>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div id="task-data" class="modal-dialog modal-lg viewdata" data-bind="visible:Mode()===''">
+      <div class="modal-content" data-bind="with:SelectedDataMarkTextByKeyword">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title" data-bind="html:Name"></h4>
+            <div id="lcPosition">
+               <table class="table margin-0" id="crumbs" data-bind="attr:{style:'width:'+'450px'}">
+                  <thead>
+                     <tr data-bind="foreach:c.DataSource().Data.MasterLiveCircle">
+                        <th class="redips-mark" style="display: none;" data-bind="attr:{style:'background:'+c.ColorList()[$index()]+';'}, visible: Task.SelectedData().LifeCycleId == Id" >
+                           <span>
+                              <div class="display-inline" data-bind="visible: Task.SelectedData().LifeCycleId == Id, html: Name"></div>
+                              <div class="next-arrow" data-bind="attr:{style:'border-left: 13px solid '+c.ColorList()[$index()]+''}"></div>
+                           </span>  
+                        </th>
+                        <th class="redips-mark" data-bind="attr:{style:'background:#E6E7E8;'}, visible: Task.SelectedData().LifeCycleId != Id" >
+                           <span>
+                              <div class="next-arrow" data-bind="attr:{style:'border-left: 13px solid #E6E7E8'}"></div>
+                           </span>  
+                        </th>
+                     </tr>
+                  </thead>
+
+               </table>
+            </div>
+         </div>
+         <div class="modal-body data-list" > 
+            <div class="row">
+               <label class="col-sm-12">Task Name</label>
+               <div class="col-sm-12" data-bind="html:Name"></div>
+            </div>
+            <div class="row">
+               <label class="col-sm-12">Task Owner</label>
+               <div class="col-sm-12" data-bind="html:Owner"></div>
+            </div>
+            <div class="row">
+               <label class="col-sm-12">Task Statement</label>
+               <div class="col-sm-12" data-bind="html:Statement"></div>
+            </div>
+            <div class="row">
+               <label class="col-sm-12">Task Description</label>
+               <div class="col-sm-12" data-bind="html:Description"></div>
+            </div>
+            <!-- <div class="row">
+               <div class="col-sm-2">
+                <div class="form-group">
+                   <input type="checkbox" data-bind="checked: IsGlobal">&nbsp;Global
+                </div>
+               </div>
+               <div class="col-sm-4">
+                <div class="form-group" data-bind="visible:IsGlobal() == false,">
+                   <select data-bind="kendoMultiSelect:{value: Region, data:$parent.RegionList, dataValueField: '_id', dataTextField: '_id', optionLabel:'Region',change:$parent.GetCountryDS, placeholder:'Region'}" class="region" name="pclassval" validationMessage=""></select>           
+                </div>
+               </div>
+               <div class="col-sm-4">
+                <div class="form-group" data-bind="visible:IsGlobal() == false,">
+                   <select data-bind="kendoMultiSelect:{value: Country, data:$parent.CountryList, dataValueField: '_id', dataTextField: '_id', optionLabel:'Country', placeholder:'Country'}" class="country" name="pclassval" validationMessage=""></select>           
+                </div>
+               </div>
+            </div> -->
+         </div>
+         <div class="modal-footer">
+            <div class="row">
+               <div class="col-sm-12 text-right">
+                  <button class="btn btn-sm btn-danger" data-bind="click:Task.Remove">Remove</button>
+                  <button class="btn btn-sm btn-default" data-bind="click:Task.Edit">Edit</button>
+                  <button class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+<!-- End Ucik Edit -->

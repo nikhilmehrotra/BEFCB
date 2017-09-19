@@ -1,0 +1,12 @@
+<script>viewModel.title('Dashboard')</script>
+
+<!-- content -->
+
+<script src="{{ NoCacheUrl "/main/static/core/js/dashboard-index.js" }}"></script>
+<link rel="stylesheet" href="{{ NoCacheUrl "/main/static/core/css/dashboard-index.css" }}">
+
+<div class="col-md-12" data-bind="foreach: dashboard.dataApplication">
+    <a class="box" data-bind="attr: { href: ('/' + ID + LandingURL) }">
+        <div data-bind="text: ($.trim(Name) == '' ? ID : Name)"></div>
+    </a>
+</div>

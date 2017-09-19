@@ -1,0 +1,123 @@
+package controllers
+
+import (
+	"eaciit/scb-apps/webapp/apps/web-cb/helper"
+	. "eaciit/scb-apps/webapp/apps/web-cb/models"
+	// "github.com/eaciit/dbox"
+	"github.com/eaciit/knot/knot.v1"
+	tk "github.com/eaciit/toolkit"
+	// "gopkg.in/mgo.v2/bson"
+	xl "github.com/tealeg/xlsx"
+	// "strconv"
+	"strings"
+	// "fmt"
+	"time"
+)
+
+type InitiativeDataController struct {
+	*BaseController
+}
+
+const timeFormat = "2006-01-02"
+
+func (c *InitiativeDataController) Populate(k *knot.WebContext) interface{} {
+	var path string
+	config := helper.ReadConfig()
+	path = config["iSourcePath"]
+
+	fileName := "BEF_Core_Project_Extract_28-Dec-2016_5.17.16_PM.xlsx"
+	filePath := path + "/" + fileName
+
+	xlFile, err := xl.OpenFile(filePath)
+	if err != nil {
+		tk.Println("Eror")
+		return nil
+	}
+	// var sum int
+	for _, sheet := range xlFile.Sheets {
+		for i, row := range sheet.Rows {
+
+			if i == 0 {
+				continue
+			}
+			mdl := NewInitiativeDataModel()
+			mdl.PortfolioID, _ = row.Cells[0].String()
+			mdl.PortfolioName, _ = row.Cells[1].String()
+			mdl.PortfolioPMOName, _ = row.Cells[2].String()
+			mdl.PortfolioPMOBankID, _ = row.Cells[3].String()
+			mdl.ProgramID, _ = row.Cells[4].String()
+			mdl.ProgramName, _ = row.Cells[5].String()
+			mdl.ProgramManagerName, _ = row.Cells[6].String()
+			mdl.ProgramManagerBankID, _ = row.Cells[7].String()
+			mdl.ProgramSponsorName, _ = row.Cells[8].String()
+			mdl.ProgramSponsorBankID, _ = row.Cells[9].String()
+			mdl.ProgramAEName, _ = row.Cells[10].String()
+			mdl.ProgramAEBankID, _ = row.Cells[11].String()
+			mdl.ProgramPMOName, _ = row.Cells[12].String()
+			mdl.ProgramPMOBankID, _ = row.Cells[13].String()
+			mdl.ProjectInternalID, _ = row.Cells[14].String()
+			mdl.ProjectID, _ = row.Cells[15].String()
+			mdl.ProjectName, _ = row.Cells[16].String()
+			mdl.ProjectManagerName, _ = row.Cells[17].String()
+			mdl.ProjectManagerBankID, _ = row.Cells[18].String()
+			mdl.ProjectAEName, _ = row.Cells[19].String()
+			mdl.ProjectAEBankID, _ = row.Cells[20].String()
+			mdl.ProjectSponsorName, _ = row.Cells[21].String()
+			mdl.ProjectSponsorBankID, _ = row.Cells[22].String()
+			mdl.ProjectPMOName, _ = row.Cells[23].String()
+			mdl.ProjectPMOBankID, _ = row.Cells[24].String()
+			mdl.ProjectClasification, _ = row.Cells[25].String()
+			mdl.ProjectDriver, _ = row.Cells[26].String()
+			mdl.ProjectCategory, _ = row.Cells[27].String()
+			mdl.ProjectType, _ = row.Cells[28].String()
+
+			//timeProjectStartDate
+			strProjectStartDate, _ := row.Cells[29].String()
+			splitted := strings.Split(strProjectStartDate, " ")
+			mdl.ProjectStartDate, _ = time.Parse(timeFormat, splitted[0])
+
+			//timeProjectFinishDate
+			strProjectFinishDate, _ := row.Cells[30].String()
+			splitted1 := strings.Split(strProjectFinishDate, " ")
+			mdl.ProjectFinishDate, _ = time.Parse(timeFormat, splitted1[0])
+
+			//timeBaselineStartDate
+			strBaselineStartDate, _ := row.Cells[31].String()
+			splitted2 := strings.Split(strBaselineStartDate, " ")
+			mdl.BaselineStartDate, _ = time.Parse(timeFormat, splitted2[0])
+
+			//timeBaselineFinishDate
+			strBaselineFinishDate, _ := row.Cells[32].String()
+			splitted3 := strings.Split(strBaselineFinishDate, " ")
+			mdl.BaselineFinishDate, _ = time.Parse(timeFormat, splitted3[0])
+
+			mdl.ProjectFinancialDepartment, _ = row.Cells[33].String()
+			mdl.ProjectFinancialLocation, _ = row.Cells[34].String()
+			mdl.ProjectObjective, _ = row.Cells[35].String()
+			mdl.TotalCapexApproved, _ = row.Cells[36].Float()
+			mdl.TotalOpexApproved, _ = row.Cells[37].Float()
+			mdl.TotalCapexSpend, _ = row.Cells[38].Float()
+			mdl.TotalOpexSpend, _ = row.Cells[39].Float()
+			mdl.OpporProbStatement, _ = row.Cells[40].String()
+			mdl.ProposedSolution, _ = row.Cells[41].String()
+			mdl.Assumptions, _ = row.Cells[42].String()
+			mdl.KeyDeliverables, _ = row.Cells[43].String()
+			mdl.OverallStatus, _ = row.Cells[44].String()
+			mdl.ScheduleStatus, _ = row.Cells[45].String()
+			mdl.SCBBenefitStatus, _ = row.Cells[46].String()
+			mdl.CostStatus, _ = row.Cells[47].String()
+
+			e := c.Ctx.Insert(mdl)
+			if e != nil {
+				// return helper.CreateResult(false, nil, e.Error())
+				tk.Println("Insert Errroorr on row :", i)
+			}
+
+			// return helper.CreateResult(true, nil, "Insert Success")
+			// tk.Println(text)
+		}
+	}
+	// tk.Println(sum)
+	return nil
+
+}

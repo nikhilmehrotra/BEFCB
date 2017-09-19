@@ -1,0 +1,86 @@
+<style type="text/css">
+   label {
+      color:#009FDA;
+      font-weight: normal;
+   }
+</style>
+<div class="gridAccess" data-bind="with:adm">
+   <div class="col-sm-6" data-bind="with:FormValue">
+      <div class="row form-group">
+         <button class="btn btn-sm btn-success" data-bind="visible:adm.btnAddMenu,click:adm.addMenu">
+         <i class="fa fa-plus"></i> Add
+         </button>
+         <button id="btnCancelAccess" class="btn btn-sm btn-warning" data-bind="visible:adm.btnSaveMenu,click:adm.cancelMenu" >
+         <i class="fa fa fa-angle-left"></i> Cancel
+         </button>
+         <button id="btnSaveAccess" class="btn btn-sm btn-success" data-bind="visible:adm.btnSaveMenu,click:adm.saveMenu" >
+         <i class="fa fa-save"></i> Save
+         </button>
+      </div>
+      <div class="row form-group">
+         <label class="col-md-4">ID</label>
+         <div class="col-md-8">
+            <input id="admid" type="text" class="input-sm form-control" placeholder="ID" data-bind="value:ID">
+         </div>
+      </div>
+      <div class="row form-group">
+         <label class="col-md-4">Title</label>
+         <div class="col-md-8">
+            <input id="admtitle" type="text" class="input-sm form-control" placeholder="Title" data-bind="value:Title">
+         </div>
+      </div>
+      <div class="row form-group">
+         <label class="col-md-4">Parent</label>
+         <div class="col-md-8">        
+            <input id="admparent" type="text" class="form-control" data-bind="kendoDropDownList:{value:ParentId, data:adm.listMenu, dataTextField:'title', dataValueField:'Id'}"/>
+         </div>
+      </div>
+      <div class="row form-group">
+         <label class="col-md-4">Url</label>
+         <div class="col-md-8">
+            <input id="admurl" type="text" class="input-sm form-control" placeholder="Url" data-bind="value:Url">
+         </div>
+      </div>
+      <div class="row form-group">
+         <label class="col-md-4">Index</label>
+         <div class="col-md-8">
+            <input id="admindex" type="number" class="input-sm form-control" placeholder="0" data-bind="value:Index">
+         </div>
+      </div>
+      <div class="row form-group">
+         <label class="col-md-4">Group</label>
+         <div class="col-md-8">
+            <input id="admgroup" data-bind="kendoDropDownList:{value:Group1, data:adm.listGroup, dataValueField: '_id', dataTextField: 'title', optionLabel:'Select..'}" style="width: 100%"/>
+         </div>
+      </div>
+      <div class="row form-group">
+         <label class="col-md-4">Enable</label>
+         <div class="col-md-8">
+            <input id="checkEnable" type="checkbox" placeholder="Enable" data-bind="value:Enable">
+         </div>
+      </div>
+   </div>
+   <div class="col-sm-6">
+      <div class="row form-group align-right">
+         &nbsp;
+         <button class="btn btn-sm btn-success" data-bind="visible:adm.btnEditMenu,click:adm.editMenu">
+         <i class="fa fa-pencil-square"></i> Edit
+         </button>
+         <button class="btn btn-sm btn-danger" data-bind="visible:adm.btnDeleteMenu,click:adm.deleteMenu" >
+         <i class="fa fa-save"></i> Delete
+         </button>
+      </div>
+      <div id="listMenu" class="body">
+         <form class="form-horizontal">
+            <script id="menulist-template" type="text/kendo-ui-template">
+               <input type="hidden" value="#:item._id#" />
+               <span class="glyphicon glyphicon-credit-card"></span>&nbsp;#: item.title #
+            </script>
+            <div>
+               <ul id="menu-list"></ul>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>
+

@@ -1,0 +1,173 @@
+<style type="text/css">
+  .green-outside{
+    background-color: #6AC17B;
+    height: 50px;
+    border-radius: 8px;
+    width: 100%;
+  }
+  .green-inside{
+    background-color: #2F7528;
+    height: 50px;
+    border-radius: 8px;
+    margin-top: -50px;
+    width: 80%;
+  }
+  .title-number{
+    font-size: 19px;
+    margin: -50px 8px 3px 8px;
+      color: #fff;
+      font-weight: bold;
+  }
+  .title-desc{
+    font-size: 9px;
+    margin-left: 8px;
+      color: #fff;
+      line-height: 9px;
+      margin-right: 8px;
+  }
+
+  .mm {
+    background-color: #6AC17B;
+    height: 50px;
+    border-radius: 8px;
+    width: 30%;
+    /*border: 1px solid red;*/
+    position: absolute;
+    z-index: 1;
+    right: 0px;
+    color: white;
+  }
+
+  .ww {
+    background-color: #2F7528;
+    height: 50px;
+    border-radius: 8px;
+    width: 80%;
+    /*border: 1px solid blue;*/
+    position: absolute;
+    z-index: 2;
+    left: 0px;
+    color: white;
+  }
+
+</style>
+<script type="text/javascript">
+  model.mm = ko.observable('');
+  model.ww = ko.observable('100');
+</script>
+
+<nav class="" data-bind="">
+  <button class="btn btn-sm btn btn-primary mgTop15" data-bind="visible:adm.searchGrid(), click: function(){ adm.searchGrid(false) }">
+      <span class="glyphicon glyphicon-search"></span>                    
+  </button>
+  <button class="btn btn-sm btn btn-default mgTop15" data-bind="visible:!adm.searchGrid(), click: function(){ adm.searchGrid(true) }">
+      <span class="glyphicon glyphicon-search"></span>                    
+  </button>
+  <div class="btn-group" role="group">
+      <button class="btn btn-sm btn-primary mgTop15" data-bind="visible: !adm.addUser()">
+          <span class="glyphicon glyphicon-refresh"></span> Refresh
+      </button>
+      <button class="btn btn-sm btn-primary mgTop15" data-bind="visible: adm.addUser(), click: function(){ adm.addUser(false) }">
+          <span class="glyphicon glyphicon-chevron-left"></span> Back
+      </button>
+      <button class="btn btn-sm btn-primary mgTop15" data-bind="click: function(){ adm.addUser(true) }, visible: !adm.addUser()">
+          <span class="glyphicon glyphicon-plus"></span> Add
+      </button>
+      <button class="btn btn-sm btn-success mgTop15" data-bind="visible: adm.addUser()">
+          <span class="glyphicon glyphicon-save"></span> save
+      </button>
+      <button class="btn btn-sm btn-danger mgTop15" data-bind="visible: !adm.addUser()">
+          <span class="glyphicon glyphicon-remove"></span> Delete
+      </button>
+  </div>
+</nav>
+<br>
+
+<div class="gridUser" data-bind="visible:!adm.addUser()">
+ <div class="k-header k-grid-toolbar grid-table-action headerColorGrid">
+    <div class="col-md-8 align-left no-margin no-padding" >
+      <button class="k-button k-button-icontext k-grid-excel" id = "export-parent" class=" ">
+        <span class="k-icon k-i-excel" ></span>&nbsp;Export
+      </button>
+    </div>
+  </div>
+  <div class="grid" id="gridUserAdministrator"></div>
+</div>
+
+<div class="col-md-3" id="cefs-outside">
+  <div class="green-outside">&nbsp;</div>
+  <div class="green-inside" id="cefs-inside">&nbsp;</div>
+  <p class="title-number">
+    <span id="cefs-title"></span>
+  </p>
+  <p class="title-desc" id="cefs-desc"># of CEFs</p>
+</div> 
+
+<div class="col-md-3" id="cefs-outside">
+  <div class="mm">&nbsp;
+    <span style="float:right" data-bind="text:model.mm"></span>
+  </div>
+  <div class="ww" >&nbsp;
+    <span data-bind="text:model.ww">ww</span>
+  </div>
+</div> 
+
+<div class="addUserAdministrator" data-bind="visible:adm.addUser()">
+  <!-- <div class="col-md-12"> -->
+    <div class="panel">
+      <div class="panel-heading">
+        <h1 class="panel-title blue-color">Create New User</h1>
+      </div>
+      <div class="panel-body">
+        <div class="form-group col-md-12">
+          <label class="col-md-2 blue-color">Login Id</label>
+          <div class="col-md-7">
+            <input required pattern="[a-zA-Z0-9_]+" data-pattern-msg="Only alphabet, number, and underscore allowed for FullName" type="text" class="form-control input-sm" name="loginId" placeholder="Type the login id" data-bind="">
+            <span class="k-invalid-msg" data-for="loginId"></span>
+          </div>  
+        </div>
+        <div class="form-group col-md-12">
+          <label class="col-md-2 blue-color">Full Name</label>
+          <div class="col-md-7">
+            <input required pattern="[a-zA-Z0-9_]+" data-pattern-msg="Only alphabet, number, and underscore allowed for FullName" type="text" class="form-control input-sm" name="FullName" placeholder="Type the FullName Here" data-bind="">
+            <span class="k-invalid-msg" data-for="FullName"></span>
+          </div>  
+        </div>
+        <div class="form-group col-md-12">
+          <label class="col-md-2 blue-color">Email</label>
+          <div class="col-md-7">
+            <input required pattern="[a-zA-Z0-9_]+" data-pattern-msg="Only alphabet, number, and underscore allowed for FullName" type="text" class="form-control input-sm" name="Email" placeholder="Type the Email Here" data-bind="">
+            <span class="k-invalid-msg" data-for="Email"></span>
+          </div>  
+        </div>
+        <div class="form-group col-md-12">
+          <label class="col-md-2 blue-color">Password</label>
+          <div class="col-md-7">
+            <input required pattern="[a-zA-Z0-9_]+" data-pattern-msg="Only alphabet, number, and underscore allowed for FullName" type="text" class="form-control input-sm" name="Password" placeholder="Type the Password Here" data-bind="">
+            <span class="k-invalid-msg" data-for="Password"></span>
+          </div>  
+        </div>
+      </div>  
+
+    </div>  
+  <!-- </div> -->
+</div>
+
+<script type="text/javascript">
+  $(".mm").hover(
+    function(){
+    // console.log("mm");
+    $(this).css("width", "80%");
+    $(this).css("z-index", "2");
+    $(".ww").css("z-index", "1");
+    model.mm('90');
+    model.ww('')
+  }, function(){
+    $(this).css("width", "30%");  
+    $(this).css("z-index", "1");
+    $(".ww").css("z-index", "2");
+    model.mm('');
+    model.ww('100');
+  })
+      
+</script>

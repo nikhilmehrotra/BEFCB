@@ -1,0 +1,1909 @@
+<link href="/web-cb/static/css/core/scorecard.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<script type="text/javascript">
+	var Scorecard = {
+		ProcessingBMData:ko.observable(false),
+		Processing: ko.observable(false),
+		DataSource: ko.observableArray([]),
+		Data: ko.observableArray([]),
+		BusinessDriverList: ko.observableArray(),
+		IsEditing: ko.observable(false),
+		DataMetrics:ko.observableArray([]),
+		IsMulti: ko.observable(false),
+		metric: ko.observable(""),
+		datemetric: ko.observable(new Date()),
+		DownloadOption:ko.observable(""),
+		RegionalData:ko.observableArray([]),	
+		CountryData:ko.observableArray([]),
+		ProcessingUploadData:ko.observable(false)
+	}
+	Scorecard.ExtraColumnTotal = ko.computed(function(){
+		return Scorecard.RegionalData().length+Scorecard.CountryData().length;
+	})
+	Scorecard.ExtraColumnWidth = ko.computed(function(){
+		var width = 100;
+		var TotalExtraColumn = Scorecard.RegionalData().length+Scorecard.CountryData().length;
+		if(TotalExtraColumn===0){
+			return 0;
+		}else{
+			return width/TotalExtraColumn;
+		}
+	})
+	Scorecard.ToggleEdit = function(obj) {
+		obj.IsEdit(!obj.IsEdit());
+	}
+	Scorecard.GetBMColor = function(val) {
+		var result = "";
+		result += "background:";
+		switch (val) {
+			case "red":
+				result += "#f74e4e";
+				break;
+			case "amber":
+				result += "#ffd24d";
+				break;
+			case "green":
+				result += "#6ac17b";
+				break;
+			default:
+				result += "#b7b7b7";
+				break;
+		}
+		result += ";";
+		return result;
+	}
+
+	function SCDataSource(d) {
+		d.IsEdit = false;
+		d.BusinessMetric = _.sortBy(d.BusinessMetric.map(function (each, index) {
+			return each
+		}), ['OrderIndex', 'Description'])
+
+		var data = ko.mapping.fromJS(d);
+		for (var i in data.BusinessMetric()) {
+			data.BusinessMetric()[i].BDId.subscribe(function(newVal) {
+				Scorecard.SavePosition(data.Id(), newVal);
+			});
+		}
+		return data;
+	}
+
+	function BM(d) {
+		if (d === undefined) {
+			d = {
+				DataPoint: "",
+				MetricType: "",
+				Description: "",
+				Display: "green",
+				ValueType: 1,
+				TargetPeriod: new Date(new Date(Now.setDate(1)).setMonth(Now.getMonth() + 1)),
+				TargetValue: 0,
+				BaseLinePeriod: new Date(new Date(Now.setDate(1)).setMonth(Now.getMonth() - 1)),
+				BaseLineValue: 0,
+				CurrentPeriod: new Date(),
+				CurrentValue: 0,
+				BDId: "",
+				MetricDirection:"",
+				DecimalFormat :"",
+				Type:"",
+				NABaseline :false,
+				NAActual :false,
+				NATarget :false,
+				ActualData: [],
+			};
+			// DataPoint      string  ` bson:"DataPoint" , json:"DataPoint" `
+			// MinLiabilities float64 ` bson:"MinLiabilities" , json:"MinLiabilities" `
+			// MaxLiabilities float64 ` bson:"MaxLiabilities" , json:"MaxLiabilities" `
+			// MinPrct        float64 ` bson:"MinPrct" , json:"MinPrct" `
+			// MaxPrct        float64 ` bson:"MaxPrct" , json:"MaxPrct" `
+			// BaseLineValue       float64 ` bson:"BaseLineValue" , json:"BaseLineValue" `
+			// MaxValue       float64 ` bson:"MaxValue" , json:"MaxValue" `
+			// MetricType     string  ` bson:"MetricType" , json:"MetricType" `
+
+			// TargetPeriod time.Time
+			// TargetValue  float64
+			// ActualData   []ActualValue
+		}
+		var obj = ko.mapping.fromJS(d);
+		obj.TargetPeriod.subscribe(function(newval) {
+			if (newval === null || newval === '') {
+				obj.TargetValue(0);
+			}
+		})
+		return obj;
+	}
+	Scorecard.Save = function(obj) {
+		ajaxPost("/web-cb/scorecard/savebd1", {
+			BusinessDriver: ko.mapping.toJS(obj)
+		}, function(res) {
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			}
+			obj.IsEdit(false);
+			c.GetData();
+		})
+	}
+	Scorecard.BMTotal = ko.computed(function() {
+		var data = ko.mapping.toJS(Scorecard.Data());
+		var total = 0;
+		for (var i in data) {
+			total += data[i].BusinessMetric.length;
+		}
+		return total;
+	});
+	Scorecard.BDTotal = ko.computed(function() {
+		var data = ko.mapping.toJS(Scorecard.Data());
+		var total = 0;
+		for (var i in data) {
+			total += data[i].BusinessDriverList.length;
+		}
+		return total;
+	});
+	Scorecard.GetStatusImage = function(obj) {
+		// console.log(obj.MetricDirection())
+		// var previousValue = 0;
+		// var CurrentValue = obj.CurrentValue();
+		// if(CurrentValue===""){
+		// 	CurrentValue = 0;
+		// }
+		var result = "";
+		// var ValueType = obj.ValueType();
+		// previousValue = obj.PreviousValue();
+		// if (CurrentValue == previousValue) {
+		// 	result = "/web-cb/static/img/double-caret.png";
+		// } else if (CurrentValue > previousValue) {
+		// 	if (ValueType != 0) {
+		// 		result += "/web-cb/static/img/up-caret.png";
+		// 	} else {
+		// 		result += "/web-cb/static/img/down-caret.png";
+		// 	}
+		// } else {
+		// 	if (ValueType == 0) {
+		// 		result += "/web-cb/static/img/up-caret.png";
+		// 	} else {
+		// 		result += "/web-cb/static/img/down-caret.png";
+		// 	}
+
+		// }
+
+		if(obj.MetricDirection() == 0){
+			result = "/web-cb/static/img/double-caret.png";
+		} else if(obj.MetricDirection() == 1){
+			result += "/web-cb/static/img/up-caret.png";
+		} else if(obj.MetricDirection() == 2){
+			result += "/web-cb/static/img/down-caret.png";
+		}	
+
+		return result;
+	}
+	// Scorecard.GetStatus = function(obj) {
+	// 	var previousValue = 0;
+	// 	var CurrentPeriod = obj.CurrentPeriod();
+	// 	var BaseLinePeriod = obj.BaseLinePeriod();
+	// 	var startDate = new Date(CurrentPeriod);
+	// 	var endDateMoment = moment(startDate);
+	// 	var compereWith = endDateMoment.add(-1, 'months')._d.toISOString();
+	// 	var dateCompere = moment(compereWith).format('YYYYMMDD');
+	// 	var dateBaseline = moment(new Date(BaseLinePeriod)).format('YYYYMMDD');
+
+
+
+	// 	var CurrentValue = obj.CurrentValue();
+	// 	var ActualData = obj.ActualData();
+
+	// 	var result = "fa ";
+	// 	var ValueType = obj.ValueType();
+	// 	if (dateBaseline == dateCompere) {
+	// 		previousValue = obj.BaseLineValue();
+	// 	} else {
+	// 		var queryResult = Enumerable.From(ActualData)
+	// 			.Where(function(x) {
+	// 				return x.PeriodStr() == dateCompere
+	// 			})
+	// 			.Select(function(x) {
+	// 				return x.Value()
+	// 			})
+	// 			.ToArray();
+
+	// 		if (queryResult.length != 0) {
+	// 			previousValue = queryResult[0];
+	// 		};
+	// 	}
+
+	// 	if (CurrentValue == previousValue) {
+	// 		result += "fa-caret-right curretLeft";
+	// 	} else if (CurrentValue > previousValue) {
+	// 		if (ValueType != 0) {
+	// 			result += "fa-caret-up curretUpHigher";
+	// 		} else {
+	// 			result += "fa-caret-down curretUpLower";
+	// 		}
+	// 	} else {
+	// 		if (ValueType == 0) {
+	// 			result += "fa-caret-up curretUpHigher";
+	// 		} else {
+	// 			result += "fa-caret-down curretDown";
+	// 		}
+
+	// 	}
+
+	// 	return result;
+	// }
+	Scorecard.GetAssignToValue = function(id) {
+		if (id !== undefined && id !== "") {
+			var d = Enumerable.From(Scorecard.BusinessDriverList()).Where("$.Idx === '" + id + "'").FirstOrDefault();
+			if (d !== undefined) {
+				return d.Name;
+			} else {
+				return "-";
+			}
+		} else {
+			return "-";
+		}
+	}
+
+	Scorecard.ConvertValue = function(value, label, MetricType) {
+		var realMetricType = ""
+		if (MetricType == "DOLLAR") {
+			realMetricType = "$";
+			return label + realMetricType + " " + value
+		} else if (MetricType == "PERCENTAGE") {
+			realMetricType = "%";
+			return label + value + " " + realMetricType
+		} else if (MetricType == "NUMERIC") {
+			realMetricType = "";
+			return label + realMetricType + " " + value
+		} else {
+			realMetricType = "";
+			return label + realMetricType + " " + value
+		}
+	}
+
+	Scorecard.ProgressBarLabelleft = function(data) {
+		var BaseLineValue = data.BaseLineValue();
+		var CurrentValue = data.CurrentValue();
+		var TargetValue = data.TargetValue();
+		var MetricType = data.MetricType();
+		var ValueType = data.ValueType();
+
+		var realMetricType = "";
+		var valueLift = "";
+		var ArrayValue = [{
+			text: "B: ",
+			value: BaseLineValue
+		}, {
+			text: "A: ",
+			value: CurrentValue
+		}, {
+			text: "T: ",
+			value: TargetValue
+		}]
+		if (ValueType == 0) {
+			var queryResult = Enumerable.From(ArrayValue)
+				.OrderByDescending(function(x) {
+					return x.value
+				})
+				.ToArray();
+			valueLift = Scorecard.ConvertValue(kendo.toString(queryResult[0].value, "n0"), queryResult[0].text, MetricType);
+			return valueLift;
+		} else {
+			var queryResult = Enumerable.From(ArrayValue)
+				.OrderBy(function(x) {
+					return x.value
+				})
+				.ToArray();
+			valueLift = Scorecard.ConvertValue(kendo.toString(queryResult[0].value, "n0"), queryResult[0].text, MetricType);
+			return valueLift;
+		}
+	}
+
+	Scorecard.ProgressBarLabelRight = function(data) {
+		var BaseLineValue = data.BaseLineValue();
+		var CurrentValue = data.CurrentValue();
+		var TargetValue = data.TargetValue();
+		var MetricType = data.MetricType();
+		var ValueType = data.ValueType();
+
+		var realMetricType = "";
+		var valueRight = "";
+		var ArrayValue = [{
+			text: "B: ",
+			value: BaseLineValue
+		}, {
+			text: "A: ",
+			value: CurrentValue
+		}, {
+			text: "T: ",
+			value: TargetValue
+		}]
+		if (ValueType == 0) {
+			var queryResult = Enumerable.From(ArrayValue)
+				.OrderBy(function(x) {
+					return x.value
+				})
+				.ToArray();
+			valueRight = Scorecard.ConvertValue(kendo.toString(queryResult[0].value, "n0"), queryResult[0].text, MetricType);
+			return valueRight;
+		} else {
+			var queryResult = Enumerable.From(ArrayValue)
+				.OrderByDescending(function(x) {
+					return x.value
+				})
+				.ToArray();
+			valueRight = Scorecard.ConvertValue(kendo.toString(queryResult[0].value, "n0"), queryResult[0].text, MetricType);
+			return valueRight;
+		}
+
+	}
+	Scorecard.ProgressBarTitle = function(raw){
+		var data = ko.mapping.toJS(raw);
+		// console.log(data);
+		return "Baseline:"+(data.BaseLineValue === 130895111188 ||data.NABaseline ? 'N/A':kendo.toString(data.BaseLineValue,"N"+data.DecimalFormat))+"  Actual:"+(data.CurrentValue===130895111188||data.NAActual?'N/A':kendo.toString(data.CurrentValue,"N"+data.DecimalFormat))+"  Target: "+(data.TargetValue===130895111188||data.NATarget?'N/A':kendo.toString(data.TargetValue,"N"+data.DecimalFormat));
+	}
+	Scorecard.ProgressBarNew = function(id,raw){
+		var data = ko.mapping.toJS(raw);
+		if(data.BaseLineValue===130895111188){
+			data.BaseLineValue = 0;
+			// data.NABaseline = true;
+			if(!data.NABaseline){
+				data.NABaseline = true;
+			}
+		}
+		if(data.CurrentValue===130895111188){
+			data.CurrentValue = 0;
+			// data.NAActual = true;
+			if(!data.NAActual){
+				data.NAActual = true;
+			}
+		}
+		if(data.TargetValue===130895111188){
+			data.TargetValue = 0;
+			if(!data.NATarget){
+				data.NATarget = true;
+			}
+		}
+
+		var isHigherBetter = (data.ValueType == 1);
+		var isActLessBase =isHigherBetter ? (data.CurrentValue < data.BaseLineValue) : (data.CurrentValue > data.BaseLineValue);
+		var row = [
+			{ name: 'baseline', value: data.BaseLineValue },
+			{ name: 'current', value: data.CurrentValue },
+			{ name: 'target', value: data.TargetValue },
+		];
+		if(data.NABaseline){
+			row[0].value = 0;
+		}
+		if(data.NAActual){
+			row[1].value = 0;
+		}
+		if(data.NATarget){
+			row[2].value = row[1].value;
+		}
+		var styles = []
+		var background = '';
+		switch (data.Display) {
+			case 'amber': background = "#ffd24d"; break;
+			case 'green': background = "#6ac17b"; break;
+			case 'red'  : background = "#f74e4e"; break;
+			default: background = "#b7b7b7"; break;
+		}
+
+		var min = _.min([row[0].value, row[2].value]);
+		var max = _.max([row[0].value, row[2].value]);
+		var midValue = (row[1].value - min) / (max - min) * 100;	
+		
+		if(!isHigherBetter){
+			midValue = midValue - 100
+		}
+
+		if (midValue > 100){
+			midValue = 100
+		}
+		
+		var barWidth = Math.abs(midValue), barLeft = midValue;
+		var format = "0";
+		if(typeof raw.DecimalFormat == "string"){
+			format = raw.DecimalFormat;
+		}else{
+			format = raw.DecimalFormat();
+		}
+		var validate = function (r) {
+			var prefix = (r.name[0] === 'c') ? 'a' : r.name[0];
+			var value = kendo.toString(r.value, 'n'+format);
+
+			switch (data.MetricType) {
+				case 'DOLLAR'	 : value = '$' + value; break;
+				case 'PERCENTAGE': value = value + '%'; break;
+				default: break;
+			}
+
+			return String(prefix).toUpperCase() + ' : ' + value
+		}
+
+		var labelLeft = validate(row[0]);
+		var labelCenter = validate(row[1]);
+		var labelRight = validate(row[2]);
+
+		if(data.NABaseline){
+			labelLeft = "";
+		}
+		if(data.NAActual){
+			isActLessBase = true;
+		}
+		if(data.NATarget){
+			labelRight = "";
+		}
+
+		if(isActLessBase){
+			barWidth = 0
+			labelCenter=""
+		}
+
+		styles[1] = 'width: ' + barWidth + '%;'
+			+ 'background-color: ' + background + ';';
+		styles[2] = 'left: ' + barLeft + '%;'
+			+ 'text-align: right;';
+
+		var html = [
+			'<div class="bat-meter-label">', labelLeft, '</div>',
+			'<div class="bat-meter-label">', labelCenter, '</div>',
+			'<div class="bat-meter-label">', labelRight, '</div>',
+
+			'<div class="bat-meter-bar" style="border-color: ' + background + ';">',
+				'<div class="left"   data-type="', row[0].name, '" data-value="', row[0].value, '" style="', styles[0], '"></div>',
+				'<div class="center" data-type="', row[1].name, '" data-value="', row[1].value, '" style="', styles[1], '"></div>',
+				'<div class="right"  data-type="', row[2].name, '" data-value="', row[2].value, '" style="', styles[2], '"></div>',
+			'</div>'
+		].join('');
+		$('[data-progressbarid="' + id + '"]').html(html);
+	}
+
+	Scorecard.ProgressBar = function(id, raw) {
+		var data = ko.mapping.toJS(raw);
+		var isHigherBetter = (data.ValueType == 1);
+		if(data.BaseLineValue===130895111188){
+			data.BaseLineValue = 0;
+			if(!data.NABaseline){
+				data.NABaseline = true;
+			}
+		}
+		if(data.CurrentValue===130895111188){
+			data.CurrentValue = 0;
+			if(!data.NAActual){
+				data.NAActual = true;
+			}
+		}
+		if(data.TargetValue===130895111188){
+			data.TargetValue = 0;
+			if(!data.NATarget){
+				data.NATarget = true;
+			}
+		}
+
+
+		// AA		
+		// AB	BB	
+		// AT	BT	TT
+
+		if(!data.NABaseline && data.NAActual && !data.NATarget /*AA*/){
+			if(isHigherBetter){
+				data.CurrentValue = data.BaseLineValue+0.00000000001 
+			}else{
+				data.CurrentValue = data.BaseLineValue-0.00000000001 
+			}
+		}else if(data.NABaseline && data.NAActual && !data.NATarget /*AB*/){
+			if(isHigherBetter){
+				data.BaseLineValue = data.TargetValue-0.00000000002
+				data.CurrentValue = data.TargetValue-0.00000000001
+			}else{
+				data.BaseLineValue = data.TargetValue+0.00000000002
+				data.CurrentValue = data.TargetValue+0.00000000001
+			}
+		}else if(!data.NABaseline &&data.NAActual && data.NATarget /*AT*/){
+			if(isHigherBetter){
+				data.CurrentValue = data.BaseLineValue+0.00000000001
+				data.TargetValue = data.BaseLineValue+0.00000000002
+			}else{
+				data.CurrentValue = data.BaseLineValue-0.00000000001
+				data.TargetValue = data.BaseLineValue-0.00000000002
+			}
+		}else if(data.NABaseline && !data.NAActual && !data.NATarget /*BB*/){
+			if(isHigherBetter){
+				if(data.CurrentValue>data.TargetValue){
+					data.BaseLineValue = data.TargetValue-0.00000000001
+				}else{
+					data.BaseLineValue = data.CurrentValue-0.00000000001
+				}
+			}else{
+				if(data.CurrentValue<data.TargetValue){
+					data.BaseLineValue = data.TargetValue+0.00000000001
+				}else{
+					data.BaseLineValue = data.CurrentValue+0.00000000001
+				}
+			}
+		}else if(data.NABaseline && !data.NAActual && data.NATarget /*BT*/){
+			if(isHigherBetter){
+				data.BaseLineValue = data.CurrentValue-0.00000000002
+				data.TargetValue = data.CurrentValue+0.00000000001
+			}else{
+				data.BaseLineValue = data.CurrentValue+0.00000000002
+				data.TargetValue = data.CurrentValue-0.00000000001
+			}
+		}else if(!data.NABaseline && !data.NAActual && data.NATarget /*TT*/){
+			if(isHigherBetter){
+				if(data.BaseLineValue>data.CurrentValue){
+					data.TargetValue = data.BaseLineValue+0.00000000001
+				}else{
+					data.TargetValue = data.CurrentValue+0.00000000001
+				}
+			}else{
+				if(data.BaseLineValue<data.CurrentValue){
+					data.TargetValue = data.BaseLineValue-0.00000000001
+				}else{
+					data.TargetValue = data.CurrentValue-0.00000000001
+				}
+			}
+		}
+
+// Backup Logic
+// if(!data.NABaseline && data.NAActual && !data.NATarget /*AA*/){
+// 	if(isHigherBetter){
+// 		data.CurrentValue = data.BaseLineValue+0.00000000001 
+// 	}else{
+// 		data.CurrentValue = data.BaseLineValue-0.00000000001 
+// 	}
+// }else if(data.NABaseline && data.NAActual && !data.NATarget /*AB*/){
+// 	if(isHigherBetter){
+// 		data.BaseLineValue = data.TargetValue-0.00000000002
+// 		data.CurrentValue = data.TargetValue-0.00000000001
+// 	}else{
+// 		data.BaseLineValue = data.TargetValue+0.00000000002
+// 		data.CurrentValue = data.TargetValue+0.00000000001
+// 	}
+// }else if(!data.NABaseline &&data.NAActual && data.NATarget /*AT*/){
+// 	if(isHigherBetter){
+// 		data.CurrentValue = data.BaseLineValue+0.00000000001
+// 		data.TargetValue = data.BaseLineValue+0.00000000002
+// 	}else{
+// 		data.CurrentValue = data.BaseLineValue-0.00000000001
+// 		data.TargetValue = data.BaseLineValue-0.00000000002
+// 	}
+// }else if(data.NABaseline && !data.NAActual && !data.NATarget /*BB*/){
+// 	if(isHigherBetter){
+// 		data.BaseLineValue = data.CurrentValue+0.00000000001
+// 	}else{
+// 		data.BaseLineValue = data.CurrentValue-0.00000000001
+// 	}
+// }else if(data.NABaseline && !data.NAActual && data.NATarget /*BT*/){
+// 	if(isHigherBetter){
+// 		data.BaseLineValue = data.CurrentValue-0.00000000002
+// 		data.TargetValue = data.CurrentValue-0.00000000001
+// 	}else{
+// 		data.BaseLineValue = data.CurrentValue+0.00000000002
+// 		data.TargetValue = data.CurrentValue+0.00000000001
+// 	}
+// }else if(!data.NABaseline && !data.NAActual && data.NATarget /*TT*/){
+// 	if(isHigherBetter){
+// 		data.TargetValue = data.CurrentValue-0.00000000001
+// 	}else{
+// 		data.TargetValue = data.CurrentValue+0.00000000001
+// 	}
+// }
+
+		var isActLessBase = (data.CurrentValue < data.BaseLineValue);
+		
+		var sorter = isHigherBetter ? 'asc' : 'desc';
+		var row = _.orderBy([
+			{ name: 'baseline', value: data.BaseLineValue, IsNA:data.NABaseline },
+			{ name: 'current', value: data.CurrentValue, IsNA:data.NAActual },
+			{ name: 'target', value: data.TargetValue, IsNA:data.NATarget },
+		], 'value', sorter);
+		
+		var styles = []
+		var background = '#54b4e0';
+		// var background = '';
+		// switch (data.Display) {
+		// 	case 'amber': background = "#ffd24d"; break;
+		// 	case 'green': background = "#6ac17b"; break;
+		// 	case 'red'  : background = "#f74e4e"; break;
+		// 	default: background = "#b7b7b7"; break;
+		// }
+
+
+		var isABT = (row[0].name == 'current' && row[2].name == 'target')   || (row[0].name == 'target' && row[2].name == 'current');
+		var isBAT = (row[0].name == 'baseline' && row[2].name == 'target')  || (row[0].name == 'target' && row[2].name == 'baseline');
+		var isBTA = (row[0].name == 'baseline' && row[2].name == 'current') || (row[0].name == 'current' && row[2].name == 'baseline');
+
+		// NOTE: bar highlight is from: ACTUAL to BASELINE / BASELINE to ACTUAL
+
+		if (isABT /* or TBA */) {
+			// console.log("isABT");
+			var min = _.min([row[0].value, row[2].value]);
+			var max = _.max([row[0].value, row[2].value]);
+			var midValue = Math.abs(row[1].value - min) / (max - min) * 100;
+			if(isHigherBetter && isActLessBase){
+				midValue =0;
+			}else if(!isHigherBetter && !isActLessBase){
+				midValue =0;
+			}
+			if(data.NABaseline||data.NAActual||data.NATarget){
+				midValue=0;
+				if(!data.NAActual&&!data.NATarget && ((isHigherBetter&&data.CurrentValue>=data.TargetValue)||(!isHigherBetter&&data.CurrentValue<=data.TargetValue))){
+					midValue = 100;
+				}
+			}
+			styles[0] = 'width: ' + midValue + '%; background-color: ' + background + ';';
+		} else if (isBAT /* or TAB */) {
+			// console.log("isBAT");
+			var indexOfCurrent = row.indexOf(row.find(function (d) { return d.name === 'current' }));
+			var indexOfTarget = row.indexOf(row.find(function (d) { return d.name === 'target' }));
+			var leftIndex = _.min([indexOfCurrent, indexOfTarget]);
+
+			var min = _.min([row[0].value, row[2].value]);
+			var max = _.max([row[0].value, row[2].value]);
+			var midValue = Math.abs(row[1].value - min) / (max - min) * 100;
+
+			if (leftIndex == 0) {
+				// actual is on the very left
+				var barLeft = 0, barWidth = 0;
+				if (isHigherBetter) {
+					barLeft = midValue;
+					barWidth = (100 - midValue);
+					if(isActLessBase){
+						barWidth =0
+					}
+				} else {
+					barLeft = (100 - midValue);
+					barWidth = midValue;
+					if(!isActLessBase){
+						barWidth =0
+					}
+				}
+				if(data.NABaseline||data.NAActual||data.NATarget){
+					barWidth=0;
+					if(!data.NAActual&&!data.NATarget && ((isHigherBetter&&data.CurrentValue>=data.TargetValue)||(!isHigherBetter&&data.CurrentValue<=data.TargetValue))){
+						barWidth=100
+					}
+				}
+				styles[leftIndex] = 'left: ' + barLeft + '%;'
+					+ 'width: ' + barWidth + '%;'
+					+ 'text-align: left;'
+					+ 'background-color: ' + background + ';';
+			} else if (leftIndex == 1) {
+				// target is on the very left
+				var barWidth = midValue, barLeft = midValue;
+				if(isHigherBetter && isActLessBase){
+					barWidth =0;
+				}else if(!isHigherBetter && !isActLessBase){
+					barWidth =0;
+				}
+				if(data.NABaseline||data.NAActual||data.NATarget){
+					barWidth=0;
+					if(!data.NAActual&&!data.NATarget && ((isHigherBetter&&data.CurrentValue>=data.TargetValue)||(!isHigherBetter&&data.CurrentValue<=data.TargetValue))){
+						barWidth=100;
+					}
+				}
+				styles[leftIndex] = 'width: ' + barWidth + '%;'
+					+ 'background-color: ' + background + ';';
+				styles[leftIndex + 1] = 'left: ' + barLeft + '%;'
+					+ 'text-align: right;';
+			}
+		} else if (isBTA /* or ATB */) {
+			// console.log("isBTA");
+			var width = (row[0].value === row[2].value) ? 0 : 100;
+			if(isHigherBetter && isActLessBase){
+				width =0
+			}else if(!isHigherBetter && !isActLessBase){
+				width =0
+			}
+			if(data.NABaseline||data.NAActual||data.NATarget){
+				width=0;
+				if(!data.NAActual&&!data.NATarget && ((isHigherBetter&&data.CurrentValue>=data.TargetValue)||(!isHigherBetter&&data.CurrentValue<=data.TargetValue))){
+					width=100;
+				}
+			}
+			styles[0] = 'width: ' + width + '%; background-color: ' + background + ';';
+		}
+
+
+
+		var format = "0";
+		if(typeof raw.DecimalFormat == "string"){
+			format = raw.DecimalFormat;
+		}else{
+			format = raw.DecimalFormat();
+		}
+
+		var validate = function (r) {
+			if(r.IsNA){
+				return "";
+			}
+			var prefix = (r.name[0] === 'c') ? 'a' : r.name[0];
+			var value = kendo.toString(r.value, 'n'+format);
+
+			switch (data.MetricType) {
+				case 'DOLLAR'	 : value = '$' + value; break;
+				case 'PERCENTAGE': value = value + '%'; break;
+				default: break;
+			}
+
+			return String(prefix).toUpperCase() + ' : ' + value
+		}
+
+		var labelLeft = validate(row[0]);
+		var labelCenter = validate(row[1]);
+		var labelRight = validate(row[2]);
+
+		var html = [
+			'<div class="bat-meter-label">', labelLeft, '</div>',
+			'<div class="bat-meter-label">', labelCenter, '</div>',
+			'<div class="bat-meter-label">', labelRight, '</div>',
+
+			'<div class="bat-meter-bar" style="border-color: ' + background + ';">',
+				'<div class="left"   data-type="', row[0].name, '" data-value="', row[0].value, '" style="', styles[0], '"></div>',
+				'<div class="center" data-type="', row[1].name, '" data-value="', row[1].value, '" style="', styles[1], '"></div>',
+				'<div class="right"  data-type="', row[2].name, '" data-value="', row[2].value, '" style="', styles[2], '"></div>',
+			'</div>'
+		].join('');
+		$('[data-progressbarid="' + id + '"]').html(html);
+	}
+
+	Scorecard.Getheight = function(id){
+		var lengthData = Scorecard.Data().length - 1;
+		if (id == 5){
+			setTimeout(function(){
+				for (var i in Scorecard.Data()){
+					var height = $("#headerText-"+i).height();
+					$('#labelText-'+i).css({"height":height+"px"});
+				}
+			}, 150);
+		}
+
+	}
+
+	Scorecard.ShowUpdatedDate = function (data) {
+		// console.log(ko.mapping.toJS(data));
+		var currPeriod = moment(data.CurrentPeriod()).format('MMM YYYY')
+		if(currPeriod==="Jan 0001"){
+			return "&nbsp;";
+		}
+		// var currPeriod = "&nbsp;";
+		// var files = ko.mapping.toJS(data.MetricFiles)
+		// if (toolkit.isArray(files)) {
+		// 	var MOFiles = Enumerable.From(files).Where("$.OriginalFileName.toLowerCase().indexOf('finance')<0").ToArray();
+		// 	if (MOFiles.length > 0) {
+		// 		var MonthYear = MOFiles[MOFiles.length - 1].MonthYear;
+		// 		var year = parseInt(String(MonthYear).substr(0,4));
+		// 		var month = parseInt(String(MonthYear).substr(4,2))-1;
+		// 		return kendo.toString(new Date(year,month,1),'MMM yyyy');
+		// 	}
+		// }
+
+		return currPeriod
+	}
+
+	Scorecard.ToInitiativeBD = function(data){
+		var d = ko.mapping.toJS(data)
+		c.ActiveBDFilter([])
+		// console.log('toinit',d)
+		$('.nav-pills a[href="#InitiativeTab"]').tab('show')
+		changeTabMenu('Initiative')
+		setTimeout(function(){
+			c.SelectedSC(d.Idx)
+			c.ActiveBDFilter.push(d.BDId)
+			c.GetData()
+		},100)
+	}
+
+	Scorecard.GetMBRGlobalColumnClass = ko.computed(function(){
+		var TotalColumn = Scorecard.RegionalData().length+Scorecard.CountryData().length+1;
+		if(TotalColumn>3){
+			return 4;
+		}else if(TotalColumn == 3){
+			return 5;
+		}else if(TotalColumn==2){
+			return 6;
+		}
+		return 4;
+	});
+
+	Scorecard.GetMBRColumnClass = ko.computed(function(){
+		var TotalColumn = Scorecard.RegionalData().length+Scorecard.CountryData().length+1;
+		if(TotalColumn>=3){
+			return 8;
+		}else if(TotalColumn==2){
+			return 8;
+		}
+		return 8;
+	})
+
+	Scorecard.SyncText = function(a,MetricType,DecimalFormat,v){
+		hasil = '&nbsp;'
+		if(!a){
+			hasil = "";
+			tmpv = v;
+			if(v<0){
+				hasil += '( '
+				tmpv *= -1;
+			}
+
+			hasil += kendo.toString(tmpv,'N'+DecimalFormat)
+
+			if(MetricType == 'PERCENTAGE'){
+				hasil += '%'
+			}
+
+			if(v<0){
+				hasil += ' )'
+			}
+		}
+		// console.log(a,MetricType,DecimalFormat,v,hasil)
+		return hasil
+	}
+</script>
+<style type="text/css">
+	.basetarget1 {
+		padding-right: 0.2em;
+		margin-top: 5px;
+	}
+
+	.basetarget2 {
+		padding-left: 5px;
+	}
+	.textBusinessMetric{
+		display: table-cell;
+    	vertical-align: middle;
+	}
+		#Scorecard .k-dropdown-wrap .k-input{
+		height: 1.30em;
+	    line-height: 0.94em;
+	    padding: .177em 0;
+	    text-indent: .8em;
+	    border: 0;
+	    margin: 0
+	}
+	#Scorecard .k-dropdown-wrap .k-select{
+		min-height: 0.94em;
+	    line-height: 1.29em;
+	    vertical-align: middle;
+	    text-align: center;
+	    width: 1.9em;
+	    height: 100%;
+	}
+	.downloadTemplate{
+		position: absolute;
+    	left: 15px;
+	}
+	.img-caret-up{
+		content:url(/web-cb/static/img/caret-up.png);
+	}
+	.col-sm-4.global-column{
+		width: 40%;
+	}
+	.col-sm-6.global-column{
+		width: 56%;
+	}
+	.col-sm-5.global-column{
+		width: 48%;
+	}
+</style>
+<script id="tabularContentTemplate" type="text/html">
+	<div class="col-md-12 no-padding" data-bind="attr: { 'data-rid': rid,'data-bdid': BDId, 'data-bdname': Description }">
+	<div data-bind="attr:{'class':'col-sm-'+(12-Scorecard.GetMBRColumnClass())+' cell'}">
+		<div data-bind="attr:{'onclick':'Scorecard.EditBusinessMetrics('+$parent.Id()+','+$index()+')'}">
+			<!-- <img data-bind="attr:{'src':Scorecard.GetStatusImage($data)}"> -->
+			<span data-bind="text:Description()==''? 'No Description Available': Scorecard.DescriptionShow(Description()), attr: {title: Description()}"></span>
+		</div>
+	</div>
+
+	<div data-bind="attr:{'class':'col-sm-'+Scorecard.GetMBRColumnClass()+' last-child'}">
+		<div data-bind="attr:{'class':'col-sm-'+Scorecard.GetMBRGlobalColumnClass()+' cell global-column'}">
+        <div class="sub-value">
+          <div style="width: 25%" data-bind="html: Scorecard.SyncText(NABaseline(),MetricType(),DecimalFormat(),BaseLineValue())"></div>
+          <div style="width: 25%" data-bind="html: Scorecard.SyncText(NATarget(),MetricType(),DecimalFormat(),TargetValue())"></div>
+          <div style="width: 25%" data-bind="css: { 'block-green' : Display() == 'green' , 'block-red' : Display() == 'red', 'block-amber' : Display() == 'amber' },html: Scorecard.SyncText(NAActual(),MetricType(),DecimalFormat(),CurrentYTDValue())"></div>
+          <div style="width: 25%" data-bind="html: Scorecard.SyncText(NABudget(),MetricType(),DecimalFormat(),CurrentYTDValueVsBudget())">&nbsp;</div>
+
+          <!-- <div style="width: 25%" data-bind="text: NABaseline()?'&nbsp;': (BaseLineValue() < 0 ? '( ' : '') + (MetricType() == 'PERCENTAGE' ? kendo.toString((BaseLineValue() < 0 ? BaseLineValue()*-1 : BaseLineValue()),'N'+DecimalFormat()) + '%' : kendo.toString((BaseLineValue() < 0 ? BaseLineValue()*-1 : BaseLineValue()),'N'+DecimalFormat()) )  + (BaseLineValue() < 0 ? ' )' : '')"></div> -->
+          <!-- <div style="width: 25%" data-bind="text: NATarget()?'&nbsp;': (TargetValue() < 0 ? '( ' : '') + (MetricType() == 'PERCENTAGE' ? kendo.toString((TargetValue() < 0 ? TargetValue()*-1 : TargetValue()),'N'+DecimalFormat()) + '%' : kendo.toString((TargetValue() < 0 ? TargetValue()*-1 : TargetValue()),'N'+DecimalFormat()) )  + (TargetValue() < 0 ? ' )' : '')"></div> -->
+        	<!-- <div style="width: 25%" data-bind="css: { 'block-green' : Display() == 'green' , 'block-red' : Display() == 'red', 'block-amber' : Display() == 'amber' },text: NAActual()?'&nbsp;': (CurrentYTDValue() < 0 ? '( ' : '') + (MetricType() == 'PERCENTAGE' ? kendo.toString((CurrentYTDValue() < 0 ? CurrentYTDValue()*-1 : CurrentYTDValue()),'N'+DecimalFormat()) + '%' : kendo.toString((CurrentYTDValue() < 0 ? CurrentYTDValue()*-1 : CurrentYTDValue()),'N'+DecimalFormat()) )  + (CurrentYTDValue() < 0 ? ' )' : '')"></div> -->
+          <!-- <div style="width: 25%" data-bind="text: NABudget()?'&nbsp;': (CurrentYTDValueVsBudget() < 0 ? '( ' : '') + (MetricType() == 'PERCENTAGE' ? kendo.toString((CurrentYTDValueVsBudget() < 0 ? CurrentYTDValueVsBudget()*-1 : CurrentYTDValueVsBudget()),'N'+DecimalFormat()) + '%' : kendo.toString((CurrentYTDValueVsBudget() < 0 ? CurrentYTDValueVsBudget()*-1 : CurrentYTDValueVsBudget()),'N'+DecimalFormat()) )  + (CurrentYTDValueVsBudget() < 0 ? ' )' : '')">&nbsp;</div> -->
+        </div>
+    </div>
+    <div data-bind="attr:{'class':'col-sm-'+(10-Scorecard.GetMBRGlobalColumnClass())+' no-padding'}">
+        <div data-bind="foreach: RegionalData">
+        <div class="extra-column" data-bind="attr:{'style':'width:'+Scorecard.ExtraColumnWidth()+'%;'}">
+            <div class="sub-value">
+            	<div style="width: 50%" data-bind="css: { 'block-green' : Rag() == 'green' , 'block-red' : Rag() == 'red', 'block-amber' : Rag() == 'amber' },html: Scorecard.SyncText(NAActual(),$parent.MetricType(),$parent.DecimalFormat(),CurrentYTDValue())"></div>
+            	<div style="width: 50%" data-bind="html: Scorecard.SyncText(NABudget(),$parent.MetricType(),$parent.DecimalFormat(),CurrentYTDValueVsBudget())"></div>
+
+              <!-- <div style="width: 50%" data-bind="css: { 'block-green' : Rag() == 'green' , 'block-red' : Rag() == 'red', 'block-amber' : Rag() == 'amber' },text:NAActual()?'&nbsp;': (CurrentYTDValue() < 0 ? '( ' : '') + ($parent.MetricType() == 'PERCENTAGE' ? kendo.toString((CurrentYTDValue() < 0 ? CurrentYTDValue()*-1 : CurrentYTDValue()),'N'+$parent.DecimalFormat()) + '%' : kendo.toString((CurrentYTDValue() < 0 ? CurrentYTDValue()*-1 : CurrentYTDValue()),'N'+$parent.DecimalFormat()) )  + (CurrentYTDValue() < 0 ? ' )' : '')"></div> -->
+              <!-- <div style="width: 50%" data-bind="text: NABudget()?'&nbsp;': (CurrentYTDValueVsBudget() < 0 ? '( ' : '') + ($parent.MetricType() == 'PERCENTAGE' ? kendo.toString((CurrentYTDValueVsBudget() < 0 ? CurrentYTDValueVsBudget()*-1 : CurrentYTDValueVsBudget()),'N'+$parent.DecimalFormat() + '%' : kendo.toString((CurrentYTDValueVsBudget() < 0 ? CurrentYTDValueVsBudget()*-1 : CurrentYTDValueVsBudget()),'N'+$parent.DecimalFormat()) )  + (CurrentYTDValueVsBudget() < 0 ? ' )' : '')"></div> -->
+            </div>
+        </div>
+        </div>
+        <div data-bind="foreach:CountryData">
+        <div class="extra-column" data-bind="attr:{'style':'width:'+Scorecard.ExtraColumnWidth()+'%;'}">
+            <div class="sub-value">
+            	<div style="width: 50%" data-bind="css: { 'block-green' : Rag() == 'green' , 'block-red' : Rag() == 'red', 'block-amber' : Rag() == 'amber' },html: Scorecard.SyncText(NAActual(),$parent.MetricType(),$parent.DecimalFormat(),CurrentYTDValue())"></div>
+            	<div style="width: 50%" data-bind="html: Scorecard.SyncText(NABudget(),$parent.MetricType(),$parent.DecimalFormat(),CurrentYTDValueVsBudget())"></div>
+          	<!-- 
+              <div style="width: 50%" data-bind="css: { 'block-green' : Rag() == 'green' , 'block-red' : Rag() == 'red', 'block-amber' : Rag() == 'amber' },text:NAActual()?'&nbsp;': (CurrentYTDValue() < 0 ? '( ' : '') + ($parent.MetricType() == 'PERCENTAGE' ? kendo.toString((CurrentYTDValue() < 0 ? CurrentYTDValue()*-1 : CurrentYTDValue()),'N'+$parent.DecimalFormat()) + '%' : kendo.toString((CurrentYTDValue() < 0 ? CurrentYTDValue()*-1 : CurrentYTDValue()),'N'+$parent.DecimalFormat()) )  + (CurrentYTDValue() < 0 ? ' )' : '')"></div>
+              <div style="width: 50%" data-bind="text: NABudget()?'&nbsp;': (CurrentYTDValueVsBudget() < 0 ? '( ' : '') + ($parent.MetricType() == 'PERCENTAGE' ? kendo.toString((CurrentYTDValueVsBudget() < 0 ? CurrentYTDValueVsBudget()*-1 : CurrentYTDValueVsBudget()),'N'+$parent.DecimalFormat()) + '%' : kendo.toString((CurrentYTDValueVsBudget() < 0 ? CurrentYTDValueVsBudget()*-1 : CurrentYTDValueVsBudget()),'N'+$parent.DecimalFormat()) )  + (CurrentYTDValueVsBudget() < 0 ? ' )' : '')"></div> -->
+            </div>
+        </div>
+        </div>
+    </div>
+		<div class="col-sm-2 last-child" style="width: 10%;">
+			<div class="sub-value">
+				<div data-bind="html: Scorecard.ShowUpdatedDate($data)"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+	</div>
+</script>
+
+<div class="col-md-12 row-wrapper" data-bind="with: Scorecard, visible:!Scorecard.Processing()" id="Scorecard">
+	<div data-bind="foreach:Data">
+		<div class="col-md-12 no-padding each-row">
+			<div class="col-sm-2" data-bind="attr:{'style':(ScorecardView() == 'tabular'?'width:14%;':'')}">
+			    <div data-bind="attr:{class: (model.IsProdADMIN()&&Idx()=='TBD4') ? 'box-title hovertitle' : 'box-title','onclick':(model.IsProdADMIN()&&Idx()=='TBD4') ? 'SCDetail.Get(`'+Idx()+'`,`'+Name()+'`)' : ''}">
+			        <div>
+			            <label data-bind="text: Name"></label>
+			        </div>
+			    </div>
+			</div>
+			<!--visual View-->
+			<div class="col-sm-10 col-sm-offset-2 last-child" data-bind="visible:BusinessMetric().length>0 && ScorecardView() == 'visual'">
+				<div id="tableScorecard" class="go-drag" data-bind="foreach:BusinessMetric, attr: { 'data-section-index': $index() }">
+					<div class="col-md-12 no-padding" data-bind="attr: {'data-rid': rid, 'data-bdid': BDId, 'data-bdname': Description }">
+						<div class="col-sm-6 cell">
+							<div data-bind="attr:{'onclick':'Scorecard.EditBusinessMetrics('+$parent.Id()+','+$index()+')'}">
+								<!-- <img data-bind="attr:{'src':Scorecard.GetStatusImage($data)}"> -->
+								<span data-bind="text:Description()==''? 'No Description Available': Scorecard.DescriptionShow(Description()), attr: {title: Description()}"></span>
+							</div>
+						</div>
+
+						<div class="col-sm-3 cell bat-meter">
+							<div class="bar-info" data-bind=" attr:{'data-progressbarid': ($parent.Id() +'-'+ $index()),'title':Scorecard.ProgressBarTitle($data)}, click: Scorecard.ProgressBar($parent.Id() +'-'+ $index(), $data)"></div>
+						</div>
+
+						<div class="col-sm-3 last-child">
+							<div class="col-sm-9 cell">
+								<div data-bind="visible:Scorecard.IsEditing()" style="padding-bottom: 0px; padding-top: 0px;">
+									<input data-bind="kendoDropDownList:{value:BDId,data:$parent.SCBusinessDriverList,optionLabel:'Assign to..',dataTextField:'Name',dataValueField:'Idx'}">
+								</div>
+								<div class="assigntotitle" data-bind="visible:!Scorecard.IsEditing(),click:Scorecard.ToInitiativeBD" >
+									<div data-bind="text: Scorecard.GetAssignToValue(BDId())"></div>
+								</div>
+							</div>
+							<div class="col-sm-2 cell">
+								<div data-bind="css: { 'block-green' : Display() == 'green' , 'block-red' : Display() == 'red', 'block-amber' : Display() == 'amber' }">
+									&nbsp;
+								</div>
+							</div>
+							<div class="col-sm-1 cell last-child" data-bind="html: Scorecard.MetricFileInfo($data)">
+								<div class="metric-file-info">&nbsp;</div>
+							</div>
+
+						</div>
+
+						<div class="clearfix"></div>
+					</div>
+				</div>
+			</div>
+
+			<!--tabular View-->
+			<div class="col-sm-10 col-sm-offset-2 last-child" data-bind="visible:BusinessMetric().length>0 && ScorecardView() == 'tabular'" style="width: 86%;margin-left: 14%;">
+				<div id="tableScorecard" data-bind="template:{name:'tabularContentTemplate',foreach:BusinessMetric}, attr: { 'data-section-index': $index()}">
+				</div>
+			</div>
+			{{if (or .Global.Create .Region.Create .Country.Create)}}
+			<div class="col-sm-10 col-sm-offset-2 add-bm-button btn-wrapper" data-bind="visible:BusinessMetric().length===0">
+				<button class="btn btn-sm btn-primary" data-bind="click:Scorecard.AddBusinessMetrics">Add Business Metrics</button>
+			</div>
+			{{end}}
+
+			<div class="clearfix"></div>
+		</div>
+	</div>
+</div>
+
+<!-- <div class="row pdTop10" id="scorecard-filter" data-bind="visible:!Scorecard.Processing()">
+	<div class="col-sm-10">
+		<div class="redips-drag Primary no-border">
+			<div class="sc-filter-title" style="margin-top: 4px;">
+				<i><img src="/web-cb/static/img/up-caret.png"  style="float: left;margin-right: 2px;margin-top: 1px;"></i>
+				<div class="bewhite">Improved MoM</div>
+			</div>
+
+		</div>
+		<div class="redips-drag Primary no-border">
+			<div class="sc-filter-title" style="margin-top: 4px;">
+			<i><img src="/web-cb/static/img/double-caret.png"  style="float: left;margin-right: 2px;margin-top: 1px; width: 20px"></i>
+				<div class="bewhite">Unchanged MoM</div>
+			</div>
+		</div>
+		<div class="redips-drag Primary no-border">
+			<div class="sc-filter-title" style="margin-top: 4px;">
+				<i><img src="/web-cb/static/img/down-caret.png"  style="float: left;margin-right: 2px;margin-top: 1px;"></i>
+				<div class="bewhite">Declined MoM</div>
+			</div>
+		</div>
+	</div>
+
+</div> -->
+
+
+{{template "scorecard_bm.html" .}}
+<script type="text/javascript">
+	Scorecard.ExportXLSTabular = function(){
+		var SCData = ko.mapping.toJS(Scorecard.Data());
+		var arr = [];
+		for(var i in SCData){
+			arr.push(JSON.stringify(SCData[i]))
+		}
+		var url = "/web-cb/scorecard/exportexcelmbr";
+		var parm = {
+			SCData: JSON.stringify(SCData),
+			RegionData:Enumerable.From(Scorecard.RegionalData()).Select("$.Name").ToArray(),
+			CountryData:Enumerable.From(Scorecard.CountryData()).Select("$.Name").ToArray()
+		};
+		ajaxPost(url, parm, function(res) {
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			}
+			// console.log(res.Data);
+			location.href = "/web-cb/static/templatefile/"+encodeURIComponent(res.Data);
+		})
+	}
+	Scorecard.SavePosition = function(id, value) {
+		var SCData = Enumerable.From(ko.mapping.toJS(Scorecard.Data())).Where("$.Id===" + id + "").FirstOrDefault();
+		var url = "/web-cb/scorecard/saveposition";
+		var parm = {
+			BusinessDriver: ko.mapping.toJS(SCData)
+		};
+		ajaxPost(url, parm, function(res) {
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			}
+			c.GetData();
+		})
+	}
+	Scorecard.EditBusinessMetrics = function(id,rowindex) {
+		$('#scbm').modal('show');
+		scbm.Processing(true);
+		setTimeout(function() {
+			var SCData = Enumerable.From(Scorecard.Data()).Where("$.Id()===" + id + "").FirstOrDefault();
+			scbm.Get(SCData,rowindex);					
+		}, 300);
+	}
+	Scorecard.AddBusinessMetrics = function(obj) {
+		scbm.Get(obj);
+	}
+	Scorecard.SetDataSource = function(dataSource) {
+		Scorecard.Data([]);
+		for (var i in dataSource) {
+			var arr = Enumerable.From(Scorecard.BusinessDriverList()).Where("$.Parentid === '" + dataSource[i].Idx + "'").OrderBy("$.Seq").ToArray();
+			dataSource[i]['BusinessDriverList'] = arr;
+			// Check wheter its Financial Framework or not
+			if( dataSource[i].Idx === "TBD3"){
+				// Merge with Client & Collaboration BD
+				arr = arr.concat(Enumerable.From(Scorecard.BusinessDriverList()).Where("$.Parentid === 'TBD1'").OrderBy("$.Seq").ToArray())
+			}
+			dataSource[i]['SCBusinessDriverList'] = arr;
+			Scorecard.Data.push(new SCDataSource(dataSource[i]));
+		}
+
+		Scorecard.ApplyMetricFileInfo()
+		Scorecard.ApplySortable()
+	}
+	Scorecard.Refresh = function() {
+		var arr = ko.mapping.toJS(Scorecard.DataSource());
+		Scorecard.SetDataSource(arr);
+	}
+	Scorecard.randomString = function () {
+	    var text = "";
+	    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+	    for( var i=0; i < 12; i++ )
+	        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+	    return text;
+	}
+	Scorecard.GetData = function() {
+		SCDetail.Visible(false);
+		ScorecardInitiative.GetData();
+		Scorecard.Processing(true);
+		var url = "/web-cb/scorecard/getdata";
+		var parm = {
+			Region:c.Filter.RegionOne(),
+			Country:c.Filter.CountryOne(),
+			// Region:c.Filter.RegionCountry(),
+			// Country:c.Filter.RegionCountry()
+		};
+		ajaxPost(url, parm, function(res) {
+			Scorecard.Processing(false);
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			}
+
+			var RegionalData = [];
+			var CountryData = [];
+			res.Data.forEach(function (d) {
+				d.BusinessMetric.forEach(function (e) {
+					e.rid = Scorecard.randomString()
+					e.Idx = d.Idx
+					if(RegionalData.length === 0 ){
+						RegionalData = e.RegionalData;
+					}
+					if(CountryData.length === 0 ){
+						CountryData= e.CountryData;
+					}
+
+					e.LastUpdate = "";
+					var files = ko.mapping.toJS(e.MetricFiles)
+					if (toolkit.isArray(files)) {
+						var MOFiles = Enumerable.From(files).Where("$.OriginalFileName.toLowerCase().indexOf('finance')<0").ToArray();
+						if (MOFiles.length > 0) {
+							var MonthYear = MOFiles[MOFiles.length - 1].MonthYear;
+							var year = parseInt(String(MonthYear).substr(0,4));
+							var month = parseInt(String(MonthYear).substr(4,2))-1;
+							e.LastUpdate = kendo.toString(new Date(year,month,1),'MMM yyyy');
+						}
+					}
+
+
+				})
+				d.BusinessMetricMBR.forEach(function (e) {
+					e.rid = Scorecard.randomString()
+					e.Idx = d.Idx
+					if(RegionalData.length === 0 ){
+						RegionalData = e.RegionalData;
+					}
+					// console.log(CountryData)
+					if(CountryData.length === 0 ){
+						// console.log(e.CountryData)
+						CountryData= e.CountryData;
+					}
+
+					e.LastUpdate = "";
+					var files = ko.mapping.toJS(e.MetricFiles)
+					if (toolkit.isArray(files)) {
+						var MOFiles = Enumerable.From(files).Where("$.OriginalFileName.toLowerCase().indexOf('finance')<0").ToArray();
+						if (MOFiles.length > 0) {
+							var MonthYear = MOFiles[MOFiles.length - 1].MonthYear;
+							var year = parseInt(String(MonthYear).substr(0,4));
+							var month = parseInt(String(MonthYear).substr(4,2))-1;
+							e.LastUpdate = kendo.toString(new Date(year,month,1),'MMM yyyy');
+						}
+					}
+
+
+				})
+			});
+			Scorecard.RegionalData(RegionalData);
+			Scorecard.CountryData(CountryData);
+			Scorecard.DataSource(res.Data);
+			Scorecard.SetDataSource(res.Data);
+		});
+	}
+	Scorecard.ApplyMetricFileInfo = function () {
+		var config = {
+            theme: 'tooltipster-val',
+            animation: 'grow',
+            delay: 0,
+            touchDevices: false,
+            trigger: 'hover',
+            contentAsHTML: true
+        };        
+        $('.metric-file-info .fa').each(function (i, e) {
+        	var $metric = $(e).parent();
+        	var uploaderName = $metric.attr('data-uploader-name');
+        	var fileName = $metric.attr('data-file-name');
+        	var uploadedAt = $metric.attr('data-uploaded-at');
+        	var dateUpload = $metric.attr('data-file-date');
+        	var dateStr = dateUpload.substring(0, 4) +"-"+ dateUpload.substring(4, 6);
+        	config.content = [
+        		'<div class="metric-tooltip">',
+        			'<div class="uploader-name">Updated by ' + uploaderName + '</div>',
+        			'<div class="file-name">' + fileName + '</div>',
+        			'<div class="date-upload">Date: '+ moment(dateStr).format("MMMM YYYY") + '</div>',
+        			'<div class="uploaded-at">' + moment(uploadedAt).format("HH:mm:ss M/DD/YYYY") + '</div>',
+        		'</div>'
+        	].join('')
+        	// console.log(config);
+        	$metric.tooltipster(config)
+        })
+	}
+	Scorecard.MetricFileInfo = function (each) {
+		var files = ko.mapping.toJS(each.MetricFiles)
+		if (toolkit.isArray(files)) {
+			if (files.length > 0) {
+				var file = files[files.length - 1]
+				return [
+					'<div class="metric-file-info" data-uploader-name="' + file.UploaderName + '" data-file-name="' + file.OriginalFileName + '" data-file-date="' +  file.MonthYear +'" data-uploaded-at="' + file.UploadedAt + '">',
+						'<i class="fa fa-info"></i>',
+					'</div>'
+				].join('')
+			}
+		}
+
+		return '<div class="metric-file-info" style="pointer-events: none;">&nbsp;</div>'
+	}
+	Scorecard.ApplySortable = function () {
+		$('#Scorecard .each-row').each(function (i, e) {
+			$(e).find('[id="tableScorecard"][class="go-drag"]').css('overflow', 'auto');
+		    $(e).find('[id="tableScorecard"][class="go-drag"]').each(function (j, f) {
+		    	var config = {
+		    		containment: "parent",
+					items: '> div',
+					placeholder: 'sortable-placeholder',
+				    stop: function (event, ui) {
+				        var $target = $(event.target);
+				        var $container = $target.closest('[data-section-index]')
+				        var sectionIndex = parseInt($container.attr('data-section-index'), 10);
+
+				        var data = ko.mapping.toJS(Scorecard).Data;
+				        var rows = data[sectionIndex].BusinessMetric;
+				        var newOrder = [];
+
+				        $container.children().each(function (index, each) {
+				        	var rid = $(each).attr('data-rid');
+
+				        	var row = rows.find(function (f) {
+				        		return f.rid === rid
+				        	})
+
+				        	newOrder.push({
+				        		sectionIndex: sectionIndex,
+				        		description: row.Description,
+				        		orderIndex: index,
+				        	})
+				        })
+
+				        ajaxPost('/web-cb/scorecard/saveorderdata', newOrder, function (res) {
+				        	data[sectionIndex].BusinessMetric = _.sortBy(rows, function (e) {
+				        		var each = newOrder.find(function (f) {
+				        			return f.description == e.Description
+				        		})
+
+				        		var orderIndex = each.orderIndex
+				        		e.OrderIndex = orderIndex
+				        		return orderIndex
+				        	})
+
+				        	Scorecard.DataSource(data);
+				        	Scorecard.SetDataSource(data);
+				        })
+
+				        // console.log('newOrder', newOrder)
+				    }
+		        };
+		        $(f).sortable(config);
+		    })
+		});
+	}
+	Scorecard.Init = function() {
+		ajaxPost("/web-cb/businessdriver/getdata", {}, function(res) {
+			if (res.IsError) {
+				swal("", res.Message, "info");
+			}
+			Scorecard.BusinessDriverList(res.Data);
+			// Scorecard.GetData();
+		});
+	}
+
+	Scorecard.DescriptionShow = function(desc){
+		if(desc.length > 100)
+			return desc.substring(0, 100) + " ..."
+		else
+			return desc
+	}
+
+	Scorecard.newInputMetric = function () {
+		return {
+			metric: '',
+			date: new Date()
+		}
+	}
+	Scorecard.inputMetrics = ko.observableArray([
+		Scorecard.newInputMetric()
+	]);
+	Scorecard.addInputMetric = function () {
+		Scorecard.inputMetrics.push(Scorecard.newInputMetric())
+	}
+	Scorecard.removeInputMetric = function (each) {
+		return function () {
+			var filtered = Scorecard.inputMetrics().filter(function (d) {
+				return d !== each
+			})
+			Scorecard.inputMetrics(filtered)
+		}
+	}
+	Scorecard.KeyMetrics = ko.computed(function () {
+		var res = [];
+		var nomorurut = 1;
+		Scorecard.DataSource().forEach(function (d) {
+			d.BusinessMetric.forEach(function (e) {
+		        res.push({ id: d.Id, metricId: e.Id, value: e.BDId, text: e.Description, urut: nomorurut })
+		        nomorurut++;
+		    })
+		})
+		res.push({ id: 0, metricId: "All", value: "All", text: "All", urut: 0 });
+		hasil = sortStringNumber(100,res, 'text')
+		// hasil = _.sortBy(hasil, "urut")
+		return hasil;
+	}, Scorecard.Data)
+	Scorecard.processBMData = function(){
+		Scorecard.ProcessingBMData(true);
+		var parm = {
+			Data:Scorecard.DataMetrics(),
+			UploadOptions:Scorecard.DownloadOption()
+		}
+		ajaxPost("/web-cb/scorecard/processbmdata",parm,function(res){
+			Scorecard.ProcessingBMData(false);
+			if(res.IsError) {
+				swal('Processing Data', res.Message, 'error');
+				return false;
+			}
+			swal('Process Complete', 'All data has been processed', 'success');
+			$('#modal-review-metric').modal('hide');
+
+			// swal({
+			//   title: "Process Complete",
+			//   text: 'Press "Continue" to go to Staging Area ',
+			//   type: "success",
+			//   showCancelButton: true,
+			//   confirmButtonColor: "#DD6B55",
+			//   confirmButtonText: "Continue",
+			//   cancelButtonText:"Stay Here",
+			//   closeOnConfirm: false
+			// },
+			// function(){
+			// 	location.href = "/stagingarea/default?access="+res.Data;
+			// },function(){
+				Scorecard.GetData();
+			// });
+		})
+
+	}
+	/*Scorecard.downloadTemplate = function(){
+		var isAvailable = false;
+		var parm = {
+			BusinessName:["COMMERCIAL BANKING"], //[..,..] wanna be
+			BMId:[],
+			BMName:[],
+			Date:[],
+		}
+		$('#modal-upload-metric .modal-body > div.downloadtemp').each(function (i, e) {
+			var o = {};
+
+		    o.metricText = $(e).find('div:eq(0) input').data('kendoDropDownList').text();
+		    o.metricValue = $(e).find('div:eq(0) input').data('kendoDropDownList').value();
+		    o.metricDate =$(e).find('div:eq(2) input').data('kendoDatePicker').value();
+		    // console.log(o.metricDate)
+		    if(o.metricValue.trim()!==""){
+		    	isAvailable = true;
+		    	parm.BMId.push(o.metricValue);
+		    	parm.BMName.push(o.metricText);
+		    	// parm.Date.push(o.MetricDate);
+		    	parm.Date.push(moment(o.metricDate).format("MMMYYYY"));
+		    }
+
+		});
+		if(!isAvailable){
+			swal("","Please select at least one Business Metrics", "info");
+			return false;
+		}
+		parm.BMId.forEach(function(e,i) {
+			var timeout = i*100;
+			setTimeout(function(){
+				var newParm ={}
+				newParm.BusinessName=["COMMERCIAL BANKING"]
+				newParm.BMId =[e]
+				newParm.BMName=[parm.BMName[i]]
+				newParm.Date=parm.Date[i]
+				ajaxPost("/web-cb/scorecard/getbmfiletemplate",newParm,function(res){
+					if(res.IsError) {
+						swal('File Template', 'Cannot get file template', 'error');
+						return false;
+					}
+					location.href = "/web-cb/static/templatefile/"+encodeURIComponent(res.Data);
+				})
+			}, timeout);
+		});
+
+	}
+	close temp by rangga*/
+	Scorecard.metric.subscribe(function(e){
+		if (e.length > 1) {
+			if ($.inArray("All", e) == 0) {
+				$("#metrics").data("kendoMultiSelect").value("All");
+				swal("","Please deselect 'All' option first for select other metric to select", "info");
+				return;
+			}else{
+				// console.log(e, $.inArray("All", e))
+				if ($.inArray("All", e) != -1) {
+					var selected = $.grep(e, function(v){ return v != "All"})
+					$("#metrics").data("kendoMultiSelect").value(selected);
+					swal("","Please deselect all metrics first for select 'All' option", "info");
+					return;
+				}
+			}
+		}
+	});
+	Scorecard.downloadAsOneTemplate = function() {
+		var isAvailable = false;
+		var parm = {
+			BusinessName:["COMMERCIAL BANKING"], //[..,..] wanna be
+			// AllMetrics:[],
+			BMName:[],
+			Date:"",
+		}
+		// Scorecard.metric
+		if (Scorecard.metric().length > 0) {
+			isAvailable = true;
+			Scorecard.metric().forEach(function(e,i) {
+				if (e == "All") {
+					Scorecard.KeyMetrics().forEach(function(v,idx) {
+						if (v.text != "All") {
+							parm.BMName.push(v)
+						}
+					});
+				}else{
+					parm.BMName.push(_.find(Scorecard.KeyMetrics(), {metricId: e}));
+				}
+				
+				parm.Date=moment(Scorecard.datemetric()).format("MMM YYYY");
+			});
+		}
+		
+		if(!isAvailable){
+			swal("","Please select at least one Business Metrics", "info");
+			return false;
+		}
+		parm.DownloadOption = Scorecard.DownloadOption();
+		ajaxPost("/web-cb/scorecard/getbmfiletemplatemultiple",parm,function(res){
+			if(res.IsError) {
+				swal('File Template', 'Cannot get file template', 'error');
+				return false;
+			}
+			location.href = "/web-cb/static/templatefile/"+encodeURIComponent(res.Data);
+		});
+	}
+	Scorecard.StatusUploadorDownload = ko.observable(true)
+	Scorecard.UploadDownload = function(){
+		Scorecard.inputMetrics([Scorecard.newInputMetric()])
+		$('#modal-upload-download-metric').modal('show');
+		Scorecard.metric([]);
+		Scorecard.datemetric(new Date());
+		///clear file uploaded
+		$("#uploadtemplate").wrap('<form>').closest('form').get(0).reset();
+		$("#uploadtemplate").unwrap();
+	}
+	Scorecard.Upload = function (option) {
+		Scorecard.DownloadOption(option);
+		Scorecard.StatusUploadorDownload(true)
+		$('#modal-upload-metric').modal('show');
+		$('#modal-upload-download-metric').modal('hide');
+	}
+	Scorecard.Download = function (option) {
+		Scorecard.DownloadOption(option);
+		Scorecard.StatusUploadorDownload(false)
+		$('#modal-upload-metric').modal('show');
+		$('#modal-upload-download-metric').modal('hide');
+	}
+	Scorecard.GetDownloadOption = ko.computed(function(){
+		var opt = Scorecard.DownloadOption();
+		var option = "";
+		switch(opt){
+			case "owner":
+				option = "Metric Owner";
+				break;
+			case "finance":
+				option = "Finance Team";
+				break;
+			default:
+				option = "Metric Owner";
+				break;
+		}
+		return option;
+	});
+	/*Scorecard.uploadMetrics = function(howMany,payload){
+		toolkit.ajaxPost('/web-cb/scorecard/uploadmetrics', payload, 
+			function (res) {
+				if(res.IsError) {
+					swal('Upload Failed', 'Cannot upload file', 'error');
+					return false;
+				}
+				$('#modal-upload-metric').modal('hide');
+				setTimeout(function () {
+					swal('Upload success', howMany + ' files uploaded', 'success');
+					for(var i in res.Data){
+						var format = "N2";
+						switch(res.Data[i].MetricType){
+							case "DOLLAR": 
+							break;
+							case "NUMERIC":
+							break;
+							case "PERCENTAGE":
+							break;
+							default:break;
+						}
+						for(var x in res.Data[i].DataList){
+							res.Data[i].DataList[x].Format = format;
+						}
+					}
+					Scorecard.DataMetrics(res.Data);
+					$('#modal-review-metric').modal('show');
+				}, 100)
+				$('.uploadfile a[href="#byonesheet"]').tab('show');
+				Scorecard.GetData();
+			}, function (a, b, c) {
+				swal('Failed to upload', 'Some error happen', 'error');
+			});
+	}*/
+	Scorecard.checkingMetrics = function(parmchecking,howMany,payload){
+		toolkit.ajaxPost("/web-cb/scorecard/checkuploadmetrics",payload,function(res){
+			if(res.Message != ""){
+				// console.log(res.Message)
+				var message = res.Message.replace(" have already been uploaded, are you sure you want to upload again?","");
+				// console.log(message)
+				swal({
+				  title: "",
+				  // text: res.Message,
+				  text: "One or more business metrics already been uploaded, are you sure you want to upload again?",
+				  type: "warning",
+				  showCancelButton: true,
+				  confirmButtonClass: "btn-danger",
+				  confirmButtonText: "Yes",
+				  // closeOnConfirm: false
+				},
+				function(){
+				  Scorecard.uploadMetricsTemplate(howMany,payload);
+				});
+			}else{
+				Scorecard.uploadMetricsTemplate(howMany,payload);
+			}
+		}, function () {
+			swal('Failed to upload', 'Some error happen', 'error');
+		});
+	}
+
+	Scorecard.checkingFinanceMetrics = function(parmchecking,howMany,payload){
+		toolkit.ajaxPost("/web-cb/scorecard/checkuploadfinancemetrics",payload,function(res){
+			if(res.Message != ""){
+				swal({
+				  title: "",
+				  text: res.Message,
+				  type: "warning",
+				  showCancelButton: true,
+				  confirmButtonClass: "btn-danger",
+				  confirmButtonText: "Yes",
+				  // closeOnConfirm: false
+				},
+				function(){
+				  Scorecard.uploadMetricsTemplate(howMany,payload);
+				});
+			}else{
+				Scorecard.uploadMetricsTemplate(howMany,payload);
+			}
+		}, function () {
+			swal('Failed to upload', 'Some error happen', 'error');
+		});
+	}
+	/*Scorecard.submitMetrics = function (isMulti) {
+		var isMulti = (typeof(isMulti) == "object") ? false : true;
+		var payload = new FormData();
+		var howMany = 0;
+		var parmchecking = {
+			BMId:[],
+			Period:[]
+		}
+		var currentMonth = parseInt(kendo.toString(new Date(),"yyyyMM"));
+		var isReplacingPrevMonthData = false;
+		if (!isMulti) {
+			$('#modal-upload-metric .modal-body div.onesheet > div').each(function (i, e) {
+				var o = {};
+				o.metricText = $(e).find('div:eq(0) input').data('kendoDropDownList').text();
+		    	o.metricValue = $(e).find('div:eq(0) input').data('kendoDropDownList').value();
+
+		    	o.id = toolkit.redefine(Scorecard.KeyMetrics().find(function (d) { 
+			    	return d.metricId == o.metricValue//(d.text == o.metricText) && (d.value == o.metricValue)
+			    }), { id: false }).id;
+			    if (o.id == false) {
+			    	return
+			    }
+
+			    o.date = moment($(e).find('div:eq(2) input').data('kendoDatePicker').value()).format('YYYYMM');
+			    o.files = $(e).find('div:eq(1) input')[0].files;
+			    // console.log(o);
+
+			    if (o.files.length > 0) {
+		        	payload.append('id[' + i + ']', o.id);
+			        // payload.append('metric-text[' + i + ']', o.metricText);
+			        // payload.append('metric-value[' + i + ']', o.metricValue);
+					payload.append('metric-id[' + i + ']', o.metricValue);
+			        payload.append('date[' + i + ']', o.date);
+			        payload.append('file[' + i + ']', o.files[0]);
+
+					howMany++
+					parmchecking.BMId.push(o.metricValue);
+					parmchecking.Period.push(o.date);
+					if(parseInt(o.date) < currentMonth){
+						isReplacingPrevMonthData = true;
+					}
+			    }
+			})
+		} else {
+			var o = {};
+			o.date = moment($('#modal-upload-metric .modal-body > div > div:eq(1)').find('div:eq(2) input').data('kendoDatePicker').value()).format('YYYYMM');
+	    	o.files = $('#modal-upload-metric .modal-body > div > div:eq(1)').find('div:eq(1) input')[0].files;
+	    	if (o.files.length > 0) {
+	        	payload.append('id[' + 0 + ']', o.id);
+				payload.append('metric-id[' + 0 + ']', o.metricValue);
+		        payload.append('date[' + 0 + ']', o.date);
+		        payload.append('file[' + 0 + ']', o.files[0]);
+		        payload.append('isMulti[' + 0 + ']', true);
+
+				howMany++
+				parmchecking.BMId.push(o.metricValue);
+				parmchecking.Period.push(o.date);
+				if(parseInt(o.date) < currentMonth){
+					isReplacingPrevMonthData = true;
+				}
+		    }
+		}
+		
+
+		if (howMany == 0) {
+			swal('No data to be upload', '', 'error');
+			return
+		}
+		if(isReplacingPrevMonthData){
+			swal({
+				  title: "",
+			  text: 'You are replacing data from a previous month in the scorecard, please click "Confirm" to continue',
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonClass: "btn-danger",
+			  confirmButtonText: "Confirm",
+			  // closeOnConfirm: false
+			},
+			function(){
+			  Scorecard.uploadMetrics(howMany,payload);
+			});
+			return
+		}else{
+			if (!isMulti) {
+				Scorecard.checkingMetrics(parmchecking,howMany,payload);
+			}else{
+				Scorecard.uploadMetrics(howMany,payload);
+			}
+		}
+		
+	}*/
+	Scorecard.uploadMultiTemplate = function () {
+		var payload = new FormData();
+		var howMany = 0;
+		var currentMonth = parseInt(kendo.toString(new Date(),"yyyyMM"));
+		var isReplacingPrevMonthData = false;
+		
+		var o = {};
+		o.date = moment(Scorecard.datemetric()).format('YYYYMM');
+    	o.files = $('#uploadtemplate')[0].files;
+    	if (o.files.length > 0) {
+	        payload.append('date', o.date);
+	        payload.append('file', o.files[0]);
+
+			howMany++
+			if(parseInt(o.date) < currentMonth){
+				isReplacingPrevMonthData = true;
+			}
+	    }
+	    payload.append('downloadOption', Scorecard.DownloadOption())
+	 //    for (var pair of payload.entries()) {
+		//     console.log(pair[0]+ ', ' + pair[1]); 
+		// }
+	    // console.log(payload)
+		if (howMany == 0) {
+			swal('No data to be upload', '', 'error');
+			return
+		}
+		if(isReplacingPrevMonthData){
+			swal({
+				  title: "",
+			  text: 'You are replacing data from a previous month in the scorecard, please click "Confirm" to continue',
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonClass: "btn-danger",
+			  confirmButtonText: "Confirm",
+			  closeOnConfirm: true
+			},
+			function(){
+			  Scorecard.uploadMetricsTemplate(howMany,payload);
+			});
+			return
+		}else{
+			switch(Scorecard.DownloadOption()){
+				case "owner":
+					Scorecard.checkingMetrics(o,howMany,payload);
+					break;
+				case "finance":
+					Scorecard.checkingFinanceMetrics(o,howMany,payload);
+					break;
+				default:
+					Scorecard.checkingMetrics(o,howMany,payload);
+				break;
+			}
+		}
+	}
+	Scorecard.uploadMetricsTemplate = function(howMany,payload){
+		Scorecard.ProcessingUploadData(true);
+		toolkit.ajaxPost('/web-cb/scorecard/uploadmetricstemplate', payload, 
+			function (res) {
+				Scorecard.ProcessingUploadData(false);
+				if(res.IsError) {
+					var msg = (res.Message != "") ? res.Message : 'Cannot upload file';
+					alert(msg);
+					swal('Upload Failed', msg, 'error');
+					return;
+				}
+				$('#modal-upload-metric').modal('hide');
+				setTimeout(function () {
+					swal('Upload success', howMany + ' files uploaded', 'success');
+					var ListPeriod = [];
+					for(var i in res.Data){
+						var format = "N";
+						switch(res.Data[i].MetricType){
+							case "DOLLAR": 
+							break;
+							case "NUMERIC":
+							break;
+							case "PERCENTAGE":
+							format = "P";
+							break;
+							default:break;
+						}
+						for(var x in res.Data[i].DataList){
+							res.Data[i].DataList[x].Format = format+res.Data[i].DataList[x].DecimalFormat;
+							res.Data[i].DataList[x].MetricType = res.Data[i].MetricType;
+						}
+						ListPeriod = res.Data[i].finCol;
+					}
+					Scorecard.ListPeriod(ListPeriod);
+
+					setTimeout(function(){
+						Scorecard.DataMetrics(res.Data);						
+						$('#modal-review-metric').modal('show');
+						// setTimeout(function(){
+						// 	Scorecard.GetData();
+						// }, 2000);
+					},1000);
+				}, 500)
+				
+			}, function (a, b, c) {
+				swal('Failed to upload', 'Some error happen', 'error');
+			});
+	}
+	Scorecard.ListPeriod = ko.observableArray([]);
+	Scorecard.GetDenominationTitle = function(val){
+		switch(val){
+			case 'NUMERIC':
+				return "Numeric Value";
+				break;
+			case 'DOLLAR':
+				return "Dollar Value ($)";
+				break;
+			case 'PERCENTAGE':
+				return "Percentage (%)";
+				break;
+			default:
+				return "Numeric Value";
+				break;		
+		}
+		return "Numeric Value";
+	}
+	Scorecard.GetDecimalPoint = function(val){
+		switch(val){
+			case '0':
+				return "No Decimal";
+				break;
+			case '1':
+				return "0.0";
+				break;
+			case '2':
+				return "0.00";
+				break;
+			default:
+				return "No Decimal";
+				break;		
+		}
+		return "No Decimal";
+	}
+	Scorecard.DataListColumn = ko.computed(function(){
+		var arr = [
+			{field:"BusinessName",title:"BUSINESS NAME",width:"150px"},
+			{field:"BusinessMetricDescription",title:"METRIC",width:"150px"},
+			{field:"Region",title:"REGION",width:"100px"},
+			{field:"Country",title:"COUNTRY",width:"100px"},
+			{field:"CountryCode",title:"COUNTRY CODE",width:"80px"},
+		];
+		switch(Scorecard.DownloadOption()){
+			case "owner":
+				arr.push({field:"MetricType",title:"METRIC DENOMINATION",width:"100px",template:"#:Scorecard.GetDenominationTitle(MetricType)#"});
+				arr.push({field:"DecimalFormat",title:"DECIMAL POINT",width:"100px",template:"#:Scorecard.GetDecimalPoint(DecimalFormat)#"});
+				arr.push({field:"ActualYTD",title:"YTD ACTUAL",width:"80px",template:"#:ActualYTD===130895111188?'N/A':kendo.toString((MetricType=='PERCENTAGE'?(ActualYTD/100):ActualYTD),Format)#",
+						attributes: {"class": "text-right"}});
+				arr.push({field:"RAG",title:"RAG",width:"50px"});
+				break;
+			case "finance":
+				arr.push({field:"Baseline",title:"BASELINE",template:"#:Baseline===130895111188?'N/A':kendo.toString((MetricType=='PERCENTAGE'?(Baseline/100):Baseline),Format)#",
+						attributes: {"class": "text-right"},width:"80px"
+					});
+				var Period = Scorecard.ListPeriod();
+				for(var i in Period){
+					arr.push({field:Period[i],title:Period[i],template:"#:"+Period[i]+"===130895111188?'N/A':kendo.toString((MetricType=='PERCENTAGE'?("+Period[i]+"/100):"+Period[i]+"),Format)#",
+						width:"80px",
+						attributes: {"class": "text-right"}
+					});
+				}
+				
+				arr.push({field:"Target",title:"FULL YEAR TARGET",template:"#:Target===130895111188?'N/A':kendo.toString((MetricType=='PERCENTAGE'?(Target/100):Target),Format)#",
+						width:"80px",attributes: {"class": "text-right"}});
+				break;
+			default:
+				// Old
+				// {field:"Actual",title:"ACTUAL",template:"#:Actual===130895111188?'N/A':kendo.toString(Actual,Format)#",
+				// 	attributes: {"class": "text-right"}},
+				// {field:"ActualYTD",title:"YTD ACTUAL",template:"#:ActualYTD===130895111188?'N/A':kendo.toString(ActualYTD,Format)#",
+				// 	attributes: {"class": "text-right"}},
+				// {field:"FullYearForecast",title:"FULL YEAR FORECAST",template:"#:FullYearForecast===130895111188?'N/A':kendo.toString(FullYearForecast,Format)#",
+				// 	attributes: {"class": "text-right"}},,
+				break;
+		}
+		
+
+		return arr;
+	});
+
+Scorecard.RMDGrid = function(e){
+	var grid = e.sender;
+    if (grid.dataSource.total() == 0) {
+	    var colCount = grid.columns.length;
+	        $(e.sender.wrapper)
+	        .find('tbody')
+	        .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" class="no-data" style="text-align:center;font-size: 12px;color: red;">No Data Matches</td></tr>');
+    }
+}
+
+
+// orm.ModelBase             `bson:"-",json:"-"`
+// Id                        bson.ObjectId `bson:"_id" , json:"_id" `
+// Period                    time.Time
+// Year                      int
+// SCId                      int
+// ScorecardCategory         string
+// BMId                      string
+// BusinessMetric            string
+// BusinessMetricDescription string
+// Region                    string
+// Country                   string
+// CountryCode               string
+// Baseline                  float64
+// Actual                    float64
+// ActualYTD                 float64
+// FullYearForecast          float64
+// Target                    float64
+// CreatedDate               time.Time
+// CreatedBy                 string
+// UpdatedDate               time.Time
+// UpdatedBy                 string
+// IsCurrent                 int
+	$(document).ready(function() {
+		Scorecard.Init();
+	})
+</script>
+

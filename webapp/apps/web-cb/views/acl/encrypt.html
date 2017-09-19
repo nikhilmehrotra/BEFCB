@@ -1,0 +1,42 @@
+<script type="text/javascript">
+	var Encrypt = {
+		Text:ko.observable(""),
+		Result:ko.observable("")
+	}
+	Encrypt.Do = function(){
+		ajaxPost("/web-cb/acl/doencrypt",{Text:Encrypt.Text()},function(res){
+			if(res.IsError){
+				Encrypt.Result(res.Message);	
+				return false;
+			}
+			Encrypt.Result(res.Data);
+		})
+	}
+	Encrypt.Reset = function(){
+		Encrypt.Text("");
+		Encrypt.Result("");
+	}
+</script>
+<div id="Encrypt" data-bind="with:Encrypt">
+	<div class="row">
+		<div class="col-sm-12">&nbsp;</div>
+		<div class="col-sm-6">
+			<div class="row">
+				<h5 class="col-sm-12 no-margin">
+					Encryptor
+				</h5>
+				<div class="col-sm-12">&nbsp;</div>
+				<div class="col-sm-9">
+					<input type="text" class="form-control input-sm" data-bind="value:Text" placeholder="Text to Encrypt">
+				</div>
+				<div class="col-sm-3 text-left no-padding">
+					<button class="btn btn-sm btn-success" data-bind="click:Do"><i class="fa fa-lock"></i>&nbsp;Encrypt</button>
+					<button class="btn btn-sm btn-default" data-bind="click:Reset"><i class="fa fa-refresh"></i>&nbsp;Reset</button>
+				</div>
+				<div class="col-sm-12">&nbsp;</div>
+				<h5 class="col-sm-12">Result : </h5>
+				<h6 class="col-sm-12" data-bind="text:Result"></h6>
+			</div>
+		</div>
+	</div>
+</div>

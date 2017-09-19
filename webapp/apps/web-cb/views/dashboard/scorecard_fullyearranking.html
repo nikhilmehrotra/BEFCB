@@ -1,0 +1,374 @@
+<link href="/web-cb/static/css/core/scorecard_fullyearranking.css?nocache_counter=2" type="text/css" rel="stylesheet" />
+<script src="/web-cb/static/core/scorecard_fullyearranking.js"></script>
+<style type="text/css">
+	#multiselectTreeOneSelectedValue_FYR .k-delete {
+        display: none;
+        /*by default kendo tree view is hidden*/
+    }
+    #treeview2_FYR {
+        overflow: auto;
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        border: #333 solid 1px;
+        z-index: 3;
+        width: 100%;
+        background-color: #fff;
+        border: #808080 solid 1px;
+        max-height: 210px;
+        border-radius: 11px;
+        -moz-border-radius: 11px;
+        /*overflow-y: scroll;*/
+    }
+
+    #treeview2_FYR .k-plus{
+        background-position: 4px -208px;
+    }
+
+    #multiselectTreeOneSelectedValue_FYR .k-delete {
+        display: none;
+        /*by default kendo tree view is hidden*/
+    }
+
+	#reset-regioncountry2_FYR{
+        color: #bbb;
+        font-size: 15px !important;
+        position: absolute;
+        right: 11px;
+    	top: 6px;
+        z-index: 3;
+    }
+
+    #multiselectOneSelectedValue_FYR .k-multiselect:after {
+	    right: 11px !important;
+	}
+</style>
+<script type="text/javascript">
+	var multiselectOneSelectedValue_FYR;
+
+	function ResetCountryRegionFilter2_FYR(){
+        if(typeof $('#mytree2_FYR').data("kendoTreeView") !== "undefined" && typeof $('#mytree2_FYR').data("kendoTreeView").dataSource !== "undefined"){
+            $('#mytree2_FYR').data("kendoTreeView").dataSource.read();
+        }
+        $("#multiselectOneSelectedValue_FYR").data("kendoMultiSelect").value([]);
+        ScorecardFullyearRanking.RegionCountryScorecard(false); 
+        ScorecardFullyearRanking.RegionOne("")
+        ScorecardFullyearRanking.CountryOne("")
+        // Scorecard.GetData();
+    }
+
+	function createMultiSelectOneSelectedValue_FYR() {
+
+        // Create kedno multiselect
+        multiselectOneSelectedValue_FYR = $("#multiselectOneSelectedValue_FYR").kendoMultiSelect({
+            placeholder: "Region / Country",
+            dataTextField: "text",
+            dataValueField: "value",
+            readonly: true,
+            // disabled: true
+        }).data("kendoMultiSelect");
+
+        // Kendo multiselect in read only mode
+         multiselectOneSelectedValue_FYR.readonly(true);   
+    }
+
+    function createTreeViewOneSelectedValue_FYR(UserCountry) {
+        UserCountry = "";
+        $('#mytree2_FYR').html("");
+            /// map tree datasource
+        var dataSourceForTreeView = [];
+        var checkGLobal = false;
+        c.RegionList().forEach(function(xx){
+            var region = xx._id
+            if(region === "GLOBAL"){
+                checkGLobal = true;
+            }
+            var countries = [];
+            var filteredCountry = Enumerable.From(c.RegionalData()).Where("$.Major_Region == '"+region+"'").Select("$.Country").ToArray();
+            // console.log({{.Scorecard.Region.Read }}, {{.Scorecard.Country.Read }})
+            {{if .Scorecard.Country.Read }}
+            // UserCountry = "BAHRAIN"
+            filteredCountry.forEach(function(yy){
+                if(UserCountry != "" && UserCountry == yy){
+                    countries.push({"text": yy, selected: true})
+
+                    ScorecardFullyearRanking.RegionCountryScorecard(true)
+
+                    ScorecardFullyearRanking.CountryOne(UserCountry)
+                    ScorecardFullyearRanking.RegionOne("")
+
+                    multiselectOneSelectedValue_FYR.dataSource.data([{text:UserCountry,value:UserCountry}]);
+                    var values = $.map(multiselectOneSelectedValue_FYR.dataSource.data(), function(dataItem) {
+                        return dataItem.value;
+                    });
+                    multiselectOneSelectedValue_FYR.value(values);
+                } else if(UserCountry===""){
+                    countries.push({"text": yy})
+                }
+                
+            });
+            {{end}}
+            {{if .Scorecard.Region.Read }}
+            if(countries.length >0){
+                dataSourceForTreeView.push({"text":region, "items":countries});
+            }else{
+                dataSourceForTreeView.push({"text":region});
+            }
+            {{else}}
+                {{if .Scorecard.Country.Read }}
+                    if(UserCountry===""){
+                        filteredCountry.forEach(function(yy){
+                            dataSourceForTreeView.push({"text": yy})
+                        });
+                    }else{
+                        filteredCountry.forEach(function(yy){
+                            if(UserCountry != "" && UserCountry == yy){
+                                dataSourceForTreeView.push({"text": yy})
+                            }
+                        });
+                    }
+                    
+                {{end}}
+            {{end}}
+            
+        });
+
+        // Scorecard.GetData();
+
+        {{if .Scorecard.Global.Read }}
+        // if(!checkGLobal){
+        //     dataSourceForTreeView.unshift({"text":"GLOBAL"});
+        // }
+        {{end}}
+        // Create Tree view control
+        // console.log("zz",dataSourceForTreeView,c.RegionalData(),c.RegionList())
+        $('#mytree2_FYR').kendoTreeView({
+            dataSource: {
+                data: dataSourceForTreeView
+            },
+            select: function(e) {
+
+                $(".my-selected-state").removeClass("my-selected-state");
+
+                var SELECTOR = '.my-selected-state';
+                var SELCLASS = 'my-selected-state';
+
+                var node = $(e.node).closest('.k-item');
+                var kin = node.find('>div span.k-in');
+                var isSel = kin.is(SELECTOR);
+                selectedVlauesOneSelectedValue = [];
+                // console.log()
+
+                var multinode = 1; // any number of node in any number of paths 
+                var multitree = 2; // any number of paths, however each node must be in separate subtrees
+                var mode = $('input[name=modegroup]:checked').val();
+                // console.log(kin)
+                if (mode == multitree) {
+                    // uncomnment to ensure specificity, i.e. only one node in a given path 
+                    node.find(SELECTOR).removeClass(SELCLASS);
+                    $.map(node.parentsUntil('.k-treeview ', '.k-item'), function(kitem) {
+                        $(kitem).find('>div span.k-in').filter(SELECTOR).removeClass(SELCLASS);
+                    });
+                }
+
+                if (!isSel) {
+                    kin.addClass(SELCLASS)
+                } else {
+                    kin.removeClass(SELCLASS)
+                }
+
+                // Get collection of selected values
+                var itemId = e.node.innerText.split("\n")[0];
+                if (selectedVlauesOneSelectedValue.filter(e => e.text == itemId).length > 0) {
+                    var temp;
+                    $.each(selectedVlauesOneSelectedValue, function(ix, val) {
+                        if (val.value == itemId) {
+                            temp = ix;
+                        }
+                    });
+                    if (!isNaN(temp)) {
+                        selectedVlauesOneSelectedValue.splice(temp, 1);
+                    }
+
+                } else {
+                    selectedVlauesOneSelectedValue.push({
+                        text: itemId,
+                        value: itemId
+                    });
+                }
+
+                // Set selected value to kendo multiselect
+                multiselectOneSelectedValue_FYR.dataSource.data(selectedVlauesOneSelectedValue);
+                var values = $.map(multiselectOneSelectedValue_FYR.dataSource.data(), function(dataItem) {
+                    return dataItem.value;
+                });
+                multiselectOneSelectedValue_FYR.value(values);
+                // ScorecardFullyearRanking.RegionCountry(values);
+                if(values.length > 0){
+                    a = _.groupBy(c.RegionalData(), "Major_Region") 
+                    if(values[0] == "GLOBAL"){
+                        ScorecardFullyearRanking.RegionOne("")
+                        ScorecardFullyearRanking.CountryOne("")
+                    }
+                    else if(values[0] in a){   
+                        ScorecardFullyearRanking.RegionOne(values[0])
+                        ScorecardFullyearRanking.CountryOne("")
+                    } else{
+                        tmp = _.find(c.RegionalData(), function(e){return e.Country == values[0]})
+                        if(tmp == undefined){
+                            ScorecardFullyearRanking.RegionOne("")
+                            ScorecardFullyearRanking.CountryOne("")
+                        } else{
+                            ScorecardFullyearRanking.RegionOne("")
+                            ScorecardFullyearRanking.CountryOne(values[0])
+                        }
+                    }
+                    ScorecardFullyearRanking.RegionCountryScorecard(true)
+
+                } else{
+                    ScorecardFullyearRanking.RegionOne("")
+                    ScorecardFullyearRanking.CountryOne("")
+                    ScorecardFullyearRanking.RegionCountryScorecard(false)
+                }
+
+                // Scorecard.GetData();
+                
+                // e.preventDefault();
+                
+            }
+        });
+    }
+
+    // $(document).ready(function() {
+    	
+    // })
+
+    ScorecardFullyearRanking.InitTree = function(){
+    	createMultiSelectOneSelectedValue_FYR()
+		var UserCountry = "{{.UserCountry}}"
+		setTimeout(function(){
+		    createTreeViewOneSelectedValue_FYR(UserCountry)
+		},500)
+
+    	$("#lblSelectTreeOneSelectedValue_FYR").click(function(e) {
+	        $("#treeview2_FYR").show();
+
+	        setTimeout(function() {
+	            $('.k-state-selected.k-in').addClass('my-selected-state').removeClass("k-state-selected");
+	        }, 100);
+	    })
+
+		$('body').click(function(evt) {
+	        if ($(evt.target).parents('#multiselectTreeOneSelectedValue_FYR').length == 0) {
+	            $("#treeview2_FYR").hide();
+	            // c.GetData();
+	        }
+	    });
+
+	    $("#treeview2_FYR").on('click', '.k-icon', function () {
+	        var tree = $("#treeview2_FYR").data('kendoTreeView');
+	        var item = $(this).closest('.k-item');
+
+	        if (item.attr('aria-expanded') === "true") {
+	            $("#treeview2_FYR").css("overflow-y","scroll");
+	        }
+	        else {
+	            // tree.expand(item);
+	            $("#treeview2_FYR").css("overflow-y","auto");
+	            
+	        }
+
+	        setTimeout(function() {
+	            $('.k-state-selected.k-in').addClass('my-selected-state').removeClass("k-state-selected");
+	        }, 100);
+	    });
+    }
+
+    ScorecardFullyearRanking.RegionOne.subscribe(function(d){
+    	if(d != ""){
+			$('.tdmodified').removeClass('mark')
+			$('.tdmodified.'+d).addClass('mark')
+		} else{
+			$('.tdmodified').removeClass('mark')
+		}
+	})
+	ScorecardFullyearRanking.CountryOne.subscribe(function(d){
+		A = _.find(c.RegionalData(), function(vv){return vv.Country == d})
+		if (A != undefined){
+			d = A.CountryCode
+		}
+		if(d != ""){
+			$('.tdmodified').removeClass('mark')
+			$('.tdmodified.'+d).addClass('mark')
+		} else{
+			$('.tdmodified').removeClass('mark')
+		}
+	})
+</script>
+<div data-bind="with:ScorecardFullyearRanking" id="ScorecardFullyearRanking">
+	<!-- Please dont forget to use row > col-sm-12 -->
+<!-- 	<div class="col-sm-12 text-center marginbottom10 no-padding">
+		<select style="width: 150px;text-align: left;" data-bind="kendoDropDownList: { data: CountryList, value: CountryValue, optionLabel:'Select Country', dataValueField:'CountryCode', dataTextField:'Country' }"></select>
+	</div> -->
+	<div class="col-sm-12 marginbottom10 no-padding">
+		<div  class="form-input dashboard-filter dropdown col-sm-2" style="padding: 0px;margin-left: 493px;">
+            <!-- <div class="col-sm-1 icon-for-dropdown">
+                <i class="fa fa-globe fa-2x begrey" aria-hidden="true"></i>
+            </div> -->
+            <div class="col-sm-11">
+                <div id="multiselectTreeOneSelectedValue_FYR" >
+                <!--Kendo multiselect start-->
+                <div id="lblSelectTreeOneSelectedValue_FYR" style="width: 177px;">
+                    <select id="multiselectOneSelectedValue_FYR" multiple="multiple" placeholder="select leagal topics">
+                        <option value="" >Select your option</option>
+                    </select>
+                </div>
+                <!--Kendo multiselect end-->
+                <!--kendo tree view start-->
+                <div id="treeview2_FYR">
+
+                    <div id='mytree2_FYR'></div>
+                </div>
+                <!--Kendo tree view end-->
+                </div>
+            </div>
+            <div  class="reset-countryregion fa fa-remove" id="reset-regioncountry2_FYR" data-bind="visible:ScorecardFullyearRanking.RegionCountryScorecard()" onclick="ResetCountryRegionFilter2_FYR()"></div>
+        </div>
+	</div>
+	<div class="col-sm-12 no-padding">
+		<table style="width: 100%" class="table-gap">
+        	<tr>
+        		<th width="1" class="text-center thmodified borderleft1px">Rank</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Jan</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Feb</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Mar</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Apr</th>
+        		<th width="110" class="text-center thmodified borderleft1px">May</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Jun</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Jul</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Aug</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Sep</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Oct</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Nov</th>
+        		<th width="110" class="text-center thmodified borderleft1px">Dec</th>
+        	</tr>
+        	<tbody data-bind="foreach:Data">
+	        	<tr>
+	        		<td class="text-center tdmodified borderleft1px" data-bind="text:Count+1"></td>
+	        		<td data-bind="text:(Data[0].Name.length > 10) ? Data[0].Name.substr(0, 10)+'...' : Data[0].Name.substr(0, 10), attr:{title:Data[0].Name,class:'text-center tdmodified borderleft1px '+Data[0].CountryCode+' '+Data[0].RegionName}"></td>
+	        		<td data-bind="text:(Data[1].Name.length > 10) ? Data[1].Name.substr(0, 10)+'...' : Data[1].Name.substr(0, 10), attr:{title:Data[1].Name,class:'text-center tdmodified borderleft1px '+Data[1].CountryCode+' '+Data[1].RegionName}"></td>
+	        		<td data-bind="text:(Data[2].Name.length > 10) ? Data[2].Name.substr(0, 10)+'...' : Data[2].Name.substr(0, 10), attr:{title:Data[2].Name,class:'text-center tdmodified borderleft1px '+Data[2].CountryCode+' '+Data[2].RegionName}"></td>
+	        		<td data-bind="text:(Data[3].Name.length > 10) ? Data[3].Name.substr(0, 10)+'...' : Data[3].Name.substr(0, 10), attr:{title:Data[3].Name,class:'text-center tdmodified borderleft1px '+Data[3].CountryCode+' '+Data[3].RegionName}"></td>
+	        		<td data-bind="text:(Data[4].Name.length > 10) ? Data[4].Name.substr(0, 10)+'...' : Data[4].Name.substr(0, 10), attr:{title:Data[4].Name,class:'text-center tdmodified borderleft1px '+Data[4].CountryCode+' '+Data[4].RegionName}"></td>
+	        		<td data-bind="text:(Data[5].Name.length > 10) ? Data[5].Name.substr(0, 10)+'...' : Data[5].Name.substr(0, 10), attr:{title:Data[5].Name,class:'text-center tdmodified borderleft1px '+Data[5].CountryCode+' '+Data[5].RegionName}"></td>
+	        		<td data-bind="text:(Data[6].Name.length > 10) ? Data[6].Name.substr(0, 10)+'...' : Data[6].Name.substr(0, 10), attr:{title:Data[6].Name,class:'text-center tdmodified borderleft1px '+Data[6].CountryCode+' '+Data[6].RegionName}"></td>
+	        		<td data-bind="text:(Data[7].Name.length > 10) ? Data[7].Name.substr(0, 10)+'...' : Data[7].Name.substr(0, 10), attr:{title:Data[7].Name,class:'text-center tdmodified borderleft1px '+Data[7].CountryCode+' '+Data[7].RegionName}"></td>
+	        		<td data-bind="text:(Data[8].Name.length > 10) ? Data[8].Name.substr(0, 10)+'...' : Data[8].Name.substr(0, 10), attr:{title:Data[8].Name,class:'text-center tdmodified borderleft1px '+Data[8].CountryCode+' '+Data[8].RegionName}"></td>
+	        		<td data-bind="text:(Data[9].Name.length > 10) ? Data[9].Name.substr(0, 10)+'...' : Data[9].Name.substr(0, 10), attr:{title:Data[9].Name,class:'text-center tdmodified borderleft1px '+Data[9].CountryCode+' '+Data[9].RegionName}"></td>
+	        		<td data-bind="text:(Data[10].Name.length > 10) ? Data[10].Name.substr(0, 10)+'...' : Data[10].Name.substr(0, 10), attr:{title:Data[10].Name,class:'text-center tdmodified borderleft1px '+Data[10].CountryCode+' '+Data[10].RegionName}"></td>
+	        		<td data-bind="text:(Data[11].Name.length > 10) ? Data[11].Name.substr(0, 10)+'...' : Data[11].Name.substr(0, 10), attr:{title:Data[11].Name,class:'text-center tdmodified borderleft1px '+Data[11].CountryCode+' '+Data[11].RegionName}"></td>
+	        	</tr>
+        	</tbody>
+        </table>
+	</div>
+</div>

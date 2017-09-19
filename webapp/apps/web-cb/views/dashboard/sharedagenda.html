@@ -1,0 +1,471 @@
+<script type="text/javascript">
+	var SharedAgenda = {
+		IsEditingFunction:ko.observable(false),
+		IsEditing:ko.observable(false),
+		Processing:ko.observable(true),
+		DataList:ko.observableArray([]),
+		Leads:ko.observableArray([]),
+		LeadList:ko.observableArray([{"Name":"Marrs, Anna","Code":"MA","Display":"Marrs, Anna - MA"},{"Name":"Arora, Jiten","Code":"JA","Display":"Arora, Jiten - JA"},{"Name":"Corfe, Martin","Code":"MC","Display":"Corfe, Martin - MC"},{"Name":"Phebey, Tom","Code":"TP","Display":"Phebey, Tom - TP"},{"Name":"Rathnam, Venkatesh","Code":"VKR","Display":"Rathnam, Venkatesh - VKR"},{"Name":"Siva, Ve","Code":"SV","Display":"Siva, Ve - SV"},{"Name":"Thomas, Alistair","Code":"AT","Display":"Thomas, Alistair - AT"},{"Name":"Regional Heads","Code":"RH","Display":"Regional Heads - RH"},{"Name":"Walker, Mark","Code":"MW","Display":"Walker, Mark - MW"},{"Name":"Kohli, Gurdeep Singh","Code":"GK","Display":"Kohli, Gurdeep Singh - GK"}]),
+		RAGList:ko.observableArray([
+			{Id:"red",Name:"Red"},
+			{Id:"amber",Name:"Amber"},
+			{Id:"green",Name:"Green"},
+		])
+	}
+	SharedAgenda.ToInitiativeBD = function(data){
+		// console.log(data);
+		if(data.BDId()==""){
+			swal("", "This business driver did not have the link to Initiative", "info");
+			return false;
+		}
+		var SCId = Enumerable.From(c.DataSource().Data.AllSummaryBusinessDriver).Where("$.Idx === '"+data.BDId()+"'").FirstOrDefault().Parentid;
+		c.ActiveBDFilter([])
+		c.SelectedSC(SCId)
+		c.ActiveBDFilter.push(data.BDId())
+		$('.nav-pills a[href="#InitiativeTab"]').click();
+	}
+	SharedAgenda.GetLeadName = function(codeList){
+		var res = "";
+		for(var i in codeList){
+			var name = Enumerable.From(SharedAgenda.LeadList()).Where("$.Code === '"+codeList[i]+"'").FirstOrDefault().Name;
+			
+			if(i==0){
+				res+=name;
+			}else{
+				res+="  & "+name
+			}
+		}
+		if(res==""){
+			res = ""
+		}
+		return res;
+	}
+	SharedAgenda.Leads.subscribe(function(newVal){
+		$("#SharedAgenda .sharedagenda-lead").css('background-color','#F2F7FC');
+		$.each(newVal, function(i,v){
+			Cls = ".Lead-"+v;
+			// console.log(Cls);
+			$(Cls).css('background-color','rgb(255, 207, 119)');
+		})
+	})
+	
+	SharedAgenda.IsEditingFunction.subscribe(function(newVal){
+		if(newVal){
+			// True
+			{{if (or .Global.Update .Region.Update .Country.Update)}}
+			SharedAgenda.IsEditing(newVal)
+			{{end}}
+		}else{
+			// False
+			SharedAgenda.IsEditing(newVal)
+		}
+	})
+	SharedAgenda.IsEditing.subscribe(function(newVal){
+		if(!newVal){
+			SharedAgenda.Save();
+		}
+		setTimeout(function(){
+			SharedAgenda.UIChecking();
+		},300);
+	})
+	SharedAgenda.CheckedFunction = function(i){
+		var c = SharedAgenda.DataList()[i].Checked()
+		// var plus = 0;
+		// if(SharedAgenda.DataList()[i].Name().length>25){
+		// 	plus+=2;
+		// }
+		SharedAgenda.DataList()[i].Checked(!c)
+		// if(!c){
+		// 	SharedAgenda.DataList()[i].heigh = $('.saindexke-'+i).height();
+		// 	if(SharedAgenda.DataList()[i].Name().length>25){
+		// 		plus+=1;
+		// 	}
+		// 	var SCHeight = (SharedAgenda.DataList()[i].BusinessDriverList().length+1+plus)*30;
+		// 	var sd = ko.mapping.toJS(SharedAgenda.DataList()[i].SharedAgendaDrivers());
+		// 	var cheight = (1+plus)*30;
+		// 	for(var x in sd){
+		// 		var h = $("#sa"+i+"d"+x).height();
+		// 		cheight+=h;
+		// 	}
+		// 	heighakhir = $('.saindexke-'+i).height() < 75 ? 75 : $('.saindexke-'+i).height() ;
+		// 	if(SCHeight>heighakhir){
+		// 		heighakhir = SCHeight
+		// 	}
+		// 	if(cheight>heighakhir){
+		// 		heighakhir = cheight
+		// 	}
+		// 	// $('.saindexke-'+i).height($(".tableSA"+i).height())
+		// 	$('.saindexke-'+i).height("auto")
+		// } else{
+		// 	// console.log("Kene");
+		// 	$('.saindexke-'+i).height("auto")
+		// 	// $('.saindexke-'+i).height($(".tableSA"+i).height())
+		// }
+		
+
+		// SharedAgenda.UIChecking();
+	}
+
+	SharedAgenda.ApplySortable = function(){
+		$('#SharedAgenda .each-row').each(function (i, e) {
+			var config = {
+				containment: "parent",
+			    stop: function (event, ui) {
+			        var $target = $(event.target);
+			        var $index = $($target).attr("index");
+			        
+			        // console.log($target);
+			        var dataSource = SharedAgenda.DataList()[$index].SharedAgendaDrivers();
+			        $($target).children().each(function(e,d){
+						var id = $(d).attr("id");
+						for(var x in dataSource){
+							if(dataSource[x].Id()===id){
+								dataSource[x].Seq(e);
+							}
+			        	}
+					})
+			        
+			        ajaxPost("/web-cb/sharedagenda/save",SharedAgenda.GetParameter(),function(res){
+						if(res.IsError){
+						    swal("", res.Message, "info");
+						    return false;
+						}
+					});     
+			    }
+	        };
+		    $(e).sortable(config);
+		});
+	}
+</script>
+<style type="text/css">
+	.list.list2 .active:hover{
+		background-color: #656565 !important;
+	}
+	
+	#dashboard #SharedAgenda .box-title {
+	    display: table;
+	    width: 100%;
+	}
+
+
+	#dashboard #SharedAgenda .box-title > div{
+		display: table-cell;
+	    height: 100%;
+	    vertical-align: middle;
+	}
+	
+	#dashboard #SharedAgenda .sharedagenda-input {
+		font-size: 11px;
+    	height: 29px;
+	}
+
+	#dashboard #SharedAgenda .iSCBDList > .list > div.active{
+		padding: 0px;
+		
+	}
+	.iSCBDList > .list > div.active:hover{
+		cursor:pointer;
+		background: #797979;
+	}
+	.sa-drivers>div{
+		display: table;
+		width: 100%;
+	}
+	.sa-drivers>div > span{
+		display: table-cell;
+		height: 100%;
+		width: 100%;
+	}
+	.sa-emptyspace{
+		color: #f2f7fc;
+	    background: #f2f7fc;
+	    padding-top: 15px;
+	    margin-bottom: 1px;
+	}
+	#SharedAgenda #tableScorecard .cell > div{
+		padding: 5px;
+	}
+	.sasc-label{
+		display: table;
+		width: 100%;
+		height: 100%;
+	}
+	.sasc-label > span{
+		display: table-cell;
+		height: 100%;
+		vertical-align: middle;
+	}
+</style>
+<div class="col-sm-12 row-wrapper" id="dashboard-menu-header">
+    <div class="col-sm-2 cell">
+        <div>
+            <label>Scorecard Categories</label>
+        </div>
+    </div>
+    <div class="col-sm-10 no-padding">
+        <div class="col-sm-9 cell">
+            <div>
+                <label>Shared Agenda Drivers</label>
+            </div>
+        </div>
+        <div class="col-sm-3 last-child">
+            <div class="col-sm-8 last-child">
+                <div class="col-sm-12 cell">
+                    <div style="padding: 7px 0px;">
+                        <label>Leads</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 cell last-child">
+                <div style="padding: 7px 5px;">
+                    <label>RAG</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12 row-wrapper" data-bind="with: SharedAgenda" id="SharedAgenda">
+	<div class="row" data-bind="foreach:DataList">
+			
+			<div data-bind="attr:{class:'col-md-12 saindexke-'+$index()}" style="margin-bottom: 5px;">
+				<div  data-bind="visible: !Checked(), click:function(){SharedAgenda.CheckedFunction($index())}" style="position: absolute;height: 100%;z-index: 2;padding-right: 14px !important;padding-bottom: 1 !important;" class="col-sm-2 no-padding">
+					<div style="margin:0;background-color: #A1AFC2;color:#FFF;height: 100%;width: 100%;display: table;">
+						<span data-bind="text:($index()+1)+'. '+Name()" style="vertical-align: middle;padding: 5px 10px;display: table-cell;"></span>
+					</div>
+				</div>
+				<div data-bind="visible:Checked()">
+					<div style="display: table;width: 100%;margin-bottom: 1px;">
+						<div class="col-sm-2 no-padding" data-bind="click:function(){SharedAgenda.CheckedFunction($index())}" style="display: table-cell;float: none;padding-right: 10px !important;height: 100%;">
+							<div  style="background-color: #F2F2F2;height: 100%;width: 100%;display: table;padding: 0px 10px 1px 10px; ">
+					            <span data-bind="text:($index()+1)+'. '+Name()" style="margin:0;vertical-align: middle;display: table-cell;padding: 5px;text-align: center;"></span>
+					        </div>
+						</div>
+						<div class="col-sm-10 no-padding" style="display: table-cell;float: none;height: 100%;vertical-align: top;">
+							<div class="col-sm-9" style="height: 100%;padding:0px 10px 0px 0px;">
+					            <label style="margin: 0;width:100%;height:100%;font-weight:normal;background-color:#F2F7FC;padding: 5px;">&nbsp;</label>
+					        </div>
+					        <div class="col-sm-3 no-padding" style="height: 100%;">
+					        	<div class="col-sm-8 no-padding" style="height: 100%;padding-right: 10px !important;">
+									<div class="col-sm-12 cell" style="height:100%;background: #F2F7FC;padding: 5px;">
+
+										<div>&nbsp;</div>
+									</div>
+								</div>
+								<div class="col-sm-4 no-padding" style="height: 100%;">
+									<div style="height: 100%;background: #F2F7FC;">
+										&nbsp;
+									</div>
+								</div>
+					        </div>
+						</div>
+					</div>
+				</div>
+				<div data-bind="foreach:SharedAgendaDrivers,attr:{index:$index()}" class="each-row">
+					<div class="bd-data" data-bind="attr:{id:Id()}" style="display: table;width: 100%;margin-bottom: 1px;">
+						<div class="col-sm-2 no-padding" data-bind="click:function(){SharedAgenda.CheckedFunction($parentContext.$index())}" style="display: table-cell;float: none;padding-right: 10px !important;height: 100%;">
+							<div class="sharedagenda-driver" style="background-color: #F2F2F2;height: 100%;width: 100%;display: table;padding: 0px 10px 1px 10px; ">
+					            <span data-bind="text:($parentContext.$index()+1)+'.'+(Seq()+1)+' '+BDName(),click:SharedAgenda.ToInitiativeBD" style="margin:0;color: #FFF;vertical-align: middle;display: table-cell;padding: 5px;text-align: center;background-color: #656565"></span>
+					        </div>
+						</div>
+						<div class="col-sm-10 no-padding" style="display: table-cell;float: none;height: 100%;vertical-align: top;">
+							<div class="col-sm-9" style="height: 100%;padding:0px 10px 0px 0px;">
+					            <label class="sharedagenda-lead" data-bind="attr:{'class':'sharedagenda-lead'+CreateClassFromArray('Lead-',Leads())},visible:!SharedAgenda.IsEditing(),text:($parentContext.$index()+1)+'.'+(Seq()+1)+' '+Name()" style="margin: 0;width:100%;height:100%;font-weight:normal;background-color:#F2F7FC;padding: 5px;"></label>
+					            <div data-bind="visible:SharedAgenda.IsEditing()" style="margin: 0;width:100%;height:100%;font-weight:normal;background-color:#F2F7FC;padding: 5px;">
+					            	<!-- <textarea style="height: 100%;width: 100%;resize: none;-webkit-border-radius: 5px;border-radius: 5px;"></textarea> -->
+					            	<input type="text" data-bind="value:Name" class="form-control input-sm sharedagenda-input" style="width: 100%;">
+					            </div>
+					             <!-- type="text" data-bind="value:Name" class="form-control input-sm sharedagenda-input"> -->
+					        </div>
+					        <div class="col-sm-3 no-padding" style="height: 100%;">
+					        	<div class="col-sm-8 no-padding" style="height: 100%;padding-right: 10px !important;">
+									<div class="col-sm-12 cell sharedagenda-lead" data-bind="attr:{'class':'col-sm-12 cell sharedagenda-lead'+CreateClassFromArray('Lead-',Leads())}" style="height:100%;background: #F2F7FC;padding: 5px;">
+										<div data-bind="text: SharedAgenda.GetLeadName(Leads()),visible:!SharedAgenda.IsEditing()&&SharedAgenda.GetLeadName(Leads())!==''"></div>
+										<div data-bind="visible:!SharedAgenda.IsEditing()&&SharedAgenda.GetLeadName(Leads())==''">&nbsp;</div>
+										<div data-bind="visible:SharedAgenda.IsEditing()" style="padding-bottom: 0px; padding-top: 0px;">
+											<input data-bind="kendoMultiSelect:{value:Leads,data:SharedAgenda.LeadList,optionLabel:'Assign by..',dataValueField:'Code',dataTextField:'Name',change:SharedAgenda.UIChecking}">
+										</div>
+									</div>
+								</div>
+								<div class="col-sm-4 no-padding" style="height: 100%;">
+									<div data-bind="css: { 'block-green' : RAG() == 'green' , 'block-red' : RAG() == 'red', 'block-amber' : RAG() == 'amber' },visible:!SharedAgenda.IsEditing()" style="height: 100%;background: #F2F7FC;">
+										&nbsp;
+									</div>
+									<div data-bind="visible:SharedAgenda.IsEditing()" style="height:100%;background:#f2f7fc;padding:5px;">
+											<input data-bind="kendoDropDownList:{value:RAG,data:SharedAgenda.RAGList,dataTextField:'Name',dataValueField:'Id',optionLabel:'RAG'}" style="width: 100%;">
+									</div>
+								</div>
+					        </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+<!-- 		<div data-bind="attr:{class:'col-md-12 no-padding each-row saindexke-'+$index()}">
+			<div class="col-sm-2">
+			    <div class="box-title" data-bind="visible: !Checked(), click:function(){SharedAgenda.CheckedFunction($index())}">
+			        <div>
+			            <label data-bind="text:($index()+1)+'. '+Name()"></label>
+			        </div>
+			    </div>
+			    <div class="iSCBDList" style="background-color: #f2f2f2" data-bind="visible: Checked(), click:function(){SharedAgenda.CheckedFunction($index())}">
+			    	<label data-bind="text:($index()+1)+'. '+Name()" style="color: black"></label>
+			    	<div class="list list2" data-bind="foreach:BusinessDriverList">
+				    	<div class="active">
+				    		<label data-bind="attr:{id:'scsa'+$parentContext.$index()+'d'+$index()},click:SharedAgenda.ToInitiativeBD">
+				    			<span class="sasc-label">
+				    				<span data-bind="text:($parentContext.$index()+1)+'.'+($index()+1)+' '+Name()"></span>
+				    			</span>
+				    		</label>
+				    	</div>
+				    </div>
+			    </div>
+			</div>
+			<div class="col-sm-10 col-sm-offset-2 last-child no-padding">
+				<div data-bind="visible:Checked()" style="padding: 0px;padding-right: 10px;" class="col-sm-9">
+					<div data-bind="text:($index()+1)+'. '+Name()" class="sa-emptyspace"></div>
+				</div>
+				<div data-bind="visible:Checked()" class="col-sm-3 no-padding">
+					<div class="col-sm-8" style="padding: 0px;padding-right: 10px;">
+						<div class="sa-emptyspace">&nbsp;</div>
+					</div>
+					<div class="col-sm-4 no-padding">
+						<div class="sa-emptyspace">&nbsp;</div>
+					</div>
+				</div>
+				<div id="tableScorecard" data-bind="foreach:SharedAgendaDrivers,attr:{class:'tableSA'+$index()}">
+					<div class="col-md-12 no-padding" data-bind="attr:{id:'sa'+$parentContext.$index()+'d'+$index(),class: 'col-md-12 no-padding Leads'+CreateClassFromArray('Leads-', Leads()) }">
+						<div class="col-sm-9 cell sa-drivers">
+							<div data-bind="visible:!SharedAgenda.IsEditing()">
+								<span data-bind="text:($parentContext.$index()+1)+'.'+($index()+1)+' '+Name()"></span>
+							</div>
+							<div data-bind="visible:SharedAgenda.IsEditing()">
+								<input type="text" data-bind="value:Name" class="form-control input-sm sharedagenda-input">
+							</div>
+						</div>
+
+						<div class="col-sm-3 last-child">
+							<div class="col-sm-8 last-child">
+								<div class="col-sm-12 cell">
+									<div data-bind="text: SharedAgenda.GetLeadName(Leads()),visible:!SharedAgenda.IsEditing()&&SharedAgenda.GetLeadName(Leads())!==''"></div>
+									<div data-bind="visible:!SharedAgenda.IsEditing()&&SharedAgenda.GetLeadName(Leads())==''">&nbsp;</div>
+									<div data-bind="visible:SharedAgenda.IsEditing()" style="padding-bottom: 0px; padding-top: 0px;">
+										<input data-bind="kendoMultiSelect:{value:Leads,data:SharedAgenda.LeadList,optionLabel:'Assign by..',dataValueField:'Code',dataTextField:'Name',change:SharedAgenda.UIChecking}">
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-4 cell last-child">
+								<div data-bind="css: { 'block-green' : RAG() == 'green' , 'block-red' : RAG() == 'red', 'block-amber' : RAG() == 'amber' },visible:!SharedAgenda.IsEditing()">
+									&nbsp;
+								</div>
+								<div data-bind="visible:SharedAgenda.IsEditing()" style="padding-bottom: 0px; padding-top: 0px;">
+										<input data-bind="kendoDropDownList:{value:RAG,data:SharedAgenda.RAGList,dataTextField:'Name',dataValueField:'Id',optionLabel:'RAG'}">
+								</div>
+							</div>
+						</div>
+
+						<div class="clearfix"></div>
+					</div>
+
+					<div class="clearfix"></div>
+				</div>
+			</div>
+
+			<div class="clearfix"></div>
+		</div> -->
+
+		<!-- <div class="clearfix"></div> -->
+		
+	</div>
+</div>
+
+<div class="clearfix"></div>
+
+
+<script type="text/javascript">
+
+	CreateClassFromArray = function(Param, ArrVal){
+		var Cls = '';
+		$.each(ArrVal, function(i,v){
+			Cls+= " "+Param+v;
+		})
+		return Cls
+	}
+	SharedAgenda.GetDriversHeight = function(scIndex,dIndex){
+		var h = $("#sa"+scIndex+"d"+dIndex).height()-2;
+		if(h!==null){
+			return "height:"+h+"px;";
+		}else{
+			return "";
+		}
+	}
+	SharedAgenda.UIChecking = function(){
+		var dataSource  =  ko.mapping.toJS(SharedAgenda.DataList());
+		for(var i in dataSource){
+			for(var s in dataSource[i].SharedAgendaDrivers){
+				var h = SharedAgenda.GetDriversHeight(i,s);
+				if(h!==""){
+					$("#scsa"+i+"d"+s).attr("style",h);
+				}
+			}
+		}
+	}
+	SharedAgenda.GetBDName = function(id,data){
+		return Enumerable.From(data).Where("$.Idx === '"+id+"'").FirstOrDefault().Name;
+	}
+	SharedAgenda.GetData = function(){
+		SharedAgenda.Processing(true);
+		ajaxPost("/web-cb/sharedagenda/getdata",{},function(res){
+			SharedAgenda.Processing(false);
+			if(res.IsError){
+			    swal("", res.Message, "info");
+			    return false;
+			}
+			$.each(res.Data, function(i,v){
+				res.Data[i].Checked = false;
+				var BusinessDriverList = res.Data[i].BusinessDriverList;
+				for(var x in res.Data[i].SharedAgendaDrivers){
+					if(res.Data[i].SharedAgendaDrivers[x].Seq<0){
+						res.Data[i].SharedAgendaDrivers[x].Seq = parseInt(x);
+					}
+					res.Data[i].SharedAgendaDrivers[x].BDName = SharedAgenda.GetBDName(res.Data[i].SharedAgendaDrivers[x].BDId,BusinessDriverList)
+					if(res.Data[i].SharedAgendaDrivers[x].BDName.toLowerCase().indexOf("other")>=0){
+						res.Data[i].SharedAgendaDrivers.splice(x,1)
+					}
+				}
+				res.Data[i].SharedAgendaDrivers = Enumerable.From(res.Data[i].SharedAgendaDrivers).OrderBy("$.Seq").ToArray();
+			})
+			var DataList = ko.mapping.fromJS(res.Data)();
+			SharedAgenda.DataList(DataList);
+			SharedAgenda.UIChecking();
+			SharedAgenda.ApplySortable();
+		});     
+	}
+	SharedAgenda.GetParameter = function(){
+		var SharedAgendaList = []
+		var DataList =  ko.mapping.toJS(SharedAgenda.DataList);
+		$(DataList).each(function(i,data){
+			for(var x in data.SharedAgendaDrivers){
+				SharedAgendaList.push(data.SharedAgendaDrivers[x]);
+			}
+		})
+		var parm = {
+			SharedAgendaList:SharedAgendaList
+		}
+		return parm;
+	}
+	SharedAgenda.Save = function(){
+		SharedAgenda.Processing(true);
+		ajaxPost("/web-cb/sharedagenda/save",SharedAgenda.GetParameter(),function(res){
+			if(res.IsError){
+			    swal("", res.Message, "info");
+			    return false;
+			}
+			SharedAgenda.Processing(false);
+		});     
+	}
+	
+	$(document).ready(function(){
+		SharedAgenda.GetData();
+	})
+</script>

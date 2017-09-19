@@ -1,0 +1,347 @@
+<style type="text/css">
+	#Sidebar{
+		color: #FFF;
+		min-height: 900px;
+		/*position: fixed;*/
+	}
+	.sidebar-collapse{
+		width: 40px;
+		-webkit-transition: all 250ms ease-in-out;
+		-moz-transition: all 250ms ease-in-out;
+		-ms-transition: all 250ms ease-in-out;
+		-o-transition: all 250ms ease-in-out;
+		transition: all 250ms ease-in-out;
+	}
+	.sidebar-expand{
+		width: 180px;
+		-webkit-transition: all 250ms ease-in-out;
+		-moz-transition: all 250ms ease-in-out;
+		-ms-transition: all 250ms ease-in-out;
+		-o-transition: all 250ms ease-in-out;
+		transition: all 250ms ease-in-out;
+	}
+	#Sidebar #sidebar-logo{
+		text-align: center;
+		height: 45px;
+	}
+	#Sidebar #sidebar-logo > img{
+		height: 100%;
+	}
+	#Sidebar #sidebar-logo > button{
+		position: absolute;
+		left: 0px;
+		padding: 8px;
+	    margin: 0px;
+	    margin-left: 6px;
+	    margin-top: 8px;
+	}
+	#Sidebar #sidebar-logo > button:hover{
+		background: #6d6d6d;
+	}
+	#Sidebar #sidebar-menu ul{
+		list-style: none;
+		padding: 0px;
+		margin: 0px;
+		cursor: pointer;
+	}
+	#Sidebar #sidebar-menu li{
+		color: #FFF;
+		background: #423f3f;
+		cursor: pointer;
+		-webkit-transition: all 250ms ease-in-out;
+		-moz-transition: all 250ms ease-in-out;
+		-ms-transition: all 250ms ease-in-out;
+		-o-transition: all 250ms ease-in-out;
+		transition: all 250ms ease-in-out;
+	}
+	#Sidebar #sidebar-menu li.active{
+	    border-left: 3px solid #ffc902;
+    	background: #333030;
+	}
+	#Sidebar #sidebar-menu li:hover{
+		background:#333030;
+	}
+	#Sidebar #sidebar-menu li:hover .submenu li{
+		background:#333030;
+	}
+	#Sidebar #sidebar-menu li:hover .submenu li:hover{
+		/*text-decoration: underline;*/
+	}
+	#Sidebar #sidebar-menu li > a{
+		-webkit-transition: all 250ms ease-in-out;
+		-moz-transition: all 250ms ease-in-out;
+		-ms-transition: all 250ms ease-in-out;
+		-o-transition: all 250ms ease-in-out;
+		transition: all 250ms ease-in-out;
+		padding: 10px 15px 10px 25px;
+	    color: #FFF;
+	    display: block;
+	    text-align: left;
+	    text-decoration: none;
+	}
+	#Sidebar #sidebar-menu li > a.icon{
+		padding: 10px 10px 10px 15px;
+		-webkit-transition: all 250ms ease-in-out;
+		-moz-transition: all 250ms ease-in-out;
+		-ms-transition: all 250ms ease-in-out;
+		-o-transition: all 250ms ease-in-out;
+		transition: all 250ms ease-in-out;
+	}
+	#Sidebar #sidebar-menu li > a > i{
+		min-width: 15px;
+	}
+	#Sidebar #sidebar-menu .submenu{
+		padding-left: 10px;
+		display: none;
+	}
+	#Sidebar #sidebar-menu .chevron{
+	    position: relative;
+	    display: block;
+	    float: right;
+	    margin-top: 3px;
+	}
+	#Sidebar #sidebar-menu .popup{
+		position: absolute;
+	    z-index: 5;
+	    margin-left: 30px;
+	    margin-top: -35px;
+	}
+	#Sidebar #sidebar-menu a{
+		cursor: pointer;
+	}
+	
+</style>
+<script type="text/javascript">
+	var Sidebar = {
+		IsExpand:ko.observable(true),
+		ShowText:ko.observable(true),
+		ShowTextSubmenu:ko.observable(true),
+		Processing:ko.observable(false),
+	}
+	Sidebar.GetIcon = function(menu_name){
+		var defaultIcon = "fa fa-file-text-o";
+		var icon = "";
+		var name = menu_name.replace(/ /g,""); //replace all space
+		name = name.toLowerCase(); // transform to lower case
+		switch(name){
+			case "dashboard":
+				icon = "fa fa-home";
+				break;
+			case "scorecard&initiatives":
+				icon = "fa fa-area-chart";
+				break;
+			case "countryanalysis":
+				icon = "fa fa-bar-chart";
+				break;
+			case "metricvalidation":
+				icon = "fa fa-tasks";
+				break;
+			case "befsponsormaster":
+				icon = "fa fa-database";
+				break;
+			case "initiativemaster":
+				icon = "fa fa-database";
+				break;
+			case "initiativeownermaster":
+				icon = "fa fa-database";
+				break;
+			case "datamaster":
+				icon = "fa fa-database";
+				break;
+			case "dashboard":
+				icon = "fa fa-database";
+				break;
+			case "configuration":
+				icon = "fa fa-cogs";
+				break;
+			case "logout" : 
+				icon = "fa fa-sign-out";
+				break;
+			case "metricupload":
+				icon = "fa fa-file-text-o";
+				break;
+			default:
+				icon = defaultIcon;
+				break;
+		}
+		return icon;
+	}
+	Sidebar.IsExpand.subscribe(function(val){
+		// $("#sidebar-menu").fadeOut("fast");
+		if(val){
+			$("*.title").hide();
+			$("*.submenu").removeClass("popup");
+			Sidebar.ShowText(true)
+			Sidebar.ShowTextSubmenu(true);
+			setTimeout(function(){
+				$("*.title").fadeIn("fast");
+				$("*.sub-title").fadeIn("fast");
+			},300);
+		}else{
+			Sidebar.HideAllSubmenu(model.MainMenus());
+			$("*.title").fadeOut();
+			setTimeout(function(){
+				Sidebar.ShowText(false);
+				Sidebar.ShowTextSubmenu(false);
+				$("*.sub-title").fadeOut("fast");
+			},50);
+		}
+		// setTimeout(function(){
+		// 	$("#sidebar-menu").fadeIn("fast");
+		// }, 350);
+	})
+	Sidebar.Toggle = function(){
+		Sidebar.IsExpand(!Sidebar.IsExpand());
+		if(TabMenuValue() == 'Initiative'){
+			// c.Processing(true);
+			// setTimeout(function() {
+				
+		    // if (SortInitiative.Active()){
+		    //     c.DataSource().Data.TableSourcesVer3(c.DataSource().Data.TableSourcesVer3AlignVer)
+		    //     SortInitiative.Active(SortInitiative.Active());
+		    //     search.FilterInitiative($("#search-input").val())
+		    //     // setTimeout(Initiative.fixedHeader(),300)
+		    // } else{
+		    //     SortInitiative.Active(SortInitiative.Active());
+		    //     c.DataSource().Data.TableSourcesVer3(c.DataSource().Data.TableSourcesVer3BackupAll)
+		    //     search.FilterInitiative($("#search-input").val())
+		    // }
+		    // if($("#search-input").val()!==""){
+		        
+		    // }
+
+		    // setTimeout(function() {
+		        
+		        // SortInitiative.sycHeight();
+		        if(SortInitiative.Active() && c.SelectedTab() == "Initiative"){
+		            Initiative.FixedHeader();
+		        }else if(!SortInitiative.Active() && c.SelectedTab() == "Initiative"){
+		            Initiative.RemoveFixedHeader();
+		        }
+		        c.Processing(false);
+		        redipsInit();
+						// SortInitiative.sycHeight()
+		    // }, 500);
+	  	// }, 100);
+    }
+	}
+	Sidebar.HideAllSubmenu = function(data){
+		for(var i in data){			
+			if(data[i].IsShowingSubmenus()){
+				Sidebar.SubmenuToggle(data[i]);
+				if(data[i].Submenus().length>0){
+					Sidebar.HideAllSubmenu(data[i].Submenus());
+				}
+			}
+		}
+	}
+	Sidebar.SubmenuToggle = function(d){
+		var id = d.Id();
+		d.IsShowingSubmenus(!d.IsShowingSubmenus());
+		if(Sidebar.IsExpand()){
+			// Is Expand
+			if(d.IsShowingSubmenus()){
+				$(".submenu[parent_id='"+id+"']").slideDown();
+			}else{
+				$(".submenu[parent_id='"+id+"']").slideUp();
+			}
+		}else{
+			if(d.IsShowingSubmenus()){
+				$(".submenu[parent_id='"+id+"']").addClass("popup");
+				$(".submenu[parent_id='"+id+"']").show("fast");
+				Sidebar.ShowTextSubmenu(true);
+				setTimeout(function(){
+					$("*.sub-title").fadeIn("fast");
+				}, 280);
+			}else{
+				Sidebar.ShowTextSubmenu(false);
+				$("*.sub-title").fadeOut("fast");
+				$(".submenu[parent_id='"+id+"']").hide("fast");
+				setTimeout(function(){
+					$(".submenu[parent_id='"+id+"']").removeClass("popup");
+				}, 300);
+			}
+		}
+	}
+	Sidebar.GetLabel = function(title){
+		if(Sidebar.ShowText()){
+			return title.trim();
+		}else{
+			return '';
+		}
+	}
+	Sidebar.GetLabelSubmenu = function(title){
+		if(Sidebar.ShowTextSubmenu()){
+			return title.trim();
+		}else{
+			return '';
+		}
+	}
+	Sidebar.GetTitle = function(title){
+		if(!Sidebar.ShowText()){
+			return title.trim();
+		}else{
+			return '';
+		}
+	}
+
+</script>
+
+<script id="sidebarTemplate" type="text/html">
+	<li data-bind="css:{selected:$root.PageId()==Title()},if:Submenus().length==0">
+	    <a data-bind="attr:{href:Url,'menu_id':Id(),'title':Sidebar.GetTitle(Title())}" class="icon text-left" >
+	    	<i data-bind="attr:{'class':Sidebar.GetIcon(Title())}"></i>
+	    	<span class="title" data-bind="text:Sidebar.GetLabel(Title())"></span>
+	    </a>
+	    <span data-bind="text:Submenus()"></span>
+	</li>
+
+	<li data-bind="css:{selected:$root.PageId()==Title()||Submenus.length > 0},if:Submenus().length!==0" >
+		<a data-bind="attr:{href:Url,'menu_id':Id(),'title':Sidebar.GetTitle(Title())},click:Sidebar.SubmenuToggle" class="icon text-left">
+	    	<i data-bind="attr:{'class':Sidebar.GetIcon(Title())}"></i>
+	        <span class="title" data-bind="text: Sidebar.GetLabel(Title())"></span>
+	        <i class="fa fa-chevron-left chevron" data-bind="visible:IsShowingSubmenus()&&Sidebar.IsExpand()"></i>
+	        <i class="fa fa-chevron-down chevron" data-bind="visible:!IsShowingSubmenus()&&Sidebar.ShowText()"></i>
+	     </a>
+	    <ul data-bind="template:{name:'sidebarSubTemplate', foreach:Submenus},attr:{'parent_id':Id()}" class="submenu"></ul>
+	</li>
+
+</script>
+<script id="sidebarSubTemplate" type="text/html">
+     <!-- ko if: Submenus().length==0 -->
+	<li data-bind="css:{selected:$root.PageId()==Title(),visible:Submenus().length==0">
+	    <a data-bind="attr:{href:Url,'menu_id':Id(),'title':Sidebar.GetTitle(Title())}" class="icon text-left" >
+	    	<i data-bind="attr:{'class':Sidebar.GetIcon(Title())}"></i>
+	    	<span class="sub-title" data-bind="text:Sidebar.GetLabelSubmenu(Title())"></span>
+	    </a>
+	    <span data-bind="text:Submenus()"></span>
+	</li>
+
+	<!-- /ko -->
+	<!-- ko if: Submenus().length>0 -->
+	<li data-bind="css:{selected:$root.PageId()==Title()||Submenus.length > 0},visible:Submenus().length==0" >
+		<a data-bind="attr:{href:Url,'menu_id':Id(),'title':Sidebar.GetTitle(Title())}" class="icon text-left">
+	    	<i data-bind="attr:{'class':Sidebar.GetIcon(Title())}"></i>
+	        <span class="sub-title" data-bind="text:Sidebar.GetLabelSubmenu(Title())"></span>
+	        <i class="fa fa-chevron-left chevron" data-bind="visible:IsShowingSubmenus()&&Sidebar.IsExpand()"></i>
+	        <i class="fa fa-chevron-down chevron" data-bind="visible:!IsShowingSubmenus()&&Sidebar.ShowText()"></i>
+	    </a>
+	    <ul data-bind="template:{name:'sidebarSubTemplate', foreach:Submenus},attr:{'parent_id':Id()}" class="submenu"></ul>
+	</li>
+	<!-- /ko -->
+
+</script>
+
+<div id="Sidebar">
+	<div id="sidebar-logo">
+		<button class='navbar-toggle' onclick="Sidebar.Toggle()">
+            <i class="fa fa-bars fa-lg bewhite" ></i>
+        </button>
+        <!-- &nbsp; -->
+	<!-- &nbsp; -->
+		<!-- <img src="/web-cb/static/img/site-logo-only.png"> -->
+	</div>
+	<div id="sidebar-menu">
+		<ul data-bind="template:{name:'sidebarTemplate', foreach:MainMenus}"></ul>
+	</div>
+</div>
